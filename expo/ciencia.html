@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Estelaris — Informe Científico & Técnico del Proyecto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+:root {
+  --bg-0: #06080f;
+  --bg-1: #080c18;
+  --surface: rgba(19, 23, 38, 0.85);
+  --surface-2: rgba(24, 30, 51, 0.90);
+  --surface-strong: rgba(27, 33, 56, 0.98);
+  --surface-glass: rgba(19, 23, 38, 0.65);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-accent: rgba(214, 199, 168, 0.30);
+  --border-blue: rgba(142, 168, 255, 0.30);
+  --border-green: rgba(61, 213, 152, 0.30);
+  --border-purple: rgba(192, 132, 252, 0.30);
+  --text-1: #eef2ff;
+  --text-2: #9aa2bc;
+  --text-3: #6e7896;
+  --muted: #8d97b5;
+  --accent-sand: #d6c7a8;
+  --accent-sand-soft: rgba(214, 199, 168, 0.12);
+  --accent-blue: #8ea8ff;
+  --accent-blue-soft: rgba(142, 168, 255, 0.12);
+  --accent-cyan: #00f2fe;
+  --accent-cyan-soft: rgba(0, 242, 254, 0.12);
+  --accent-purple: #c084fc;
+  --accent-purple-soft: rgba(192, 132, 252, 0.12);
+  --accent-pink: #f472b6;
+  --success: #3dd598;
+  --success-soft: rgba(61, 213, 152, 0.12);
+  --danger: #ff6b6b;
+  --danger-soft: rgba(255, 107, 107, 0.12);
+  --warning: #fbbf24;
+  --radius-xl: 18px;
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --radius-pill: 999px;
+  --shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  --font-display: 'Orbitron', sans-serif;
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 15px; scroll-behavior: smooth; }
+body {
+  background: 
+    radial-gradient(900px 500px at 15% -5%, rgba(61, 213, 152, 0.10), transparent 70%),
+    radial-gradient(800px 400px at 85% 15%, rgba(142, 168, 255, 0.10), transparent 60%),
+    linear-gradient(180deg, #070a14 0%, #06080f 50%, #030408 100%);
+  color: var(--text-1);
+  font-family: var(--font-sans);
+  line-height: 1.55;
+  min-height: 100vh;
+  padding: 12px 12px 90px 12px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+.report-container { max-width: 540px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+
+/* Sticky Header */
+.report-header {
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 12px 16px;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 10px;
+  z-index: 100;
+}
+.header-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.header-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+.brand-icon {
+  width: 36px; height: 36px; border-radius: var(--radius-md); display: grid; place-items: center;
+  background: linear-gradient(135deg, rgba(214, 199, 168, 0.2), rgba(142, 168, 255, 0.15));
+  border: 1px solid var(--border-accent); color: var(--accent-sand); font-size: 16px; flex-shrink: 0;
+}
+.brand-info h1 { font-family: var(--font-display); font-size: 13px; letter-spacing: 0.16em; font-weight: 700; line-height: 1.1; color: var(--text-1); }
+.brand-info p { font-size: 10px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.08em; }
+.doc-pill {
+  font-size: 9.5px; padding: 4px 9px; border-radius: 999px;
+  background: rgba(214, 199, 168, 0.12); border: 1px solid var(--border-accent);
+  color: var(--accent-sand); font-family: var(--font-mono); font-weight: 700; white-space: nowrap;
+}
+
+/* Dossier Cover / Summary Card */
+.dossier-card {
+  background: var(--surface); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 18px 16px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden;
+}
+.dossier-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent-sand), var(--success), var(--accent-blue), var(--accent-purple));
+}
+.dossier-tag { font-family: var(--font-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-sand); }
+.dossier-title { font-family: var(--font-display); font-size: 18px; color: var(--text-1); letter-spacing: 0.02em; line-height: 1.25; }
+.dossier-desc { font-size: 12.5px; color: var(--text-2); line-height: 1.55; }
+
+.dossier-stats-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: rgba(0, 0, 0, 0.32);
+  border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 8px; margin-top: 4px;
+}
+.dossier-stat { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.dossier-stat-lbl { font-size: 9px; text-transform: uppercase; color: var(--text-3); letter-spacing: 0.06em; margin-bottom: 2px; }
+.dossier-stat-val { font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; color: var(--text-1); }
+
+/* Quick Navigation Pills */
+.nav-scroll-wrapper {
+  position: sticky;
+  top: 68px;
+  z-index: 90;
+  background: rgba(6, 8, 15, 0.90);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 6px 0;
+  margin: -4px 0 4px 0;
+}
+.nav-scroll { display: flex; gap: 6px; overflow-x: auto; padding: 4px 2px; scrollbar-width: none; }
+.nav-scroll::-webkit-scrollbar { display: none; }
+.nav-pill {
+  white-space: nowrap; padding: 7px 13px; border-radius: var(--radius-pill); font-size: 11.5px; font-weight: 600;
+  color: var(--text-2); background: var(--surface-2); border: 1px solid var(--border);
+  display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; cursor: pointer; text-decoration: none;
+}
+.nav-pill:active, .nav-pill.active {
+  background: var(--surface-strong); border-color: var(--accent-sand); color: var(--text-1);
+}
+.nav-pill--quimica.active { border-color: var(--success); color: var(--success); background: var(--success-soft); }
+.nav-pill--mate.active { border-color: var(--accent-blue); color: var(--accent-blue); background: var(--accent-blue-soft); }
+.nav-pill--fisica.active { border-color: var(--accent-purple); color: var(--accent-purple); background: var(--accent-purple-soft); }
+.nav-pill--visual.active { border-color: var(--accent-sand); color: var(--accent-sand); background: var(--accent-sand-soft); }
+
+/* Section / Module Cards */
+.report-section {
+  background: var(--surface); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 20px 16px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 16px;
+}
+.report-section--quimica { border-top: 2px solid var(--success); }
+.report-section--mate { border-top: 2px solid var(--accent-blue); }
+.report-section--fisica { border-top: 2px solid var(--accent-purple); }
+.report-section--visual { border-top: 2px solid var(--accent-sand); }
+
+.section-head { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+.section-title-wrap { display: flex; flex-direction: column; gap: 2px; }
+.section-chapter { font-family: var(--font-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-sand); }
+.section-title { font-family: var(--font-display); font-size: 16px; color: var(--text-1); letter-spacing: 0.03em; display: flex; align-items: center; gap: 8px; }
+.section-badge { font-size: 9.5px; font-family: var(--font-mono); padding: 3px 8px; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.07); color: var(--text-2); }
+
+/* Topic Cards */
+.topic-card {
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 15px; display: flex; flex-direction: column; gap: 10px;
+}
+.topic-head { display: flex; align-items: flex-start; gap: 12px; }
+.topic-icon {
+  width: 36px; height: 36px; border-radius: var(--radius-md); display: grid; place-items: center;
+  font-size: 15px; flex-shrink: 0;
+}
+.topic-icon--green { background: var(--success-soft); color: var(--success); border: 1px solid var(--border-green); }
+.topic-icon--blue { background: var(--accent-blue-soft); color: var(--accent-blue); border: 1px solid var(--border-blue); }
+.topic-icon--purple { background: var(--accent-purple-soft); color: var(--accent-purple); border: 1px solid var(--border-purple); }
+.topic-icon--sand { background: var(--accent-sand-soft); color: var(--accent-sand); border: 1px solid var(--border-accent); }
+.topic-icon--cyan { background: var(--accent-cyan-soft); color: var(--accent-cyan); border: 1px solid rgba(0,242,254,0.3); }
+
+.topic-meta { flex: 1; min-width: 0; }
+.topic-title { font-size: 14px; font-weight: 700; color: var(--text-1); line-height: 1.25; }
+.topic-subtitle { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.topic-body { font-size: 12.5px; color: var(--text-2); line-height: 1.6; }
+.topic-body strong { color: var(--text-1); }
+.topic-body p { margin-bottom: 8px; }
+.topic-body p:last-child { margin-bottom: 0; }
+
+/* Callouts & Visual Focus */
+.look-box {
+  background: rgba(14, 18, 30, 0.9);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-cyan);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+.look-box-head {
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.look-box-text {
+  font-size: 12px;
+  color: var(--text-1);
+  line-height: 1.45;
+}
+
+.highlight-box {
+  background: rgba(214, 199, 168, 0.08); border-left: 3px solid var(--accent-sand); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 8px 11px; font-size: 12px; color: var(--accent-sand); margin-top: 4px; line-height: 1.5;
+}
+.highlight-box--green { background: rgba(61, 213, 152, 0.08); border-left-color: var(--success); color: var(--text-1); }
+.highlight-box--green strong { color: var(--success); }
+.highlight-box--blue { background: rgba(142, 168, 255, 0.08); border-left-color: var(--accent-blue); color: var(--text-1); }
+.highlight-box--blue strong { color: var(--accent-blue); }
+.highlight-box--purple { background: rgba(192, 132, 252, 0.08); border-left-color: var(--accent-purple); color: var(--text-1); }
+.highlight-box--purple strong { color: var(--accent-purple); }
+
+/* Compact Observation Checklist */
+.obs-list {
+  display: flex; flex-direction: column; gap: 8px; margin-top: 6px;
+}
+.obs-item {
+  display: flex; align-items: flex-start; gap: 10px; background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 12px;
+}
+.obs-badge {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 2px 7px;
+  border-radius: 4px; background: rgba(255, 255, 255, 0.08); color: var(--accent-sand); flex-shrink: 0;
+}
+.obs-content { flex: 1; font-size: 12px; color: var(--text-2); line-height: 1.45; }
+.obs-content strong { color: var(--text-1); }
+
+/* Table Mini */
+.mini-table {
+  width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px;
+}
+.mini-table th {
+  text-align: left; padding: 7px 8px; background: rgba(255, 255, 255, 0.05); color: var(--text-3);
+  font-family: var(--font-mono); font-weight: 600; text-transform: uppercase; font-size: 9.5px;
+  border-bottom: 1px solid var(--border);
+}
+.mini-table td {
+  padding: 7px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); color: var(--text-2);
+}
+.mini-table tr:last-child td { border-bottom: none; }
+.mini-table strong { color: var(--text-1); font-family: var(--font-mono); }
+
+/* Formula Insight Banner (No es fría; explica qué significa cada elemento) */
+.formula-insight {
+  background: rgba(10, 14, 26, 0.95);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin: 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.formula-line {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-align: center;
+  padding: 3px 0;
+}
+.formula-meaning {
+  font-size: 11px;
+  color: var(--text-3);
+  text-align: center;
+}
+
+/* Bottom App Navigation Bar */
+.expo-bottom-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 14, 26, 0.95);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-strong); display: flex; justify-content: space-around;
+  align-items: center; padding: 7px 8px calc(7px + env(safe-area-inset-bottom)); z-index: 200;
+}
+.expo-tab-link {
+  display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none;
+  color: var(--text-3); font-size: 9.5px; font-weight: 600; letter-spacing: 0.03em;
+  padding: 4px 6px; border-radius: var(--radius-md); transition: all 0.2s ease; min-width: 52px;
+}
+.expo-tab-link i { font-size: 15px; }
+.expo-tab-link.active { color: var(--accent-sand); background: rgba(214, 199, 168, 0.12); }
+    </style>
+</head>
+<body>
+
+    <div class="report-container">
+        <!-- Top Sticky Header -->
+        <header class="report-header">
+            <div class="header-row">
+                <a href="index.html" class="header-brand">
+                    <div class="brand-icon"><i class="fa-solid fa-file-waveform"></i></div>
+                    <div class="brand-info">
+                        <h1>ESTELARIS</h1>
+                        <p>Informe Científico &bull; Móvil</p>
+                    </div>
+                </a>
+                <span class="doc-pill">
+                    <i class="fa-solid fa-book-open"></i> INFORME TÉCNICO
+                </span>
+            </div>
+        </header>
+
+        <!-- Portada / Resumen Ejecutivo del Informe -->
+        <section class="dossier-card" id="sec-resumen">
+            <span class="dossier-tag"><i class="fa-solid fa-atom"></i> Documento Oficial del Proyecto</span>
+            <h2 class="dossier-title">Informe Técnico: Fundamentos de Química, Matemática y Física en Estelaris</h2>
+            <p class="dossier-desc">
+                Este informe documenta la arquitectura científica detrás de <strong>Estelaris</strong>. A diferencia de un simulador gráfico decorativo, cada comportamiento visible en pantalla responde a <strong>leyes fisicoquímicas reales, ecuaciones orbitales y termodinámica atmosférica</strong> calculadas paso a paso a 60 fotogramas por segundo.
+            </p>
+
+            <div class="dossier-stats-grid">
+                <div class="dossier-stat">
+                    <span class="dossier-stat-lbl">Química</span>
+                    <span class="dossier-stat-val" style="color:var(--success);">Escape & P-T</span>
+                </div>
+                <div class="dossier-stat">
+                    <span class="dossier-stat-lbl">Matemática</span>
+                    <span class="dossier-stat-val" style="color:var(--accent-blue);">Newton-Raphson</span>
+                </div>
+                <div class="dossier-stat">
+                    <span class="dossier-stat-lbl">Física</span>
+                    <span class="dossier-stat-val" style="color:var(--accent-purple);">Hill & Mareas</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pestañas de Navegación por Capítulos -->
+        <div class="nav-scroll-wrapper">
+            <div class="nav-scroll">
+                <button class="nav-pill active" onclick="filterChapter('all', this)">
+                    <i class="fa-solid fa-list-check"></i> Todo el Informe
+                </button>
+                <button class="nav-pill nav-pill--quimica" onclick="filterChapter('quimica', this)">
+                    <i class="fa-solid fa-flask"></i> 1. Química
+                </button>
+                <button class="nav-pill nav-pill--mate" onclick="filterChapter('mate', this)">
+                    <i class="fa-solid fa-square-root-variable"></i> 2. Matemáticas
+                </button>
+                <button class="nav-pill nav-pill--fisica" onclick="filterChapter('fisica', this)">
+                    <i class="fa-solid fa-planet-ringed"></i> 3. Física
+                </button>
+                <button class="nav-pill nav-pill--visual" onclick="filterChapter('visual', this)">
+                    <i class="fa-solid fa-eye"></i> 4. Qué Observar
+                </button>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- CAPÍTULO 1: LA DIMENSIÓN QUÍMICA                                          -->
+        <!-- ========================================================================= -->
+        <section class="report-section report-section--quimica chapter-section" id="cap-quimica">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-chapter" style="color:var(--success);">Capítulo 01</span>
+                    <h3 class="section-title"><i class="fa-solid fa-flask" style="color:var(--success);"></i> Dimensión Química</h3>
+                </div>
+                <span class="section-badge" style="color:var(--success); border-color:var(--border-green);">Astroquímica & Atmósferas</span>
+            </div>
+
+            <!-- Tema 1: Atmósferas y Escape de Jeans -->
+            <div class="topic-card">
+                <div class="topic-head">
+                    <div class="topic-icon topic-icon--green"><i class="fa-solid fa-wind"></i></div>
+                    <div class="topic-meta">
+                        <div class="topic-title">¿Por qué un planeta retiene o pierde su atmósfera?</div>
+                        <div class="topic-subtitle">El Escape Térmico de Jeans y la velocidad de los gases</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <p>
+                        En el espacio exterior, una atmósfera no está contenida por paredes; se mantiene únicamente por el tira y afloja entre <strong>la gravedad que la jala hacia abajo</strong> y <strong>el calor que hace correr a las moléculas hacia arriba</strong>.
+                    </p>
+                    <p>
+                        A mayor temperatura, las moléculas vibran y vuelan más rápido. Si la velocidad térmica de un gas (\(v_{th}\)) supera la velocidad de escape del planeta (\(v_{esc}\)), las partículas se disparan hacia el vacío y el planeta se queda sin aire.
+                    </p>
+
+                    <div class="formula-insight">
+                        <div class="formula-line">v_th = √(3 R T / M_mol) &nbsp;&nbsp;vs&nbsp;&nbsp; v_esc = √(2 G M / R)</div>
+                        <div class="formula-meaning">Regla de oro cósmica: Si v_esc > 6 · v_th, el gas permanece durante miles de millones de años.</div>
+                    </div>
+
+                    <div class="look-box">
+                        <div class="look-box-head"><i class="fa-solid fa-eye"></i> Lo que debes observar en Estelaris:</div>
+                        <div class="look-box-text">
+                            En el <strong>Creador Planetario (Fase 2 y 3)</strong>, si aumentas la temperatura superficial o eliges gases muy ligeros como Hidrógeno (\(H_2\)), el sistema te advertirá que el gas escapa al espacio. En cambio, si el planeta es masivo o frío, retiene una atmósfera densa que genera nubes y presión barométrica.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tema 2: Efecto Invernadero y Color del Cielo -->
+            <div class="topic-card">
+                <div class="topic-head">
+                    <div class="topic-icon topic-icon--green"><i class="fa-solid fa-temperature-arrow-up"></i></div>
+                    <div class="topic-meta">
+                        <div class="topic-title">El Efecto Invernadero y los Colores Atmosféricos</div>
+                        <div class="topic-subtitle">Gases de forzamiento radiativo y dispersión de luz</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <p>
+                        El color del cielo y la temperatura de un mundo dependen directamente de su química molecular:
+                    </p>
+                    <ul>
+                        <li><strong>Dióxido de Carbono (\(CO_2\)):</strong> Atrapa radiación infrarroja térmica a \(15\,\mu m\). En concentraciones altas genera un invernadero desbocado, como en Venus (460 °C).</li>
+                        <li><strong>Metano (\(CH_4\)):</strong> Es 28 veces más potente reteniendo calor que el \(CO_2\). Al interactuar con la luz ultravioleta, forma neblinas fotoquímicas de hidrocarburos que tiñen la atmósfera de <strong>color anaranjado ámbar</strong> (como en Titán).</li>
+                        <li><strong>Dióxido de Azufre (\(SO_2\)):</strong> Producido por vulcanismo masivo. Absorbe luz ultravioleta y forma aerosoles de ácido sulfúrico que le dan a la atmósfera un <strong>tinte amarillento sulfuroso</strong>.</li>
+                    </ul>
+
+                    <div class="look-box">
+                        <div class="look-box-head"><i class="fa-solid fa-eye"></i> Lo que debes observar en Estelaris:</div>
+                        <div class="look-box-text">
+                            Al ajustar la barra de gases en el Creador, el planeta 3D cambia visualmente de color en tiempo real: si inyectas \(SO_2\), el halo atmosférico se vuelve amarillo; si predomina el metano, se vuelve cobrizo; y si predomina el nitrógeno/oxígeno, adquiere el azul límpido de la Tierra.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tema 3: Océanos Extraterrestres y Diagrama P-T -->
+            <div class="topic-card">
+                <div class="topic-head">
+                    <div class="topic-icon topic-icon--green"><i class="fa-solid fa-water"></i></div>
+                    <div class="topic-meta">
+                        <div class="topic-title">Océanos de Agua, Metano y Lagos de Ácido</div>
+                        <div class="topic-subtitle">El diagrama de fases Presión-Temperatura (P-T)</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <p>
+                        Para que un líquido exista en la superficie, la temperatura no es suficiente: <strong>se necesita presión atmosférica</strong>.
+                    </p>
+                    <table class="mini-table">
+                        <thead>
+                            <tr>
+                                <th>Líquido</th>
+                                <th>Condición Química</th>
+                                <th>Dónde existe en la Realidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Agua Líquida</strong></td>
+                                <td>Presión > 0.006 bar y 0 °C a 100 °C</td>
+                                <td>Tierra, océanos bajo hielo en Europa</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Metano Líquido</strong></td>
+                                <td>Frío extremo (-180 °C) con presión densa</td>
+                                <td>Lagos de Titán (luna de Saturno)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Amoníaco Líquido</strong></td>
+                                <td>Temperaturas criogénicas (-77 °C a -33 °C)</td>
+                                <td>Mundos helados transneptunianos</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Magma / Lava</strong></td>
+                                <td>Calor extremo (> 1000 °C) fundiendo silicatos</td>
+                                <td>Exoplanetas cercanos como 55 Cancri e</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="highlight-box highlight-box--green">
+                        <strong>¿Por qué no hay lagos en Marte hoy?</strong>
+                        La presión del aire en Marte es de solo 0.006 bar. A esa presión tan baja, el agua no puede ser líquida: o se congela en hielo o hierve directamente convirtiéndose en gas (sublimación).
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tema 4: Geoquímica y Capas Internas -->
+            <div class="topic-card">
+                <div class="topic-head">
+                    <div class="topic-icon topic-icon--green"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="topic-meta">
+                        <div class="topic-title">Geoquímica del Interior Planetario</div>
+                        <div class="topic-subtitle">Diferenciación gravimétrica y el escudo magnético</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <p>
+                        Cuando un planeta se forma a partir de roca fundida por impactos, los materiales más densos se hunden hacia el centro y los más ligeros flotan hacia la superficie:
+                    </p>
+                    <ul>
+                        <li><strong>Núcleo Metálico (Hierro y Níquel):</strong> Densidad muy alta (10 a 13 g/cm³). Si gira y está fundido, genera un <strong>campo magnético</strong> mediante el efecto dinamo, el cual desvía el viento solar y evita que la atmósfera sea barrida.</li>
+                        <li><strong>Manto Rocoso (Silicatos de Magnesio y Hierro):</strong> Rocas densas y viscosas que transmiten calor desde el núcleo hacia afuera mediante corrientes de convección.</li>
+                        <li><strong>Corteza Exterior (Silicatos ligeros, aluminio, cuarzo):</strong> La capa rígida donde se apoyan los continentes y océanos.</li>
+                    </ul>
+
+                    <div class="look-box">
+                        <div class="look-box-head"><i class="fa-solid fa-eye"></i> Lo que debes observar en Estelaris:</div>
+                        <div class="look-box-text">
+                            En el <strong>Modo Investigativo (<kbd>Ctrl + I</kbd>)</strong> puedes ver el corte geológico interactivo en capas SVG de cada astro, inspeccionando el radio, volumen, densidad y composición de cada capa interna.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- CAPÍTULO 2: LA DIMENSIÓN MATEMÁTICA                                       -->
+        <!-- ========================================================================= -->
+        <section class="report-section report-section--mate chapter-section" id="cap-mate">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-chapter" style="color:var(--accent-blue);">Capítulo 02</span>
+                    <h3 class="section-title"><i class="fa-solid fa-square-root-variable" style="color:var(--accent-blue);"></i> Dimensión Matemática</h3>
+                </div>
+                <span class="section-badge" style="color:var(--accent-blue); border-color:var(--border-blue);">Geometría & Algoritmos 3D</span>
+            </div>
+
+            <!-- Tema 1: La Danza Elíptica -->
+            <div class="topic-card">
+                <div class="topic-head">
+                    <div class="topic-icon topic-icon--blue"><i class="fa-solid fa-infinity"></i></div>
+                    <div class="topic-meta">
+                        <div class="topic-title">La Ecuación de Kepler y el Tiempo en 3D</div>
+                        <div class="topic-subtitle">Por qué las órbitas no son círculos y cómo las calcula el motor</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <p>
+                        En la naturaleza, las órbitas no son círculos; son <strong>elipses</strong>. El planeta no viaja siempre a la misma velocidad: vuela más rápido cuando pasa cerca de su estrella (perihelio) y se mueve lentamente cuando está lejos (afelio).
+                    </p>
+                    <p>
+                        Esto genera un problema matemático famoso: la <strong>Ecuación Trascendental de Kepler</strong>:
+                    </p>
+                    <div class="formula-insight">
+                        <div class="formula-line">M = E - e · sin(E)</div>
+                        <div class="formula-meaning">M es el tiempo transcurrido (Anomalía Media) y E es la posición real en el espacio.</div>
+                    </div>
+                    <p>
+                        Esta ecuación <strong>no tiene solución algebraica directa</strong> (no se puede despejar la \(E\)). Para resolverla 60 veces por segundo, Estelaris utiliza el <strong>Método de Newton-Raphson</strong>, un algoritmo iterativo que se aproxima al resultado exacto en menos de 0.05 milisegundos sin generar lag.
+                    </p>
+
+                    <div class="look-box">
+                        <div class="look-box-head"><i class="fa-solid fa-eye"></i> Lo que debes observar en Estelaris:</div>
+                        <div class="look-box-text">
+                            Observa planetas muy excéntricos como Mercurio o cometas: verás con claridad cómo aceleran bruscamente al pasar cerca del Sol y cómo se frenan en el punto más lejano de su órbita elíptica.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tema 2: Orientación en el Espacio 3D -->
+            <div class="topic-card">
+                <div class="topic-head">
+                    <div class="topic-icon topic-icon--blue"><i class="fa-solid fa-compass-drafting"></i></div>
+                    <div class="topic-meta">
+                        <div class="topic-title">Matrices de Rotación Tridimensional (P y Q)</div>
+                        <div class="topic-subtitle">Inclinación, nodos y coordenadas en el motor Three.js</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <p>
+                        El Sistema Solar no es completamente plano. Plutón está inclinado 17°, y la Luna sube y baja 5° respecto al plano de la Tierra.
+                    </p>
+                    <p>
+                        Para que cada astro trace su elipse en el ángulo exacto en el espacio 3D, el simulador combina tres rotaciones espaciales (Ángulos de Euler):
+                    </p>
+                    <ul>
+                        <li><strong>Inclinación orbital (\(i\)):</strong> Cuánto se inclina el plano de la órbita respecto al ecuador del sistema.</li>
+                        <li><strong>Longitud del Nodo Ascendente (\(\Omega\)):</strong> La dirección hacia la que apunta la inclinación.</li>
+                        <li><strong>Argumento del Periapsis (\(\omega\)):</strong> La orientación del punto más cercano a la estrella.</li>
+                    </ul>
+                    <p>
+                        El resultado son dos vectores directores perpendiculares (\(\vec{P}\) y \(\vec{Q}\)) que permiten calcular las coordenadas \((X, Y, Z)\) de cada planeta en cada cuadro de animación.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tema 3: La Física Caótica de N-Cuerpos -->
+            <div class="topic-card">
+                <div class="topic-head">
+                    <div class="topic-icon topic-icon--blue"><i class="fa-solid fa-circle-nodes"></i></div>
+                    <div class="topic-meta">
+                        <div class="topic-title">El Algoritmo N-Body y el Integrador de Verlet</div>
+                        <div class="topic-subtitle">Atracción gravitatoria mutua simultánea entre todos los cuerpos</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <p>
+                        En el universo real, el Sol no es lo único que atrae a los planetas; <strong>todos los planetas se atraen entre sí</strong>. Júpiter jala a Marte, la Tierra jala a Venus, y la Luna jala a la Tierra.
+                    </p>
+                    <p>
+                        Al activar el botón <strong>"Activar N-Body"</strong>, Estelaris deja de calcular elipses fijas y activa el cálculo de fuerzas gravitatorias simultáneas entre los 17 cuerpos del sistema:
+                    </p>
+                    <div class="formula-insight">
+                        <div class="formula-line">F⃗_ij = G · (m_i · m_j / r_ij²)</div>
+                        <div class="formula-meaning">Cada cuerpo siente la suma vectorial de la gravedad de todos los demás cuerpos celestes.</div>
+                    </div>
+                    <p>
+                        Para evitar que las órbitas acumulen errores numéricos y se destruyan, usamos un <strong>Integrador Simpléctico de Verlet</strong>, un método que garantiza que la energía total del universo se conserve intacta a lo largo del tiempo.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- CAPÍTULO 3: LA DIMENSIÓN FÍSICA                                           -->
+        <!-- ========================================================================= -->
+        <section class="report-section report-section--fisica chapter-section" id="cap-fisica">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-chapter" style="color:var(--accent-purple);">Capítulo 03</span>
+                    <h3 class="section-title"><i class="fa-solid fa-planet-ringed" style="color:var(--accent-purple);"></i> Dimensión Física</h3>
+                </div>
+                <span class="section-badge" style="color:var(--accent-purple); border-color:var(--border-purple);">Astrofísica & Cataclismos</span>
+            </div>
+
+            <!-- Tema 1: La Esfera de Hill -->
+            <div class="topic-card">
+                <div class="topic-head">
+                    <div class="topic-icon topic-icon--purple"><i class="fa-solid fa-shield"></i></div>
+                    <div class="topic-meta">
+                        <div class="topic-title">La Esfera de Hill: El Dominio Gravitatorio</div>
+                        <div class="topic-subtitle">Por qué la Luna no es robada por el Sol</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <p>
+                        El Sol es 333,000 veces más pesado que la Tierra. Entonces, ¿por qué la gravedad solar no le arranca la Luna a la Tierra?
+                    </p>
+                    <p>
+                        La respuesta es la <strong>Esfera de Hill</strong>: es la "burbuja" de influencia gravitatoria que rodea a cada planeta. Cerca del planeta, su propia gravedad es más fuerte que la fuerza de marea del Sol.
+                    </p>
+
+                    <div class="formula-insight">
+                        <div class="formula-line">r_Hill ≈ a · ∛(m_planeta / 3 · M_Sol)</div>
+                        <div class="formula-meaning">Para la Tierra, su radio de Hill es de ~1.5 millones de km. La Luna está a solo 384,400 km.</div>
+                    </div>
+
+                    <div class="look-box">
+                        <div class="look-box-head"><i class="fa-solid fa-eye"></i> Lo que debes observar en Estelaris:</div>
+                        <div class="look-box-text">
+                            Pulsa la tecla <kbd style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px;">F7</kbd> en el teclado: verás aparecer esferas translúcidas de color cian alrededor de cada planeta. Esa es su Esfera de Hill exacta en 3D. Observarás cómo Júpiter tiene una burbuja gigantesca (50 millones de km) capaz de albergar decenas de lunas.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tema 2: Límite de Roche y Anillos -->
+            <div class="topic-card">
+                <div class="topic-head">
+                    <div class="topic-icon topic-icon--purple"><i class="fa-solid fa-ring"></i></div>
+                    <div class="topic-meta">
+                        <div class="topic-title">El Límite de Roche y el Origen de los Anillos</div>
+                        <div class="topic-subtitle">Fuerzas de marea destructivas que pulverizan satélites</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <p>
+                        La gravedad tira con más fuerza del lado delantero de un objeto que de su lado trasero. Si una luna o cometa se acerca demasiado a un planeta gigante, esa diferencia de tirón (fuerza de marea) se vuelve más fuerte que la propia cohesión de la roca.
+                    </p>
+                    <p>
+                        Ese umbral destructivo se llama <strong>Límite de Roche</strong>:
+                    </p>
+                    <ul>
+                        <li>Fuera del Límite de Roche: Las partículas de roca pueden agruparse y formar una luna esférica estable.</li>
+                        <li>Dentro del Límite de Roche: Cualquier satélite es despedazado violentamente en millones de fragmentos rocosos y de hielo, formando un <strong>sistema de anillos plano</strong> (como los anillos de Saturno).</li>
+                    </ul>
+
+                    <div class="look-box">
+                        <div class="look-box-head"><i class="fa-solid fa-eye"></i> Lo que debes observar en Estelaris:</div>
+                        <div class="look-box-text">
+                            En el panel mutador, si aumentas la masa de Saturno o acercas un satélite hacia el planeta, podrás ver cómo los anillos de polvo orbitan estrictamente dentro de la zona de marea crítica sin poder aglomerarse en lunas.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tema 3: Eliminación Realista de Cuerpos -->
+            <div class="topic-card">
+                <div class="topic-head">
+                    <div class="topic-icon topic-icon--purple"><i class="fa-solid fa-trash-can"></i></div>
+                    <div class="topic-meta">
+                        <div class="topic-title">¿Qué ocurre físicamente al eliminar un astro?</div>
+                        <div class="topic-subtitle">1ª Ley de Newton, escape inercial y emancipación de lunas</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <p>
+                        Al pulsar <strong>"Eliminar cuerpo estelar"</strong> en Estelaris, el sistema no borra objetos al azar; ejecuta las consecuencias astrofísicas de su desaparición:
+                    </p>
+                    <ul>
+                        <li>
+                            <strong>Propagación Relativista a la Velocidad de la Luz (\(c \approx 300.000\text{ km/s}\)):</strong>
+                            Según la Relatividad General de Einstein, la gravedad no es instantánea como creía Newton. Si el Sol colapsa en \(t = 0\), la curvatura del espacio-tiempo no se aplana de golpe: la información electromagnética (luz) y gravitatoria (ondas gravitacionales) se propagan juntas hacia afuera a velocidad \(c\).
+                            <br><br>
+                            Los planetas continúan iluminados y describiendo sus órbitas normales sostenidos por la "gravedad fósil" hasta que el frente esférico los alcanza:
+                            <strong>Mercurio</strong> a los \(3.8\text{ s}\) (\(3.2\text{ min luz}\)), <strong>Venus</strong> a los \(5.8\text{ s}\) (\(6.0\text{ min luz}\)), la <strong>Tierra</strong> a los \(8.0\text{ s}\) (\(8.3\text{ min luz}\)), <strong>Marte</strong> a los \(10.7\text{ s}\) (\(12.7\text{ min luz}\)), <strong>Júpiter</strong> a los \(24.7\text{ s}\) (\(43.3\text{ min luz}\)) y <strong>Saturno</strong> a los \(38.1\text{ s}\) (\(79.7\text{ min luz}\)).
+                            <br><br>
+                            Al ser alcanzado por el frente, cada planeta sufre apagón fotónico total y se emancipa en trayectoria rectilínea inercial tangencial (1ª Ley de Newton).
+                        </li>
+                        <li>
+                            <strong>¿Qué pasa con las lunas de los planetas cuando el Sol desaparece? (Conservación de Mini-Sistemas Errantes):</strong>
+                            Al anularse la gravedad del Sol (\(M_\odot = 0\)), la <strong>Esfera de Hill</strong> de cada planeta se expande hacia el infinito (\(r_{\text{Hill}} \to \infty\)) porque ya no existe la fuerza de marea solar que intentaba arrancarle sus satélites.
+                            <br><br>
+                            Por ello, <strong>las lunas NUNCA se desprenden de su planeta matriz</strong>. El sistema completo (Tierra con la Luna, Júpiter con sus lunas Galileanas, Saturno con Titán) viaja junto como un <em>"sistema planetario errante"</em> interestelar en línea recta inercial (1ª Ley de Newton).
+                            <br><br>
+                            <strong>Efectos térmicos y geológicos:</strong>
+                            <ul>
+                                <li><strong>Apagón y frío:</strong> La Luna terrestre entra en noche perpetua y su superficie cae a \(-240^\circ\text{C}\) (\(33\text{ K}\)). En Titán, el metano atmosférico se condensa en nieve sólida.</li>
+                                <li><strong>Fricción de Marea (Tidal Flexing):</strong> Lunas como <strong>Europa</strong>, <strong>Encélado</strong> e <strong>Ío</strong> NO dependen del Sol para generar calor. La atracción de marea gravitatoria diferencial con sus gigantes gaseosos (Júpiter y Saturno) produce fricción interna inagotable: <strong>Ío mantiene sus volcanes activos</strong> y <strong>Europa y Encélado conservan sus océanos de agua líquida subterráneos</strong> protegidos bajo el hielo en la oscuridad cósmica.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Si eliminas un planeta con lunas (Tierra o Júpiter):</strong>
+                            La perturbación se propaga localmente a velocidad \(c\) desde el centro del planeta hacia sus lunas (\(1.28\text{ s luz}\) para la Luna terrestre; cascada de \(1.4\text{ s}\) a \(6.3\text{ s}\) para las lunas de Júpiter). Al ser tocadas por la onda, las lunas colapsan su órbita local y <strong>se convierten en nuevos planetas enanos independientes</strong> que siguen orbitando al Sol.
+                        </li>
+                        <li>
+                            <strong>Si eliminas Júpiter:</strong>
+                            Júpiter actúa como el escudo gravitatorio del sistema solar interior. Al desaparecer, los asteroides Troyanos en los puntos de Lagrange pierden su estabilidad y el cinturón de asteroides pierde sus barreras de confinamiento de Kirkwood.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tema 4: La Constante Gravitatoria Universal (G) -->
+            <div class="topic-card">
+                <div class="topic-head">
+                    <div class="topic-icon topic-icon--purple"><i class="fa-solid fa-atom"></i></div>
+                    <div class="topic-meta">
+                        <div class="topic-title">¿Qué hace la Constante Gravitatoria Universal (\(G\))?</div>
+                        <div class="topic-subtitle">El factor que define la intensidad de atracción y la velocidad cósmica</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <p>
+                        La <strong>Constante Gravitatoria Universal (\(G\))</strong> es la constante fundamental de la física que dicta con qué fuerza interactúan las masas en el universo. En la Ley de Gravitación de Newton:
+                    </p>
+                    <div class="formula-insight">
+                        <div class="formula-line">F = G · (M · m) / r² &nbsp;&nbsp;|&nbsp;&nbsp; v_orb = √(G · M / r) &nbsp;&nbsp;|&nbsp;&nbsp; ω = √(G · M / a³)</div>
+                        <div class="formula-meaning">La velocidad orbital angular (ω) es directamente proporcional a la raíz cuadrada de G (ω ∝ √G).</div>
+                    </div>
+                    <p>
+                        <strong>¿Qué observas al alterar el deslizador de Gravedad en Estelaris?</strong>
+                    </p>
+                    <ul>
+                        <li><strong>Si aumentas \(G\) (ej. a 4.0×):</strong> La curvatura gravitatoria se intensifica. Para equilibrar la enorme fuerza centrípeta y no precipitarse contra el Sol, los planetas aceleran su traslación exactamente al doble de velocidad (\(\sqrt{4} = 2.0\times\)), acortando a la mitad sus periodos orbitales. El vector de aceleración gravitatoria (flecha magenta con \(F6\)) se alarga visiblemente hacia el centro.</li>
+                        <li><strong>Si reduces \(G\) (ej. a 0.25×):</strong> El pozo gravitatorio se debilita. Los planetas viajan a la mitad de velocidad (\(\sqrt{0.25} = 0.5\times\)), las órbitas se alargan en el tiempo y el vector de aceleración gravitatoria disminuye drásticamente.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tema 4: Zona de Habitabilidad (Goldilocks) -->
+            <div class="topic-card">
+                <div class="topic-head">
+                    <div class="topic-icon topic-icon--purple"><i class="fa-solid fa-sun"></i></div>
+                    <div class="topic-meta">
+                        <div class="topic-title">La Zona de Habitabilidad Circunestelar</div>
+                        <div class="topic-subtitle">La distancia justa para la existencia de agua líquida</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <p>
+                        La "Zona Ricitos de Oro" no es un lugar fijo; depende directamente de la potencia luminosa y térmica de la estrella (\(L_\star\)):
+                    </p>
+                    <div class="formula-insight">
+                        <div class="formula-line">r_interior = √(L_★ / 1.1) UA &nbsp;&nbsp;|&nbsp;&nbsp; r_exterior = √(L_★ / 0.53) UA</div>
+                        <div class="formula-meaning">Para el Sol (L = 1.0), el rango habitable abarca de 0.95 a 1.37 UA (la Tierra está a 1.0 UA).</div>
+                    </div>
+                    <p>
+                        En estrellas enanas rojas frías (\(L = 0.04\)), la zona habitable se comprime pegada a la estrella (a menos de 0.2 UA). En estrellas gigantes calientes tipo F (\(L = 2.5\)), se aleja más allá de Marte.
+                    </p>
+
+                    <div class="look-box">
+                        <div class="look-box-head"><i class="fa-solid fa-eye"></i> Lo que debes observar en Estelaris:</div>
+                        <div class="look-box-text">
+                            Al pulsar la tecla <kbd style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px;">H</kbd>, verás un anillo translúcido verde esmeralda que demarca exactamente dónde el agua puede permanecer líquida en el sistema.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- CAPÍTULO 4: GUÍA VISUAL — QUÉ OBSERVAR EN EL OBSERVATORIO                 -->
+        <!-- ========================================================================= -->
+        <section class="report-section report-section--visual chapter-section" id="cap-visual">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-chapter" style="color:var(--accent-sand);">Capítulo 04</span>
+                    <h3 class="section-title"><i class="fa-solid fa-eye" style="color:var(--accent-sand);"></i> Guía de Observación</h3>
+                </div>
+                <span class="section-badge" style="color:var(--accent-sand); border-color:var(--border-accent);">Puntos Clave</span>
+            </div>
+
+            <p style="font-size:12.5px; color:var(--text-2);">
+                Lista de verificación de los fenómenos visuales y herramientas más importantes que debes explorar en la pantalla de Estelaris:
+            </p>
+
+            <div class="obs-list">
+                <div class="obs-item">
+                    <span class="obs-badge">F6</span>
+                    <div class="obs-content">
+                        <strong>Vectores de Estado 3D:</strong>
+                        Activa flechas en tiempo real: una <strong>flecha cian</strong> que muestra la dirección y magnitud de la velocidad del planeta, y una <strong>flecha magenta</strong> que apunta al Sol indicando la aceleración gravitatoria que lo mantiene atado.
+                    </div>
+                </div>
+
+                <div class="obs-item">
+                    <span class="obs-badge">F7</span>
+                    <div class="obs-content">
+                        <strong>Burbujas de la Esfera de Hill:</strong>
+                        Muestra los límites del campo de atracción de cada planeta. Compara el tamaño de la burbuja de la Tierra frente a la de Júpiter o Neptuno.
+                    </div>
+                </div>
+
+                <div class="obs-item">
+                    <span class="obs-badge">Ctrl + I</span>
+                    <div class="obs-content">
+                        <strong>Modo Investigativo & Cortes Geológicos:</strong>
+                        Haz clic sobre cualquier planeta para abrir su corte transversal interactivo en capas, con densidades, temperaturas y presiones internas basadas en datos de misiones espaciales.
+                    </div>
+                </div>
+
+                <div class="obs-item">
+                    <span class="obs-badge">Ctrl + G</span>
+                    <div class="obs-content">
+                        <strong>Creador Planetario & Sistemas Aislados:</strong>
+                        Crea un exoplaneta desde cero ajustando su estrella anfitriona, composición química y distancia. Al inyectarlo, se crea un <strong>sistema propio e independiente decorado con anillos de polvo circunestelar y nebulosas</strong>.
+                    </div>
+                </div>
+
+                <div class="obs-item">
+                    <span class="obs-badge">Panel</span>
+                    <div class="obs-content">
+                        <strong>Eliminar Cuerpo Estelar:</strong>
+                        Selecciona el Sol o cualquier planeta y pulsa el botón rojo para presenciar el cataclismo físico: apagón solar, escape inercial por la 1ª Ley de Newton o liberación de lunas en órbitas independientes.
+                    </div>
+                </div>
+
+                <div class="obs-item">
+                    <span class="obs-badge">H</span>
+                    <div class="obs-content">
+                        <strong>Zona Habitable 3D (Goldilocks):</strong>
+                        Visualiza el disco verde que señala el rango térmico donde el agua superficial puede mantenerse líquida.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Bottom App Navigation Bar -->
+    <nav class="expo-bottom-bar">
+        <a href="index.html" class="expo-tab-link">
+            <i class="fa-solid fa-house"></i>
+            <span>Hub</span>
+        </a>
+        <a href="ciencia.html" class="expo-tab-link active">
+            <i class="fa-solid fa-file-waveform"></i>
+            <span>Informe</span>
+        </a>
+        <a href="ximena.html" class="expo-tab-link">
+            <i class="fa-solid fa-palette"></i>
+            <span>Visual</span>
+        </a>
+        <a href="emmanuel.html" class="expo-tab-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Física</span>
+        </a>
+        <a href="carlos.html" class="expo-tab-link">
+            <i class="fa-solid fa-code"></i>
+            <span>Código</span>
+        </a>
+        <a href="../index.html" class="expo-tab-link">
+            <i class="fa-solid fa-globe"></i>
+            <span>3D</span>
+        </a>
+    </nav>
+
+    <script>
+        // Filtro interactivo por capítulos del informe
+        function filterChapter(cat, btn) {
+            document.querySelectorAll('.nav-pill').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            const secs = {
+                quimica: document.getElementById('cap-quimica'),
+                mate: document.getElementById('cap-mate'),
+                fisica: document.getElementById('cap-fisica'),
+                visual: document.getElementById('cap-visual')
+            };
+
+            if (cat === 'all') {
+                Object.values(secs).forEach(s => { if (s) s.style.display = 'flex'; });
+            } else {
+                Object.keys(secs).forEach(k => {
+                    if (secs[k]) {
+                        secs[k].style.display = (k === cat) ? 'flex' : 'none';
+                    }
+                });
+                if (secs[cat]) {
+                    secs[cat].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        }
+    </script>
+</body>
+</html>

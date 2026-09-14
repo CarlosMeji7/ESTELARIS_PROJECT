@@ -1,0 +1,515 @@
+<!-- ============================================================================
+     ESTELARIS — MÓDULO DE GÉNESIS PLANETARIO & LABORATORIO ASTROQUÍMICO
+     Diseño: Dark Sci-Fi Editorial, High Precision Chemistry & Physics
+     ============================================================================ -->
+<div class="pc-backdrop" id="planet-creator-backdrop">
+    <div class="pc-modal" id="planet-creator-container">
+        
+        <!-- HEADER -->
+        <header class="pc-header">
+            <div class="pc-header-left">
+                <div class="pc-meta-tag">
+                    <i class="fa-solid fa-atom"></i>
+                    <span>LABORATORIO ASTROQUÍMICO &bull; GÉNESIS PLANETARIO</span>
+                </div>
+                <div class="pc-title-row">
+                    <input type="text" id="pc-planet-name" class="pc-name-input" value="Astraea-IV" maxlength="28" spellcheck="false" title="Haz clic para renombrar tu planeta">
+                    <span class="pc-badge" id="pc-planet-class">Súper-Tierra Templada</span>
+                    <span class="pc-esi-badge" id="pc-header-esi" title="Índice de Similitud con la Tierra">ESI: 0.92</span>
+                </div>
+            </div>
+
+            <!-- PRESETS RÁPIDOS & IMPORTACIÓN -->
+            <div class="pc-presets-row">
+                <div class="pc-sys-name-box">
+                    <span class="pc-presets-label">Sistema:</span>
+                    <input type="text" id="pc-system-name" class="pc-sys-name-input" value="Sistema Astraea" maxlength="24" title="Nombre del sistema estelar">
+                </div>
+                <span class="pc-presets-label">Arquetipos:</span>
+                <button class="pc-preset-btn" data-preset="earth">Tierra 2.0</button>
+                <button class="pc-preset-btn" data-preset="ocean">Mundo Océano</button>
+                <button class="pc-preset-btn" data-preset="venus">Infierno Invernadero</button>
+                <button class="pc-preset-btn" data-preset="titan">Titán Criogénico</button>
+                <button class="pc-preset-btn" data-preset="lava">Mundo de Magma</button>
+                <button class="pc-preset-btn pc-preset-btn--random" id="btn-pc-random" title="Generar un mundo científicamente coherente al azar">
+                    <i class="fa-solid fa-dice"></i> Azar
+                </button>
+                <input type="file" id="pc-import-file-input" accept=".json" style="display:none;">
+                <button class="pc-preset-btn" id="btn-import-system-file" title="Importar un sistema planetario desde un archivo .json">
+                    <i class="fa-solid fa-file-arrow-up"></i> Importar .JSON
+                </button>
+            </div>
+
+            <button class="pc-btn-close" id="btn-close-creator" aria-label="Cerrar taller (Esc)">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </header>
+
+        <!-- CUERPO PRINCIPAL -->
+        <div class="pc-body">
+            
+            <!-- COLUMNA IZQUIERDA: VISUALIZADOR 3D PROCEDURAL & TELEMETRÍA FLOTANTE -->
+            <section class="pc-col-viewport">
+                <div class="pc-canvas-wrapper" id="pc-canvas-container">
+                    <canvas id="pc-three-canvas"></canvas>
+                    
+                    <!-- HUD Telemetría Sobreimpresa -->
+                    <div class="pc-canvas-hud">
+                        <div class="pc-hud-pill">
+                            <span class="pc-hud-label">Gravedad</span>
+                            <strong class="pc-hud-val" id="pc-hud-gravity">1.02 g</strong>
+                        </div>
+                        <div class="pc-hud-pill">
+                            <span class="pc-hud-label">Densidad</span>
+                            <strong class="pc-hud-val" id="pc-hud-density">5.42 g/cm³</strong>
+                        </div>
+                        <div class="pc-hud-pill">
+                            <span class="pc-hud-label">Temp. Media</span>
+                            <strong class="pc-hud-val" id="pc-hud-temp">16 °C (289 K)</strong>
+                        </div>
+                        <div class="pc-hud-pill">
+                            <span class="pc-hud-label">Vel. Escape</span>
+                            <strong class="pc-hud-val" id="pc-hud-vesc">11.4 km/s</strong>
+                        </div>
+                    </div>
+
+                    <!-- Controles Rápidos del Viewport -->
+                    <div class="pc-canvas-toolbar">
+                        <button class="pc-tool-btn is-active" id="btn-toggle-clouds" title="Mostrar/Ocultar nubes dinámicas">
+                            <i class="fa-solid fa-cloud"></i> Nubes
+                        </button>
+                        <button class="pc-tool-btn" id="btn-toggle-rings" title="Mostrar/Ocultar anillos">
+                            <i class="fa-solid fa-ring"></i> Anillos
+                        </button>
+                        <button class="pc-tool-btn is-active" id="btn-toggle-atmo-glow" title="Mostrar/Ocultar halo atmosférico">
+                            <i class="fa-solid fa-sun"></i> Dispersión
+                        </button>
+                        <button class="pc-tool-btn" id="btn-toggle-wireframe" title="Alternar malla estructural 3D">
+                            <i class="fa-solid fa-draw-polygon"></i> Malla
+                        </button>
+                        <button class="pc-tool-btn" id="btn-reset-cam-preview" title="Centrar cámara de inspección">
+                            <i class="fa-solid fa-arrows-to-dot"></i> Centrar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dictamen Rápido de Estado -->
+                <div class="pc-verdict-summary" id="pc-quick-verdict">
+                    <div class="pc-verdict-icon" id="pc-verdict-icon">
+                        <i class="fa-solid fa-circle-check" style="color:var(--success);"></i>
+                    </div>
+                    <div class="pc-verdict-text">
+                        <strong id="pc-verdict-title">Planeta Físicamente Coherente</strong>
+                        <p id="pc-verdict-desc">Estructura barimétrica estable con equilibrio termodinámico y retención atmosférica activa.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- COLUMNA DERECHA: WIZARD DE PARÁMETROS & LABORATORIO QUÍMICO -->
+            <section class="pc-col-controls">
+                
+                <!-- Navegación por Pestañas del Wizard -->
+                <div class="pc-tabs-nav" role="tablist">
+                    <button class="pc-tab-btn is-active" data-tab="tab-pc-orbit">
+                        <span class="pc-tab-num">1</span> Órbita & Sol
+                    </button>
+                    <button class="pc-tab-btn" data-tab="tab-pc-geology">
+                        <span class="pc-tab-num">2</span> Geofísica
+                    </button>
+                    <button class="pc-tab-btn" data-tab="tab-pc-chemistry">
+                        <span class="pc-tab-num">3</span> Astroquímica
+                    </button>
+                    <button class="pc-tab-btn" data-tab="tab-pc-hydrosphere">
+                        <span class="pc-tab-num">4</span> Océanos & Fase
+                    </button>
+                    <button class="pc-tab-btn" data-tab="tab-pc-diagnostics">
+                        <span class="pc-tab-num">5</span> Peritaje Científico
+                    </button>
+                </div>
+
+                <!-- CONTENEDOR DE PESTAÑAS -->
+                <div class="pc-tabs-scroll">
+                    
+                    <!-- TAB 1: ÓRBITA & ESTRELLA -->
+                    <div class="pc-tab-pane is-active" id="tab-pc-orbit">
+                        <div class="pc-section-header">
+                            <h3>Termodinámica Estelar & Dinámica Orbital</h3>
+                            <p>Configura la radiación estelar incidente y las dimensiones bariónicas del planeta.</p>
+                        </div>
+
+                        <!-- Selector de Estrella Anfitriona -->
+                        <div class="pc-field-group">
+                            <label class="pc-field-label">Estrella Anfitriona</label>
+                            <div class="pc-star-selector" id="pc-star-selector">
+                                <button class="pc-star-pill" data-star="M" title="Enana Roja muy longeva, baja radiación y flare UV">
+                                    <span class="pc-star-dot" style="background:#ef4444;"></span>
+                                    <span>Enana M (Roja)</span>
+                                    <small>0.15 L☉</small>
+                                </button>
+                                <button class="pc-star-pill is-selected" data-star="G" title="Enana Amarilla equilibrada similar a nuestro Sol">
+                                    <span class="pc-star-dot" style="background:#facc15;"></span>
+                                    <span>Sol G2V (Amarilla)</span>
+                                    <small>1.00 L☉</small>
+                                </button>
+                                <button class="pc-star-pill" data-star="F" title="Estrella blanco-amarilla más caliente y luminosa">
+                                    <span class="pc-star-dot" style="background:#67e8f9;"></span>
+                                    <span>Estrella F (Blanca)</span>
+                                    <small>2.50 L☉</small>
+                                </button>
+                                <button class="pc-star-pill" data-star="WD" title="Remanente denso ultra caliente pero de bajo flujo">
+                                    <span class="pc-star-dot" style="background:#c084fc;"></span>
+                                    <span>Enana Blanca</span>
+                                    <small>0.05 L☉</small>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Sliders Orbitales -->
+                        <div class="pc-slider-card">
+                            <div class="pc-slider-header">
+                                <span class="pc-slider-title">Semieje Mayor (Distancia orbital)</span>
+                                <span class="pc-slider-val" id="pc-val-distance">1.00 UA</span>
+                            </div>
+                            <input type="range" id="pc-slider-distance" min="0.1" max="15.0" step="0.05" value="1.00" class="pc-range">
+                            <div class="pc-slider-subinfo">
+                                <span id="pc-goldilocks-status" class="pc-status-pill is-optimal">
+                                    <i class="fa-solid fa-shield-halved"></i> Dentro de la Zona de Habitabilidad
+                                </span>
+                                <span class="pc-mini-metric" id="pc-flux-val">Flujo: 1361 W/m²</span>
+                            </div>
+                        </div>
+
+                        <div class="pc-slider-card">
+                            <div class="pc-slider-header">
+                                <span class="pc-slider-title">Masa Planetaria</span>
+                                <span class="pc-slider-val" id="pc-val-mass">1.00 M⊕</span>
+                            </div>
+                            <input type="range" id="pc-slider-mass" min="0.03" max="25.0" step="0.05" value="1.00" class="pc-range">
+                            <div class="pc-slider-subinfo">
+                                <span>Desde submercurio (0.03) hasta súper-tierras gigantes (25 M⊕)</span>
+                            </div>
+                        </div>
+
+                        <div class="pc-slider-card">
+                            <div class="pc-slider-header">
+                                <span class="pc-slider-title">Radio Planetario</span>
+                                <span class="pc-slider-val" id="pc-val-radius">1.00 R⊕ (6,371 km)</span>
+                            </div>
+                            <input type="range" id="pc-slider-radius" min="0.3" max="4.0" step="0.05" value="1.00" class="pc-range">
+                            <div class="pc-slider-subinfo">
+                                <span id="pc-density-indicator">Densidad resultante: 5.51 g/cm³ (Rocoso Silicatado)</span>
+                            </div>
+                        </div>
+
+                        <div class="pc-slider-card">
+                            <div class="pc-slider-header">
+                                <span class="pc-slider-title">Excentricidad Orbital (e)</span>
+                                <span class="pc-slider-val" id="pc-val-eccentricity">0.016 (Casi circular)</span>
+                            </div>
+                            <input type="range" id="pc-slider-eccentricity" min="0.0" max="0.65" step="0.01" value="0.016" class="pc-range">
+                            <div class="pc-slider-subinfo">
+                                <span>Excentricidades altas causan estaciones climáticas térmicas extremas</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: GEOFÍSICA & ESTRUCTURA INTERNA -->
+                    <div class="pc-tab-pane" id="tab-pc-geology">
+                        <div class="pc-section-header">
+                            <h3>Geofísica & Capas Internas</h3>
+                            <p>La dínamo interna genera la magnetosfera protectora y el calor primordial sostiene la tectónica.</p>
+                        </div>
+
+                        <!-- Selector de Núcleo -->
+                        <div class="pc-field-group">
+                            <label class="pc-field-label">Composición del Núcleo</label>
+                            <div class="pc-options-grid" id="pc-core-options">
+                                <button class="pc-option-card is-selected" data-core="fe-liquid">
+                                    <i class="fa-solid fa-magnet"></i>
+                                    <strong>Hierro-Níquel Fundido</strong>
+                                    <p>Genera dínamo activa y campo magnético dipolar intenso que desvía el viento solar.</p>
+                                </button>
+                                <button class="pc-option-card" data-core="fe-solid">
+                                    <i class="fa-solid fa-cube"></i>
+                                    <strong>Hierro Frío Solidificado</strong>
+                                    <p>Dínamo extinguida (tipo Marte). La atmósfera sufre escape por ablación estelar.</p>
+                                </button>
+                                <button class="pc-option-card" data-core="silicate">
+                                    <i class="fa-solid fa-mountain"></i>
+                                    <strong>Sin Núcleo Metálico</strong>
+                                    <p>Planeta puramente silicatado. Sin campo magnético nativo.</p>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Convección del Manto & Vulcanismo -->
+                        <div class="pc-slider-card">
+                            <div class="pc-slider-header">
+                                <span class="pc-slider-title">Actividad Tectónica & Convección</span>
+                                <span class="pc-slider-val" id="pc-val-tectonics">Activa (Ciclo Carbono-Silicato)</span>
+                            </div>
+                            <input type="range" id="pc-slider-tectonics" min="0" max="2" step="1" value="1" class="pc-range">
+                            <div class="pc-slider-subinfo">
+                                <span>Regula el CO₂ atmosférico y la renovación de la litosfera oceánica</span>
+                            </div>
+                        </div>
+
+                        <!-- Indicador de Campo Magnético -->
+                        <div class="pc-diagnostic-box" id="pc-magnetosphere-box">
+                            <div class="pc-diag-icon"><i class="fa-solid fa-shield-virus"></i></div>
+                            <div class="pc-diag-content">
+                                <strong id="pc-mag-title">Magnetosfera Robusta (0.45 Gauss)</strong>
+                                <p id="pc-mag-desc">Cinturones de radiación activos. Protección total frente a tormentas de iones y rayos cósmicos galácticos.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: ASTROQUÍMICA ATMOSFÉRICA -->
+                    <div class="pc-tab-pane" id="tab-pc-chemistry">
+                        <div class="pc-section-header">
+                            <h3>Laboratorio de Química Atmosférica</h3>
+                            <p>Ajusta los gases molares. El simulador verifica el <strong>Límite de Jeans</strong> y la termodinámica molecular en tiempo real.</p>
+                        </div>
+
+                        <!-- Presión en Superficie -->
+                        <div class="pc-slider-card">
+                            <div class="pc-slider-header">
+                                <span class="pc-slider-title">Presión Atmosférica Superficial</span>
+                                <span class="pc-slider-val" id="pc-val-pressure">1.00 bar (1 atm)</span>
+                            </div>
+                            <input type="range" id="pc-slider-pressure" min="0.00" max="60.0" step="0.05" value="1.00" class="pc-range">
+                            <div class="pc-slider-subinfo">
+                                <span id="pc-pressure-hint">1.0 bar permite agua líquida sin ebullición prematura</span>
+                            </div>
+                        </div>
+
+                        <!-- Selector de Gases Químicos -->
+                        <div class="pc-chem-control-panel">
+                            <div class="pc-chem-grid-head">
+                                <span>Molécula</span>
+                                <span>Fórmula</span>
+                                <span>% Molar</span>
+                                <span>Retención de Jeans</span>
+                            </div>
+                            
+                            <div class="pc-gas-row" data-gas="N2">
+                                <span class="pc-gas-name">Nitrógeno</span>
+                                <span class="pc-gas-formula">N₂</span>
+                                <input type="range" class="pc-gas-slider" min="0" max="100" value="78" data-gas="N2">
+                                <span class="pc-gas-pct">78%</span>
+                                <span class="pc-jeans-pill is-kept" id="jeans-N2">Retenido</span>
+                            </div>
+
+                            <div class="pc-gas-row" data-gas="O2">
+                                <span class="pc-gas-name">Oxígeno Molecular</span>
+                                <span class="pc-gas-formula">O₂</span>
+                                <input type="range" class="pc-gas-slider" min="0" max="100" value="21" data-gas="O2">
+                                <span class="pc-gas-pct">21%</span>
+                                <span class="pc-jeans-pill is-kept" id="jeans-O2">Retenido</span>
+                            </div>
+
+                            <div class="pc-gas-row" data-gas="CO2">
+                                <span class="pc-gas-name">Dióxido de Carbono</span>
+                                <span class="pc-gas-formula">CO₂</span>
+                                <input type="range" class="pc-gas-slider" min="0" max="100" value="1" data-gas="CO2">
+                                <span class="pc-gas-pct">1%</span>
+                                <span class="pc-jeans-pill is-kept" id="jeans-CO2">Retenido</span>
+                            </div>
+
+                            <div class="pc-gas-row" data-gas="CH4">
+                                <span class="pc-gas-name">Metano (Invernadero)</span>
+                                <span class="pc-gas-formula">CH₄</span>
+                                <input type="range" class="pc-gas-slider" min="0" max="100" value="0" data-gas="CH4">
+                                <span class="pc-gas-pct">0%</span>
+                                <span class="pc-jeans-pill is-kept" id="jeans-CH4">Retenido</span>
+                            </div>
+
+                            <div class="pc-gas-row" data-gas="H2O">
+                                <span class="pc-gas-name">Vapor de Agua</span>
+                                <span class="pc-gas-formula">H₂O</span>
+                                <input type="range" class="pc-gas-slider" min="0" max="100" value="1" data-gas="H2O">
+                                <span class="pc-gas-pct">1%</span>
+                                <span class="pc-jeans-pill is-kept" id="jeans-H2O">Retenido</span>
+                            </div>
+
+                            <div class="pc-gas-row" data-gas="SO2">
+                                <span class="pc-gas-name">Dióxido de Azufre</span>
+                                <span class="pc-gas-formula">SO₂</span>
+                                <input type="range" class="pc-gas-slider" min="0" max="100" value="0" data-gas="SO2">
+                                <span class="pc-gas-pct">0%</span>
+                                <span class="pc-jeans-pill is-kept" id="jeans-SO2">Retenido</span>
+                            </div>
+
+                            <div class="pc-gas-row" data-gas="NH3">
+                                <span class="pc-gas-name">Amoníaco</span>
+                                <span class="pc-gas-formula">NH₃</span>
+                                <input type="range" class="pc-gas-slider" min="0" max="100" value="0" data-gas="NH3">
+                                <span class="pc-jeans-pill is-kept" id="jeans-NH3">Retenido</span>
+                            </div>
+
+                            <div class="pc-gas-row" data-gas="H2">
+                                <span class="pc-gas-name">Hidrógeno Primordial</span>
+                                <span class="pc-gas-formula">H₂</span>
+                                <input type="range" class="pc-gas-slider" min="0" max="100" value="0" data-gas="H2">
+                                <span class="pc-gas-pct">0%</span>
+                                <span class="pc-jeans-pill is-escaped" id="jeans-H2">Fuga Térmica</span>
+                            </div>
+
+                            <div class="pc-gas-row" data-gas="Ar">
+                                <span class="pc-gas-name">Argón</span>
+                                <span class="pc-gas-formula">Ar</span>
+                                <input type="range" class="pc-gas-slider" min="0" max="100" value="1" data-gas="Ar">
+                                <span class="pc-gas-pct">1%</span>
+                                <span class="pc-jeans-pill is-kept" id="jeans-Ar">Retenido</span>
+                            </div>
+                        </div>
+
+                        <!-- Balances Químicos e Invernadero -->
+                        <div class="pc-chem-summary-cards">
+                            <div class="pc-summary-mini-card">
+                                <span class="pc-sm-label">Efecto Invernadero (ΔT)</span>
+                                <strong class="pc-sm-val" id="pc-val-greenhouse">+33 °C</strong>
+                            </div>
+                            <div class="pc-summary-mini-card">
+                                <span class="pc-sm-label">pH de Precipitaciones</span>
+                                <strong class="pc-sm-val" id="pc-val-rain-ph">5.6 (Neutro / Ligeramente ácido)</strong>
+                            </div>
+                            <div class="pc-summary-mini-card">
+                                <span class="pc-sm-label">Masa Molar Media</span>
+                                <strong class="pc-sm-val" id="pc-val-molarmass">28.9 g/mol</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: OCÉANOS & HIDROSFERA -->
+                    <div class="pc-tab-pane" id="tab-pc-hydrosphere">
+                        <div class="pc-section-header">
+                            <h3>Hidrosfera & Diagrama de Fases (P-T)</h3>
+                            <p>El estado de agregación depende estrictamente de la presión atmosférica y la temperatura térmica.</p>
+                        </div>
+
+                        <!-- Tipo de Fluido Superficial -->
+                        <div class="pc-field-group">
+                            <label class="pc-field-label">Composición de los Océanos</label>
+                            <div class="pc-options-grid pc-options-grid--4" id="pc-liquid-options">
+                                <button class="pc-option-card is-selected" data-liquid="water">
+                                    <i class="fa-solid fa-water" style="color:#38bdf8;"></i>
+                                    <strong>Agua (H₂O)</strong>
+                                    <small>Punto triple: 0.01 °C / 611 Pa</small>
+                                </button>
+                                <button class="pc-option-card" data-liquid="methane">
+                                    <i class="fa-solid fa-fire-flame-simple" style="color:#fb923c;"></i>
+                                    <strong>Metano / Etano</strong>
+                                    <small>Criogénico (-180 °C, tipo Titán)</small>
+                                </button>
+                                <button class="pc-option-card" data-liquid="magma">
+                                    <i class="fa-solid fa-volcano" style="color:#ef4444;"></i>
+                                    <strong>Lava de Silicatos</strong>
+                                    <small>Magma fundido (&gt;1,100 °C)</small>
+                                </button>
+                                <button class="pc-option-card" data-liquid="dry">
+                                    <i class="fa-solid fa-wind" style="color:#94a3b8;"></i>
+                                    <strong>Árido / Sin Líquidos</strong>
+                                    <small>Desierto litosférico seco</small>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Cobertura de Líquido -->
+                        <div class="pc-slider-card">
+                            <div class="pc-slider-header">
+                                <span class="pc-slider-title">Cobertura Superficial de Océanos</span>
+                                <span class="pc-slider-val" id="pc-val-ocean-cover">71%</span>
+                            </div>
+                            <input type="range" id="pc-slider-ocean-cover" min="0" max="100" step="1" value="71" class="pc-range">
+                            <div class="pc-slider-subinfo">
+                                <span id="pc-ocean-desc">Océanos globales equilibrados con masa continental</span>
+                            </div>
+                        </div>
+
+                        <!-- Casquetes de Hielo -->
+                        <div class="pc-slider-card">
+                            <div class="pc-slider-header">
+                                <span class="pc-slider-title">Casquetes Glaciares Polares</span>
+                                <span class="pc-slider-val" id="pc-val-ice-caps">15%</span>
+                            </div>
+                            <input type="range" id="pc-slider-ice-caps" min="0" max="100" step="1" value="15" class="pc-range">
+                            <div class="pc-slider-subinfo">
+                                <span>Aumenta el albedo y enfría el clima por retroalimentación de hielo</span>
+                            </div>
+                        </div>
+
+                        <!-- Anillos Planetarios -->
+                        <div class="pc-checkbox-row">
+                            <label class="pc-toggle-switch">
+                                <input type="checkbox" id="pc-chk-rings">
+                                <span class="pc-toggle-slider"></span>
+                            </label>
+                            <div class="pc-toggle-text">
+                                <strong>Sistema de Anillos Circumplanetario</strong>
+                                <p>Genera un disco plano de polvo y fragmentos de hielo dentro del Límite de Roche.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 5: PERITAJE & DIAGNÓSTICO CIENTÍFICO -->
+                    <div class="pc-tab-pane" id="tab-pc-diagnostics">
+                        <div class="pc-section-header">
+                            <h3>Dictamen Científico & Habitabilidad ESI</h3>
+                            <p>Auditoría integral de viabilidad física, química y termodinámica del planeta creado.</p>
+                        </div>
+
+                        <!-- Medidor ESI y Habitabilidad -->
+                        <div class="pc-audit-top">
+                            <div class="pc-esi-display">
+                                <span class="pc-esi-big" id="pc-report-esi">0.92</span>
+                                <span class="pc-esi-sub">Índice ESI (0.00 a 1.00)</span>
+                            </div>
+                            <div class="pc-esi-bars">
+                                <div class="pc-esi-metric">
+                                    <span>Similitud de Radio:</span>
+                                    <div class="pc-prog-bar"><div class="pc-prog-fill" id="pc-esi-bar-r" style="width:98%;"></div></div>
+                                </div>
+                                <div class="pc-esi-metric">
+                                    <span>Similitud de Densidad:</span>
+                                    <div class="pc-prog-bar"><div class="pc-prog-fill" id="pc-esi-bar-d" style="width:95%;"></div></div>
+                                </div>
+                                <div class="pc-esi-metric">
+                                    <span>Similitud de Velocidad de Escape:</span>
+                                    <div class="pc-prog-bar"><div class="pc-prog-fill" id="pc-esi-bar-v" style="width:96%;"></div></div>
+                                </div>
+                                <div class="pc-esi-metric">
+                                    <span>Similitud Térmica:</span>
+                                    <div class="pc-prog-bar"><div class="pc-prog-fill" id="pc-esi-bar-t" style="width:89%;"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lista de Diagnósticos Químicos y Físicos -->
+                        <div class="pc-audit-cards-list" id="pc-audit-list">
+                            <!-- Inyectado dinámicamente -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- FOOTER DE ACCIONES DEL CREADOR -->
+                <footer class="pc-footer">
+                    <button class="pc-btn-secondary" id="btn-copy-planet-json" title="Copiar especificación astrofísica en formato JSON">
+                        <i class="fa-solid fa-copy"></i> Copiar Ficha
+                    </button>
+
+                    <button class="pc-btn-secondary" id="btn-export-system-json" title="Descargar archivo JSON completo del sistema planetario">
+                        <i class="fa-solid fa-file-arrow-down" style="color:var(--accent-blue,#8ea8ff);"></i> Exportar Sistema (.json)
+                    </button>
+                    
+                    <button class="pc-btn-primary" id="btn-inject-planet-solar" title="Generar este sistema planetario independiente con su estrella central">
+                        <i class="fa-solid fa-sun"></i> <span id="pc-btn-launch-text">¡Generar Sistema Estelar!</span>
+                    </button>
+                </footer>
+
+            </section>
+        </div>
+
+    </div>
+</div>

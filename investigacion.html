@@ -1,0 +1,126 @@
+﻿<!-- ============================================================================
+     ESTELARIS — MÓDULO DE INVESTIGACIÓN TEÓRICA & ANÁLISIS ESTRUCTURAL
+     Diseño: Minimalista, Arquitectónico, Alta Precisión Científica
+     ============================================================================ -->
+<div class="inv-backdrop" id="investigation-backdrop">
+    <div class="inv-modal" id="investigation-container">
+        
+        <!-- HEADER MINIMALISTA -->
+        <header class="inv-header">
+            <div class="inv-header-main">
+                <div class="inv-meta-tag">INVESTIGACIÓN TEÓRICA &bull; CORTE DE CAPAS</div>
+                <div class="inv-title-wrap">
+                    <h1 class="inv-title" id="inv-body-title">Tierra</h1>
+                    <span class="inv-badge" id="inv-body-category">Planeta Rocoso</span>
+                </div>
+            </div>
+
+            <!-- SELECTOR MINIMALISTA DE CUERPOS -->
+            <nav class="inv-nav-pills" id="inv-nav-bar" aria-label="Selector de astro"></nav>
+
+            <button class="inv-btn-close" id="btn-close-investigation" aria-label="Cerrar modal (Esc)">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </header>
+
+        <!-- LAYOUT DE 2 COLUMNAS LIMPIAS -->
+        <div class="inv-layout">
+            
+            <!-- COLUMNA IZQUIERDA: DIAGRAMA DE CORTE & CAPAS -->
+            <section class="inv-col-diagram">
+                <!-- Visor SVG Central -->
+                <div class="inv-svg-stage-box" id="inv-diagram-wrapper">
+                    <svg id="inv-cutaway-svg" viewBox="0 0 500 500" class="inv-svg-canvas" preserveAspectRatio="xMidYMid meet"></svg>
+                </div>
+
+                <!-- Selector de Capas Rápido (Ruler / Segmented Control) -->
+                <div class="inv-layer-ruler" id="inv-layer-ruler">
+                    <!-- Segmentos de capa inyectados dinámicamente -->
+                </div>
+
+                <!-- Ficha de la Capa Seleccionada -->
+                <div class="inv-layer-dossier" id="inv-layer-card">
+                    <div class="inv-dossier-head">
+                        <div class="inv-dossier-title-group">
+                            <span class="inv-dossier-dot" id="inv-layer-dot"></span>
+                            <h2 class="inv-dossier-name" id="inv-layer-name">Corteza Terrestre (Litosfera)</h2>
+                        </div>
+                        <span class="inv-dossier-depth" id="inv-layer-depth">0 — 40 km</span>
+                    </div>
+
+                    <div class="inv-dossier-grid">
+                        <div class="inv-dossier-cell">
+                            <span class="inv-cell-label">Temperatura</span>
+                            <span class="inv-cell-value" id="inv-layer-temp">15°C a 500°C</span>
+                        </div>
+                        <div class="inv-dossier-cell">
+                            <span class="inv-cell-label">Presión</span>
+                            <span class="inv-cell-value" id="inv-layer-pressure">0.1 a 1.2 GPa</span>
+                        </div>
+                        <div class="inv-dossier-cell inv-dossier-cell--full">
+                            <span class="inv-cell-label">Composición Mineral</span>
+                            <span class="inv-cell-value" id="inv-layer-composition">Silicatos de aluminio, basalto oceánico, granito continental</span>
+                        </div>
+                        <div class="inv-dossier-cell inv-dossier-cell--full">
+                            <span class="inv-cell-label">Dinámica & Función</span>
+                            <span class="inv-cell-value" id="inv-layer-role">Soporte biológico, sismicidad y placas tectónicas dinámicas</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- COLUMNA DERECHA: PESTAÑAS CIENTÍFICAS MINIMALISTAS -->
+            <section class="inv-col-data">
+                <!-- Navegación por Pestañas -->
+                <div class="inv-tabs-nav" role="tablist">
+                    <button class="inv-tab-btn is-active" data-tab="tab-spectroscopy" role="tab">Química Atmosférica</button>
+                    <button class="inv-tab-btn" data-tab="tab-geophysics" role="tab">Geodinámica & Campo</button>
+                    <button class="inv-tab-btn" data-tab="tab-exploration" role="tab">Exploración</button>
+                    <button class="inv-tab-btn" data-tab="tab-trivia" role="tab">Curiosidades</button>
+                </div>
+
+                <!-- Contenedor de Pestañas -->
+                <div class="inv-tabs-body">
+                    
+                    <!-- Pestaña 1: Espectroscopía -->
+                    <div class="inv-tab-pane is-active" id="tab-spectroscopy">
+                        <div class="inv-pane-top">
+                            <span class="inv-pane-title">Espectroscopía de Gases</span>
+                            <span class="inv-pane-stat" id="inv-pressure-badge">Presión: 1.013 bar</span>
+                        </div>
+                        <div class="inv-chem-list" id="inv-chem-bars"></div>
+                        <div class="inv-meta-row" id="inv-surface-meta"></div>
+                    </div>
+
+                    <!-- Pestaña 2: Geodinámica -->
+                    <div class="inv-tab-pane" id="tab-geophysics">
+                        <div class="inv-pane-top">
+                            <span class="inv-pane-title">Mecanismos Geofísicos</span>
+                            <span class="inv-pane-stat">Magnetosfera</span>
+                        </div>
+                        <div class="inv-geo-list" id="inv-geophysics-content"></div>
+                    </div>
+
+                    <!-- Pestaña 3: Exploración -->
+                    <div class="inv-tab-pane" id="tab-exploration">
+                        <div class="inv-pane-top">
+                            <span class="inv-pane-title">Misiones Históricas</span>
+                            <span class="inv-pane-stat">Sondas & Orbitadores</span>
+                        </div>
+                        <div class="inv-timeline-list" id="inv-missions-timeline"></div>
+                    </div>
+
+                    <!-- Pestaña 4: Curiosidades -->
+                    <div class="inv-tab-pane" id="tab-trivia">
+                        <div class="inv-pane-top">
+                            <span class="inv-pane-title">Fenómenos & Singularidades</span>
+                            <span class="inv-pane-stat">Astrofísica</span>
+                        </div>
+                        <div class="inv-trivia-list" id="inv-trivia-grid"></div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

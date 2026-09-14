@@ -1,0 +1,112 @@
+================================================================================
+ESTELARIS — GUÍA COMPLETA DE CONTROLES, EVENTOS Y ATAJOS DE TECLADO
+================================================================================
+
+[ SIMULADOR DE EVENTOS, MUTADOR & SANDBOX ]
+--------------------------------------------------------------------------------
+K                  Disparar Asteroide Cataclísmico hacia el astro enfocado.
+H                  Mostrar / Ocultar Zona de Habitabilidad 3D (Goldilocks).
+Sliders Mutador    Modificar en vivo la Escala de Radio (0.2x-30x) y Masa (0.05x-80x)
+                    de cualquier astro para observar Límite de Roche, ignición o calor.
+Eliminar Cuerpo    Botón "Eliminar cuerpo estelar" en el panel izquierdo (y panel de telemetría):
+                    • Propagación Relativista a Velocidad c (Einstein):
+                      Al eliminar el Sol o cualquier estrella, el apagón y la pérdida de
+                      gravedad NO son instantáneos. Viajan en una onda esférica 3D visible
+                      a la velocidad de la luz c. Los mundos conservan su órbita y su luz
+                      hasta que el frente los alcanza:
+                        - Mercurio: ~3.8s simulación (3.2 min luz reales).
+                        - Venus: ~5.8s simulación (6.0 min luz reales).
+                        - Tierra y Luna: 8.0s simulación (8.3 min luz reales).
+                        - Marte: ~10.7s simulación (12.7 min luz reales).
+                        - Asteroides: ~15s (23 min luz reales).
+                        - Júpiter: ~24.7s (43.3 min luz reales).
+                        - Saturno: ~38.1s (79.7 min luz reales).
+                        - Urano: ~53.7s | Neptuno: ~69.9s | Plutón: ~84.0s.
+                      Al ser alcanzado, el astro entra en noche perpetua y escapa en
+                      trayectoria tangencial inercial recta al frío cósmico (1ª Ley de Newton).
+                    • Si eliminas un planeta con lunas (Tierra, Júpiter, Saturno):
+                      Una onda local relativista a velocidad c viaja hacia las lunas, liberándolas
+                      en cascada hacia órbitas heliocéntricas independientes como planetas enanos.
+                    • Si eliminas Júpiter: Se desestabilizan las resonancias orbitales y
+                      los asteroides Troyanos pierden su barrera de confinamiento.
+Escenarios 1 Clic  Detonar eventos preconfigurados:
+                    • Gigante Roja (Sol se expande 28x y devora planetas interiores).
+                    • Eliminar el Sol (Colapso estelar relativista a velocidad c y escape inercial).
+                    • Júpiter Binario (Ignición nuclear estelar y caos orbital).
+                    • Invasor Cósmico (Estrella de neutrones errante cruza el sistema).
+                    • Gran Impacto (Colisión cataclísmica con onda de choque 3D).
+Restablecer Todo   Botón para restaurar el Sistema Solar al estado primigenio.
+
+[ NAVEGACIÓN Y CÁMARA ]
+--------------------------------------------------------------------------------
+T                  Modo Cinemático Documental (Tomas nítidas con encuadre
+                   centrado instantáneo y cortes limpios sin choques).
+Shift + T          Modo Cinemático Dinámico (Vuelo rápido, movimientos envolventes
+                   y paneos orbitales de alta velocidad).
+U                  Bloquear / Desbloquear Cámara (fija la orientación actual y
+                   deshabilita rotación accidental).
+F                  Enfocar / Seguir el cuerpo celeste seleccionado.
+Esc                Liberar enfoque de cámara / Cerrar menús o telemetría.
+R                  Restablecer cámara a la vista general cenital del Sistema Solar.
+Flecha Izquierda   Seleccionar e inspeccionar el cuerpo celeste anterior.
+Flecha Derecha     Seleccionar e inspeccionar el siguiente cuerpo celeste.
+Arrastrar Ratón    Orbitar la vista manualmente con amortiguación suave.
+Rueda del Ratón    Acercar / Alejar zoom orbital (con colisión anti-traspaso).
+
+[ CONTROL DE SIMULACIÓN Y TIEMPO ]
+--------------------------------------------------------------------------------
+E                  Modo Día a Día (Velocidad temporal real: 1s = 1 día terrestre).
+L o Barra Espacio  Pausar / Reanudar la simulación física en tiempo real.
+Deslizador Tiempo  Acelerar o ralentizar la velocidad temporal (0.0x a 10.0x).
+Deslizador G       Modificar la constante de gravedad universal del sistema.
+Reiniciar          Restablecer tiempo a T=0 y efemérides iniciales.
+
+[ CAPAS VISUALES Y FÍSICA ]
+--------------------------------------------------------------------------------
+F2                 Mostrar / Ocultar órbitas keplerianas elípticas 3D.
+F4                 Mostrar / Ocultar cuadrícula galáctica ecuatorial.
+F6                 Mostrar / Ocultar Vectores de Estado 3D (Velocidad en cian
+                   y aceleración gravitatoria en magenta).
+F7                 Mostrar / Ocultar Campo de Atracción 3D (Esfera de Hill).
+F8                 Modo Inmersivo (Ocultar o restaurar toda la interfaz HUD).
+
+[ MODO INVESTIGATIVO & CORTE GEOLÓGICO ]
+--------------------------------------------------------------------------------
+Ctrl + I           Abrir / Cerrar el Laboratorio Astrofísico & Modo Investigativo
+                   (Diagrama de corte transversal SVG interactivo, composición
+                   química por capas, geodinámica y archivo histórico de misiones).
+Esc                Cerrar el Modo Investigativo o deseleccionar capas.
+
+[ GÉNESIS PLANETARIO, SISTEMAS CUSTOM & IMPORT/EXPORT ]
+--------------------------------------------------------------------------------
+Ctrl + G           Abrir / Cerrar el Creador de Planetas & Taller Astroquímico
+                   (Wizard de 5 fases, límite de Jeans, efecto invernadero,
+                   hidrosfera P-T, Three.js 3D procedural a 60 FPS).
+                    • Sistemas aislados dedicados: al crear un planeta, NUNCA se inyecta
+                      en el Sistema Solar normal. Se funda un sistema propio e independiente
+                      con la estrella anfitriona, el planeta solo y decoraciones cósmicas
+                      (anillo de polvo protoplanetario circunestelar y halo de nebulosa).
+                    • Exportar / Importar: Descarga y carga archivos de sistemas en .JSON.
+                    • Botón "Volver al Sistema Solar" en cabecera para regresar en cualquier momento.
+Esc                Cerrar el Creador Planetario.
+
+[ SELECCIÓN Y TELEMETRÍA ]
+--------------------------------------------------------------------------------
+Clic Izquierdo     Hacer clic sobre cualquier planeta o luna para abrir su
+                   ficha astrofísica completa (masa, velocidad, energía
+                   cinética/potencial, excentricidad, AU y periodo).
+Barra Inferior     Desplegable con avatares de todos los cuerpos del sistema.
+
+[ PORTAL MÓVIL DE EXPOSICIÓN (PARA SMARTPHONE) ]
+--------------------------------------------------------------------------------
+expo/index.html            Hub Central móvil para el equipo y cronómetro de ensayo.
+expo/ciencia.html          Compendio Maestro de Ciencias (Química, Matemática &
+                           Física a profundidad, simulador de Jeans y anti-corche).
+expo/ximena.html           Guion y defensa del Rol Visual & Dirección de Arte.
+expo/emmanuel.html         Guion y defensa del Rol Funcionamiento & Física.
+expo/carlos.html           Guion y defensa del Rol Código & Arquitectura Three.js.
+expo/carlos_identidad.html Manual Maestro Anti-Corche y defensa del proyecto.
+
+================================================================================
+Estelaris Observatorio & Simulador de Eventos — Versión 2.0.0
+================================================================================

@@ -1,0 +1,622 @@
+﻿/* ============================================================================
+   ESTELARIS — MÓDULO DE INVESTIGACIÓN (DISEÑO MINIMALISTA Y PROFESIONAL)
+   ============================================================================ */
+
+/* Reset de Scrollbars: Ocultas y sutiles */
+.investigation-root * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.investigation-root *::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.investigation-root *::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.investigation-root *::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+}
+
+.investigation-root *::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+/* MODAL FULLSCREEN */
+.investigation-root {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.investigation-root.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.inv-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(4, 6, 11, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.inv-modal {
+    width: 100%;
+    max-width: 1320px;
+    height: 90vh;
+    max-height: 840px;
+    background: #080a11;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: #f1f5f9;
+    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    animation: invAppear 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes invAppear {
+    from { transform: scale(0.985); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* HEADER */
+.inv-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-shrink: 0;
+    background: rgba(10, 13, 22, 0.6);
+}
+
+.inv-header-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.inv-meta-tag {
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.inv-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.inv-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin: 0;
+}
+
+.inv-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: #94a3b8;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 100px;
+}
+
+/* SELECTOR DE ASTROS */
+.inv-nav-pills {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 3px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+}
+
+.inv-pill-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: #94a3b8;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.inv-pill-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.inv-pill-btn.is-active {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.inv-pill-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.inv-btn-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.inv-btn-close:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+/* LAYOUT PRINCIPAL */
+.inv-layout {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 480px 1fr;
+    gap: 24px;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+@media (max-width: 1080px) {
+    .inv-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* COLUMNA IZQUIERDA */
+.inv-col-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.inv-svg-stage-box {
+    width: 100%;
+    height: 320px;
+    background: #0d111a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.inv-svg-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.inv-svg-layer {
+    cursor: pointer;
+    transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+.inv-svg-layer:hover {
+    filter: brightness(1.2);
+}
+
+.inv-svg-layer.is-selected {
+    stroke: #ffffff !important;
+    stroke-width: 2px !important;
+}
+
+/* SEGMENTED CONTROL / RULER */
+.inv-layer-ruler {
+    display: flex;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 3px;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.inv-ruler-item {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #94a3b8;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.inv-ruler-item:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.inv-ruler-item.is-active {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* FICHA DOSSIER DE CAPA */
+.inv-layer-dossier {
+    background: #0d111a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.inv-dossier-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.inv-dossier-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.inv-dossier-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #38bdf8;
+}
+
+.inv-dossier-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+}
+
+.inv-dossier-depth {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #94a3b8;
+}
+
+.inv-dossier-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.inv-dossier-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.inv-dossier-cell--full {
+    grid-column: 1 / -1;
+}
+
+.inv-cell-label {
+    font-size: 9.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+}
+
+.inv-cell-value {
+    font-size: 12px;
+    font-weight: 500;
+    color: #e2e8f0;
+    line-height: 1.4;
+}
+
+/* COLUMNA DERECHA */
+.inv-col-data {
+    display: flex;
+    flex-direction: column;
+    background: #0d111a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 16px;
+    overflow: hidden;
+}
+
+.inv-tabs-nav {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+}
+
+.inv-tab-btn {
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: #94a3b8;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.inv-tab-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.inv-tab-btn.is-active {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.inv-tabs-body {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.inv-tab-pane {
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.inv-tab-pane.is-active {
+    display: flex;
+}
+
+.inv-pane-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.inv-pane-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.inv-pane-stat {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #94a3b8;
+}
+
+/* LISTAS Y ELEMENTOS MINIMALISTAS */
+.inv-chem-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.inv-chem-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.inv-chem-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+}
+
+.inv-chem-name {
+    color: #cbd5e1;
+    font-weight: 500;
+}
+
+.inv-chem-pct {
+    font-family: 'JetBrains Mono', monospace;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.inv-chem-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.inv-chem-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+
+.inv-meta-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.inv-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.inv-meta-label {
+    font-size: 9.5px;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.inv-meta-val {
+    font-size: 12px;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+/* GEOFÍSICA MINIMALISTA */
+.inv-geo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.inv-geo-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.inv-geo-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.inv-geo-desc {
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.45;
+}
+
+/* TIMELINE MINIMALISTA */
+.inv-timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inv-tl-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.inv-tl-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inv-tl-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.inv-tl-year {
+    font-size: 10.5px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #94a3b8;
+}
+
+.inv-tl-desc {
+    font-size: 11.5px;
+    color: #94a3b8;
+    line-height: 1.4;
+}
+
+/* CURIOSIDADES MINIMALISTAS */
+.inv-trivia-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .inv-trivia-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+.inv-trivia-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.inv-trivia-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.inv-trivia-desc {
+    font-size: 11.5px;
+    color: #94a3b8;
+    line-height: 1.4;
+}

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estelaris — Observatorio Orbital</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="investigacion.css">
+    <link rel="stylesheet" href="creador.css">
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="warp-canvas"></canvas>
+    </div>
+
+    <!-- HUD -->
+    <div class="hud-container">
+        <!-- Header editorial -->
+        <header class="hud-header">
+            <div class="header-left">
+                <div class="brand-mark" aria-hidden="true">
+                    <i class="fa-solid fa-circle-nodes"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>ESTELARIS</h1>
+                    <p>Observatorio / Simulación N-Body</p>
+                </div>
+                <span class="version-pill">
+                    <span class="dot"></span> v1.2.0 &bull; OPERATIVO
+                </span>
+            </div>
+
+            <div class="header-metrics">
+                <div class="metric">
+                    <span class="metric-label">Fecha simulada</span>
+                    <strong id="stat-date" class="metric-value" style="color:var(--accent-sand);">01 ENE 2026</strong>
+                </div>
+                <div class="metric-divider"></div>
+                <div class="metric">
+                    <span class="metric-label">Cuerpos</span>
+                    <strong id="stat-bodies" class="metric-value">17</strong>
+                </div>
+                <div class="metric-divider"></div>
+                <div class="metric">
+                    <span class="metric-label">Tiempo</span>
+                    <strong id="stat-time" class="metric-value">0.00 años</strong>
+                </div>
+                <div class="metric-divider"></div>
+                <button id="btn-reset-camera-header" class="metric" style="background:transparent; border:none; cursor:pointer; color:inherit; font-family:inherit; text-align:left;" title="Restablecer cámara (Tecla R)">
+                    <span class="metric-label" style="display:flex; align-items:center; gap:6px; color: var(--accent-blue);">
+                        <i class="fa-solid fa-video"></i>
+                        <span>Cámara</span>
+                    </span>
+                    <strong class="metric-value" style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-2);">Restablecer</strong>
+                </button>
+                <div class="metric-divider"></div>
+                <button id="btn-open-investigation-header" class="btn btn--primary btn--compact" style="font-size:11px; padding: 5px 10px; gap:6px; background:linear-gradient(135deg, rgba(142,168,255,0.25), rgba(0,242,254,0.18)); border-color:rgba(142,168,255,0.4);" title="Modo Investigativo & Ficha Científica (Ctrl + I)">
+                    <i class="fa-solid fa-microscope" style="color:var(--accent-blue);"></i>
+                    <span>Modo Investigativo</span>
+                    <span class="key-badge" style="background:rgba(0,0,0,0.35); border-color:rgba(255,255,255,0.25); font-size:9px; padding:1px 5px;">Ctrl+I</span>
+                </button>
+                <div class="metric-divider"></div>
+                <button id="btn-open-creator-header" class="btn btn--primary btn--compact" style="font-size:11px; padding: 5px 10px; gap:6px; background:linear-gradient(135deg, rgba(61,213,152,0.22), rgba(142,168,255,0.22)); border-color:rgba(61,213,152,0.4);" title="Génesis Planetario & Laboratorio Astroquímico (Ctrl + G)">
+                    <i class="fa-solid fa-atom" style="color:var(--success,#3dd598);"></i>
+                    <span>Creador Planetario</span>
+                    <span class="key-badge" style="background:rgba(0,0,0,0.35); border-color:rgba(255,255,255,0.25); font-size:9px; padding:1px 5px;">Ctrl+G</span>
+                </button>
+                <button id="btn-return-solar-system" class="btn btn--compact hidden" style="font-size:11px; padding: 5px 10px; gap:6px; background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.18); color:var(--accent-sand);" title="Regresar al Sistema Solar original">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>Volver al Sistema Solar</span>
+                </button>
+                <div class="metric-divider"></div>
+                <div class="metric metric--live">
+                    <span class="metric-label">Rendimiento</span>
+                    <strong id="stat-fps" class="metric-value">60 <span>FPS</span></strong>
+                </div>
+            </div>
+        </header>
+
+        <!-- Banner de Propagación Relativista a Velocidad c -->
+        <div id="hud-grav-wave-card" class="grav-wave-banner" style="display:none;" aria-live="polite">
+            <div class="grav-wave-left">
+                <div class="grav-wave-icon"><i class="fa-solid fa-wave-square"></i></div>
+                <div class="grav-wave-text-wrap">
+                    <div class="grav-wave-title">PROPAGACIÓN RELATIVISTA • VELOCIDAD C</div>
+                    <div class="grav-wave-desc" id="grav-wave-desc">Frente de onda gravitacional y apagón en expansión...</div>
+                </div>
+            </div>
+            <div class="grav-wave-right">
+                <div class="grav-wave-stat">
+                    <span class="grav-stat-label">Radio actual:</span>
+                    <span id="grav-wave-radius" class="grav-stat-val">0.0 AU (0.0 min luz)</span>
+                </div>
+                <div class="grav-wave-stat">
+                    <span class="grav-stat-label">Próximo astro:</span>
+                    <span id="grav-wave-next" class="grav-stat-val highlight">Mercurio en 3.8s</span>
+                </div>
+                <button id="btn-close-grav-wave" class="btn-close" style="font-size:16px; margin-left:4px; opacity:0.75; cursor:pointer; background:none; border:none; color:var(--text-2);" title="Cerrar aviso">&times;</button>
+            </div>
+        </div>
+
+        <!-- Toggles para colapsar paneles -->
+        <button id="btn-toggle-left" class="panel-toggle panel-toggle--left" aria-label="Colapsar panel de controles" aria-expanded="true" title="Colapsar / Expandir controles">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button id="btn-toggle-right" class="panel-toggle panel-toggle--right" aria-label="Colapsar telemetría" aria-expanded="false" title="Colapsar / Expandir telemetría">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+        <div class="hud-main-layout">
+            <!-- Panel Izquierdo -->
+            <aside class="hud-sidebar left-panel">
+                <!-- Ficha Dinámica: Astro Seleccionado & Acciones -->
+                <section id="left-selected-card" class="panel-card panel-card--accent is-collapsible" style="display:none; border-color:rgba(255,107,107,0.35); background:linear-gradient(180deg, rgba(35,20,30,0.85), rgba(19,23,38,0.8));">
+                    <div class="panel-card-header" data-toggle="card">
+                        <div>
+                            <span class="eyebrow" style="color:var(--danger,#ff6b6b); display:flex; align-items:center; gap:6px;">
+                                <i class="fa-solid fa-crosshairs"></i> Astro Seleccionado
+                            </span>
+                            <h2 id="left-selected-name" style="margin-top:2px;">Tierra</h2>
+                            <p class="eyebrow-sub" id="left-selected-type">Planeta rocoso</p>
+                        </div>
+                    </div>
+                    <div class="panel-card-body" style="padding-top:6px;">
+                        <button id="btn-left-delete-body" class="btn btn--danger btn--full" style="display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;background:linear-gradient(135deg,rgba(239,68,68,0.25),rgba(185,28,28,0.42));border-color:rgba(239,68,68,0.5);" title="Eliminar este cuerpo celeste y simular consecuencias astrofísicas reales">
+                            <i class="fa-solid fa-trash-can"></i> Eliminar cuerpo estelar
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Parámetros -->
+                <section class="panel-card is-collapsible">
+                    <div class="panel-card-header" data-toggle="card">
+                        <div>
+                            <span class="eyebrow">01 — Parámetros físicos</span>
+                            <h2>Universo</h2>
+                            <p class="eyebrow-sub">Ajusta las constantes sin reiniciar la simulación.</p>
+                        </div>
+                        <button class="card-collapse-btn" aria-label="Colapsar sección"><i class="fa-solid fa-chevron-up"></i></button>
+                    </div>
+                    <div class="panel-card-body">
+
+                    <div class="control-group">
+                        <div class="control-label-row">
+                            <label for="time-speed">Velocidad temporal</label>
+                            <span id="time-speed-val" class="control-value">1.0×</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" id="time-speed" min="0" max="10" step="0.1" value="1">
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label-row">
+                            <label for="grav-const">Constante gravitatoria</label>
+                            <span id="grav-const-val" class="control-value">1.0×</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" id="grav-const" min="0.1" max="5" step="0.1" value="1">
+                        </div>
+                    </div>
+
+                    <div class="button-grid">
+                        <button id="btn-play-pause" class="btn btn--primary" title="Pausar / Reanudar (Tecla L)">
+                            <i class="fa-solid fa-pause"></i> Pausar <span class="key-hint" style="margin-left:4px;font-size:9px;color:inherit;opacity:0.75;padding:1px 4px;border-radius:3px;border:1px solid rgba(0,0,0,0.3);">L</span>
+                        </button>
+                        <button id="btn-reset" class="btn btn--ghost" title="Reiniciar simulación">
+                            <i class="fa-solid fa-rotate-left"></i> Reiniciar
+                        </button>
+                    </div>
+                    </div>
+                </section>
+
+                <!-- Vista -->
+                <section class="panel-card is-collapsible">
+                    <div class="panel-card-header" data-toggle="card">
+                        <div>
+                            <span class="eyebrow">02 — Capas y Visualización</span>
+                            <h2>Óptica & Cosmos</h2>
+                        </div>
+                        <button class="card-collapse-btn" aria-label="Colapsar sección"><i class="fa-solid fa-chevron-up"></i></button>
+                    </div>
+                    <div class="panel-card-body">
+                    <label class="toggle-row">
+                        <div class="toggle-copy">
+                            <strong>Órbitas keplerianas <span class="key-hint" style="margin-left:6px;font-size:10px;color:var(--accent-sand);background:rgba(214,199,168,0.12);padding:2px 6px;border-radius:4px;border:1px solid rgba(214,199,168,0.25);">F2</span></strong>
+                            <small>Trayectorias elípticas 3D</small>
+                        </div>
+                        <span class="switch-container">
+                            <input type="checkbox" id="chk-orbits" checked>
+                            <span class="switch-slider"></span>
+                        </span>
+                    </label>
+                    <div class="separator"></div>
+                    <label class="toggle-row">
+                        <div class="toggle-copy">
+                            <strong>Vectores de estado 3D <span class="key-hint" style="margin-left:6px;font-size:10px;color:var(--accent-sand);background:rgba(214,199,168,0.12);padding:2px 6px;border-radius:4px;border:1px solid rgba(214,199,168,0.25);">F6</span></strong>
+                            <small>Velocidad (v) y Gravedad (g)</small>
+                        </div>
+                        <span class="switch-container">
+                            <input type="checkbox" id="chk-vectors">
+                            <span class="switch-slider"></span>
+                        </span>
+                    </label>
+                    <div class="separator"></div>
+                    <label class="toggle-row">
+                        <div class="toggle-copy">
+                            <strong>Campo de Atracción 3D <span class="key-hint" style="margin-left:6px;font-size:10px;color:var(--accent-sand);background:rgba(214,199,168,0.12);padding:2px 6px;border-radius:4px;border:1px solid rgba(214,199,168,0.25);">F7</span></strong>
+                            <small>Esfera de Hill / Dominio gravitatorio</small>
+                        </div>
+                        <span class="switch-container">
+                            <input type="checkbox" id="chk-gravity-field" checked>
+                            <span class="switch-slider"></span>
+                        </span>
+                    </label>
+                    <div class="separator"></div>
+                    <label class="toggle-row">
+                        <div class="toggle-copy">
+                            <strong>Lunas y satélites</strong>
+                            <small>Lunas jovianas y saturninas</small>
+                        </div>
+                        <span class="switch-container">
+                            <input type="checkbox" id="chk-moons" checked>
+                            <span class="switch-slider"></span>
+                        </span>
+                    </label>
+                    <div class="separator"></div>
+                    <label class="toggle-row">
+                        <div class="toggle-copy">
+                            <strong>Cinturón de Kuiper</strong>
+                            <small>Escombros helados transneptunianos</small>
+                        </div>
+                        <span class="switch-container">
+                            <input type="checkbox" id="chk-kuiper" checked>
+                            <span class="switch-slider"></span>
+                        </span>
+                    </label>
+                    <div class="separator"></div>
+                    <label class="toggle-row">
+                        <div class="toggle-copy">
+                            <strong>Vía Láctea & Nebulosas</strong>
+                            <small>Banda galáctica profunda</small>
+                        </div>
+                        <span class="switch-container">
+                            <input type="checkbox" id="chk-milkyway" checked>
+                            <span class="switch-slider"></span>
+                        </span>
+                    </label>
+                    <div class="separator"></div>
+                    <label class="toggle-row">
+                        <div class="toggle-copy">
+                            <strong>Cuadrícula galáctica <span class="key-hint" style="margin-left:6px;font-size:10px;color:var(--accent-sand);background:rgba(214,199,168,0.12);padding:2px 6px;border-radius:4px;border:1px solid rgba(214,199,168,0.25);">F4</span></strong>
+                            <small>Plano de referencia ecuatorial</small>
+                        </div>
+                        <span class="switch-container">
+                            <input type="checkbox" id="chk-grid">
+                            <span class="switch-slider"></span>
+                        </span>
+                    </label>
+                    <div class="separator"></div>
+                    <label class="toggle-row">
+                        <div class="toggle-copy">
+                            <strong>Zona Habitable 3D <span class="key-hint" style="margin-left:6px;font-size:10px;color:var(--accent-sand);background:rgba(214,199,168,0.12);padding:2px 6px;border-radius:4px;border:1px solid rgba(214,199,168,0.25);">H</span></strong>
+                            <small>Rango orbital de agua líquida</small>
+                        </div>
+                        <span class="switch-container">
+                            <input type="checkbox" id="chk-habitable-zone" checked>
+                            <span class="switch-slider"></span>
+                        </span>
+                    </label>
+                    <div class="separator"></div>
+                    <div class="button-grid" style="margin-top:6px">
+                        <button id="btn-cinematic-tour" class="btn btn--ghost" title="Modo Cinemático / Tour Observatorio (Tecla T)">
+                            <i class="fa-solid fa-clapperboard"></i> Cinemática <span class="key-hint" style="margin-left:2px;font-size:9px;color:var(--accent-sand);">T</span>
+                        </button>
+                        <button id="btn-lock-camera" class="btn btn--ghost" title="Bloquear / Desbloquear Cámara (Tecla U)">
+                            <i class="fa-solid fa-lock"></i> Bloquear <span class="key-hint" style="margin-left:2px;font-size:9px;color:var(--accent-sand);">U</span>
+                        </button>
+                    </div>
+                    <button id="btn-reset-camera" class="btn btn--ghost btn--full" style="margin-top:6px">
+                        <i class="fa-solid fa-video"></i> Restablecer cámara
+                    </button>
+                    </div>
+                </section>
+
+                <!-- Sandbox & Eventos Cósmicos -->
+                <section class="panel-card panel-card--accent is-collapsible">
+                    <div class="panel-card-header" data-toggle="card">
+                        <div>
+                            <span class="eyebrow eyebrow--accent">03 — Simulador de Eventos & Sandbox</span>
+                            <h2>Laboratorio Cósmico</h2>
+                            <p class="eyebrow-sub">Detona cataclismos y altera la física del sistema.</p>
+                        </div>
+                        <button class="card-collapse-btn" aria-label="Colapsar sección"><i class="fa-solid fa-chevron-up"></i></button>
+                    </div>
+                    <div class="panel-card-body">
+                        <div class="sim-mode-badge" id="sim-mode-badge">
+                            <span class="pulse-icon"><i class="fa-solid fa-atom"></i></span>
+                            <span id="sim-mode-text">Modo: Órbitas Keplerianas (Estable)</span>
+                        </div>
+
+                        <div class="sandbox-section-title">Escenarios de Cataclismo (1 Clic)</div>
+                        <div class="scenario-grid">
+                            <button class="scenario-card" id="btn-scenario-redgiant" title="El Sol se expande 30x, devora a Mercurio y Venus y calcina la Tierra">
+                                <div class="scenario-icon scenario-icon--fire"><i class="fa-solid fa-sun"></i></div>
+                                <div class="scenario-info">
+                                    <strong>Gigante Roja</strong>
+                                    <small>El Sol se expande y devora planetas</small>
+                                </div>
+                            </button>
+                            <button class="scenario-card" id="btn-scenario-deletesun" title="Apaga el Sol y elimina su gravedad: todos los planetas escapan al vacío interestelar">
+                                <div class="scenario-icon scenario-icon--dark" style="background:linear-gradient(135deg,rgba(40,40,60,0.8),rgba(10,10,20,0.9)); color:#a5b4fc; border:1px solid rgba(165,180,252,0.3);"><i class="fa-solid fa-moon"></i></div>
+                                <div class="scenario-info">
+                                    <strong>Eliminar el Sol</strong>
+                                    <small>Apagón y escape interestelar</small>
+                                </div>
+                            </button>
+                            <button class="scenario-card" id="btn-scenario-jupiterstar" title="Júpiter gana 80x de masa e inicia fusión nuclear convirtiéndose en estrella">
+                                <div class="scenario-icon scenario-icon--star"><i class="fa-solid fa-certificate"></i></div>
+                                <div class="scenario-info">
+                                    <strong>Júpiter Binario</strong>
+                                    <small>Ignición estelar y caos orbital</small>
+                                </div>
+                            </button>
+                            <button class="scenario-card" id="btn-scenario-roguestar" title="Una estrella intrusa cruza el Sistema Solar desatando caos gravitatorio N-Body">
+                                <div class="scenario-icon scenario-icon--comet"><i class="fa-solid fa-meteor"></i></div>
+                                <div class="scenario-info">
+                                    <strong>Invasor Cósmico</strong>
+                                    <small>Estrella errante cruza el sistema</small>
+                                </div>
+                            </button>
+                            <button class="scenario-card" id="btn-scenario-impact" style="grid-column: span 2;" title="Lanza un asteroide masivo de 1000 km en rumbo de colisión directa">
+                                <div class="scenario-icon scenario-icon--danger"><i class="fa-solid fa-burst"></i></div>
+                                <div class="scenario-info">
+                                    <strong>Gran Impacto Cataclísmico</strong>
+                                    <small>Colisión balística destructiva con onda de choque 3D</small>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div class="separator" style="margin:14px 0 10px 0;"></div>
+
+                        <div class="sandbox-section-title">Armas Cósmicas & Asteroides</div>
+                        <div class="button-grid">
+                            <button id="btn-launch-asteroid" class="btn btn--danger" style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;" title="Disparar proyectil asteroide guiado (Tecla K)">
+                                <span style="display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-meteor"></i> Disparar Asteroide</span>
+                                <span class="key-badge" style="background:rgba(255,255,255,0.22);color:#ffffff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;line-height:1;margin-left:4px;">K</span>
+                            </button>
+                            <button id="btn-random-event" class="btn btn--secondary" title="Generar un evento cósmico aleatorio e impredecible">
+                                <i class="fa-solid fa-dice-d20"></i> Evento Aleatorio
+                            </button>
+                            <button id="btn-nbody-toggle" class="btn btn--ghost" style="grid-column: span 2;" title="Alternar física gravitatoria N-Body en tiempo real">
+                                <i class="fa-solid fa-circle-nodes"></i> <span id="nbody-toggle-text">Activar N-Body</span>
+                            </button>
+                        </div>
+
+                        <button id="btn-reset-universe" class="btn btn--ghost btn--full" style="margin-top:10px; border-color:rgba(214,199,168,0.3); color:var(--accent-sand);" title="Restablecer el Sistema Solar a su estado inicial perfecto">
+                            <i class="fa-solid fa-rotate-left"></i> Restablecer Universo Inicial
+                        </button>
+                    </div>
+                </section>
+
+                <p class="panel-footnote">Haz clic sobre cualquier cuerpo celeste para inspeccionar su telemetría o modificar su masa y tamaño en vivo.</p>
+            </aside>
+
+            <!-- Panel Derecho - Telemetría & Mutador -->
+            <aside id="info-panel" class="hud-sidebar right-panel hidden">
+                <section class="panel-card panel-card--telemetry is-collapsible">
+                    <div class="telemetry-head" data-toggle="card">
+                        <div>
+                            <span class="eyebrow eyebrow--accent">Objeto seleccionado</span>
+                            <div class="body-header">
+                                <span id="info-name" class="body-title">Tierra</span>
+                                <span id="info-type" class="body-badge">Planeta</span>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:center">
+                            <button class="card-collapse-btn" aria-label="Colapsar"><i class="fa-solid fa-chevron-up"></i></button>
+                            <button id="btn-close-info" class="btn-close" aria-label="Cerrar telemetría">&times;</button>
+                        </div>
+                    </div>
+                    <div class="panel-card-body">
+                    <div class="telemetry-grid">
+                        <div class="telemetry-item">
+                            <span class="telemetry-label">Diámetro</span>
+                            <span id="info-radius" class="telemetry-value">12,742 km</span>
+                        </div>
+                        <div class="telemetry-item">
+                            <span class="telemetry-label">Masa</span>
+                            <span id="info-mass" class="telemetry-value">0.65 U.M.</span>
+                        </div>
+                        <div class="telemetry-item telemetry-item--wide">
+                            <span class="telemetry-label">Velocidad instantánea</span>
+                            <span id="info-speed" class="telemetry-value telemetry-value--mono">29.78 km/s</span>
+                        </div>
+                        <div class="telemetry-item telemetry-item--wide">
+                            <span class="telemetry-label">Estado Térmico / Físico</span>
+                            <span id="info-status" class="telemetry-value status-good"><span class="status-dot-inline"></span> Estable</span>
+                        </div>
+                        <div class="telemetry-item telemetry-item--wide" style="border-color:rgba(142,168,255,0.25); background:rgba(142,168,255,0.06);">
+                            <span class="telemetry-label" style="color:var(--accent-blue);"><i class="fa-solid fa-circle-nodes"></i> Campo de Atracción (Esfera de Hill)</span>
+                            <span id="info-gravity-reach" class="telemetry-value" style="color:var(--accent-blue);">1.50 M km (Alcance: 1.0×)</span>
+                        </div>
+                    </div>
+
+                    <button id="btn-open-investigation-panel" class="btn btn--primary btn--full" style="margin-top:12px; background:linear-gradient(135deg, rgba(142,168,255,0.22), rgba(0,242,254,0.14)); border-color:rgba(142,168,255,0.35);" title="Abrir Corte Geológico y Ficha Teórica (Ctrl + I)">
+                        <i class="fa-solid fa-layer-group" style="color:var(--accent-blue);"></i> Inspección Teórica & Corte de Capas
+                    </button>
+
+                    <!-- Mutador Cósmico: ¿Qué pasaría si...? -->
+                    <div class="separator" style="margin: 16px 0 12px 0;"></div>
+                    <div class="telemetry-section-title" style="color:var(--accent-sand);display:flex;align-items:center;justify-content:space-between;margin-top:0;">
+                        <span><i class="fa-solid fa-wand-magic-sparkles"></i> Mutador Cósmico (¿Qué pasaría si...?)</span>
+                    </div>
+
+                    <div class="control-group" style="margin-top:8px;">
+                        <div class="control-label-row">
+                            <label for="body-radius-slider">Escala de Tamaño / Radio</label>
+                            <span id="body-radius-val" class="control-value">1.0×</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" id="body-radius-slider" min="0.2" max="30" step="0.1" value="1">
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label-row">
+                            <label for="body-mass-slider">Escala de Masa Gravitatoria</label>
+                            <span id="body-mass-val" class="control-value">1.0×</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" id="body-mass-slider" min="0.05" max="80" step="0.1" value="1">
+                        </div>
+                    </div>
+
+                    <div class="button-grid" style="margin-top:8px;">
+                        <button id="btn-target-impact" class="btn btn--danger" title="Disparar asteroide con impacto garantizado a este astro">
+                            <i class="fa-solid fa-bullseye"></i> Impactar este Astro
+                        </button>
+                        <button id="btn-reset-body" class="btn btn--ghost" title="Restablecer masa y radio original a este astro">
+                            <i class="fa-solid fa-rotate-left"></i> Restaurar Astro
+                        </button>
+                    </div>
+                    <button id="btn-delete-selected-body" class="btn btn--danger btn--full" style="margin-top:8px; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, rgba(239,68,68,0.22), rgba(185,28,28,0.38)); border-color:rgba(239,68,68,0.48);" title="Eliminar este cuerpo celeste y simular consecuencias astrofísicas reales">
+                        <i class="fa-solid fa-trash-can"></i> Eliminar cuerpo estelar
+                    </button>
+
+                    <div class="separator" style="margin: 18px 0 12px 0;"></div>
+                    <div class="telemetry-section-title" style="margin-top:0;">Parámetros Keplerianos & Física</div>
+                    <div class="telemetry-grid telemetry-grid--compact">
+                        <div class="telemetry-item">
+                            <span class="telemetry-label">Excentricidad (e)</span>
+                            <span id="info-eccentricity" class="telemetry-value telemetry-value--mono">0.0167</span>
+                        </div>
+                        <div class="telemetry-item">
+                            <span class="telemetry-label">Inclinación (i)</span>
+                            <span id="info-inclination" class="telemetry-value telemetry-value--mono">0.00°</span>
+                        </div>
+                        <div class="telemetry-item">
+                            <span class="telemetry-label">Distancia al Sol</span>
+                            <span id="info-current-dist" class="telemetry-value telemetry-value--mono">1.000 AU</span>
+                        </div>
+                        <div class="telemetry-item">
+                            <span class="telemetry-label">Periodo orbital</span>
+                            <span id="info-period" class="telemetry-value telemetry-value--mono">1.00 años</span>
+                        </div>
+                        <div class="telemetry-item">
+                            <span class="telemetry-label">Energía Cinética (Ek)</span>
+                            <span id="info-energy-k" class="telemetry-value telemetry-value--mono" style="color:var(--success);">443.2 MJ</span>
+                        </div>
+                        <div class="telemetry-item">
+                            <span class="telemetry-label">Energía Potencial (Ep)</span>
+                            <span id="info-energy-p" class="telemetry-value telemetry-value--mono" style="color:var(--danger);">-886.4 MJ</span>
+                        </div>
+                    </div>
+
+                    <button id="btn-focus-body" class="btn btn--primary btn--full" style="margin-top:12px;">
+                        <i class="fa-solid fa-crosshairs"></i> <span id="btn-focus-text">Enfocar cámara</span>
+                    </button>
+                    <p class="telemetry-hint">Usa este botón o la tecla Esc para alternar el enfoque de cámara.</p>
+                    </div>
+                </section>
+            </aside>
+        </div>
+
+        <!-- Selector Celestial Compacto (Inferior Derecha) -->
+        <nav class="celestial-dock" id="celestial-dock" aria-label="Navegación de cuerpos celestes">
+            <!-- Menú Desplegable Flotante hacia arriba -->
+            <div class="dock-dropdown-menu hidden" id="dock-dropdown-menu">
+                <div class="dock-dropdown-header">
+                    <span class="dock-dropdown-title">Sistema Solar</span>
+                    <button id="btn-dock-overview" class="dock-item-mini dock-item-mini--overview" title="Vista general (Esc)">
+                        <i class="fa-solid fa-arrows-to-eye"></i> General
+                    </button>
+                </div>
+                <div class="dock-items-wrapper" id="dock-items-wrapper">
+                    <!-- Lista de cuerpos celestes -->
+                </div>
+            </div>
+
+            <div class="dock-header-row">
+                <button id="btn-dock-prev" class="dock-arrow-btn" aria-label="Cuerpo anterior" title="Cuerpo anterior (Flecha Izquierda)">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                
+                <div class="dock-title-btn" id="dock-title-btn" role="button" tabindex="0" title="Haz clic para ver todos los cuerpos celestes">
+                    <span id="dock-current-avatar" class="dock-avatar avatar--general"></span>
+                    <span id="dock-current-name" class="dock-title-text">&lt; Cuerpos Celestes &gt;</span>
+                    <i class="fa-solid fa-chevron-up dock-chevron" id="dock-chevron"></i>
+                </div>
+
+                <button id="btn-dock-next" class="dock-arrow-btn" aria-label="Siguiente cuerpo" title="Siguiente cuerpo (Flecha Derecha)">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </nav>
+
+        <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+    </div>
+
+    <!-- CONTENEDOR MODULAR MODO INVESTIGATIVO (Carga asíncrona de investigacion.html sin recargar la página) -->
+    <div id="investigation-root" class="investigation-root hidden" aria-hidden="true"></div>
+
+    <!-- CONTENEDOR MODULAR GÉNESIS PLANETARIO (Carga asíncrona de creador.html) -->
+    <div id="planet-creator-root" class="planet-creator-root hidden" aria-hidden="true"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

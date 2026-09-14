@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ximena — Rol Visual & Dirección de Arte | Estelaris Expo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+:root {
+  --bg-0: #06080f;
+  --bg-1: #080c18;
+  --surface: rgba(19, 23, 38, 0.85);
+  --surface-2: rgba(24, 30, 51, 0.90);
+  --surface-strong: rgba(27, 33, 56, 0.98);
+  --surface-glass: rgba(19, 23, 38, 0.65);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-accent: rgba(214, 199, 168, 0.30);
+  --border-blue: rgba(142, 168, 255, 0.30);
+  --text-1: #eef2ff;
+  --text-2: #9aa2bc;
+  --text-3: #6e7896;
+  --muted: #8d97b5;
+  --accent-sand: #d6c7a8;
+  --accent-sand-soft: rgba(214, 199, 168, 0.12);
+  --accent-blue: #8ea8ff;
+  --accent-blue-soft: rgba(142, 168, 255, 0.12);
+  --accent-cyan: #00f2fe;
+  --accent-purple: #c084fc;
+  --accent-pink: #f472b6;
+  --success: #3dd598;
+  --danger: #ff6b6b;
+  --warning: #fbbf24;
+  --radius-xl: 18px;
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --radius-pill: 999px;
+  --shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  --shadow-glow: 0 0 20px rgba(142, 168, 255, 0.15);
+  --font-display: 'Orbitron', sans-serif;
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 15px; scroll-behavior: smooth; }
+body {
+  background: 
+    radial-gradient(900px 500px at 15% -5%, rgba(142, 168, 255, 0.12), transparent 70%),
+    radial-gradient(800px 400px at 85% 15%, rgba(214, 199, 168, 0.09), transparent 60%),
+    linear-gradient(180deg, #070a14 0%, #06080f 50%, #030408 100%);
+  color: var(--text-1);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  min-height: 100vh;
+  padding: 12px 12px 80px 12px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+.expo-app { max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.expo-header {
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 10px;
+  z-index: 100;
+}
+.header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.header-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+.brand-icon {
+  width: 38px; height: 38px; border-radius: var(--radius-md); display: grid; place-items: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border-strong); color: var(--accent-sand); font-size: 16px; flex-shrink: 0;
+}
+.brand-info h1 { font-family: var(--font-display); font-size: 13px; letter-spacing: 0.16em; font-weight: 700; line-height: 1.1; color: var(--text-1); }
+.brand-info p { font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; }
+.role-pill {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: var(--radius-pill);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  background: var(--accent-blue-soft); border: 1px solid var(--border-blue); color: var(--accent-blue);
+}
+.role-pill--sand { background: var(--accent-sand-soft); border-color: var(--border-accent); color: var(--accent-sand); }
+.role-pill--purple { background: rgba(192, 132, 252, 0.14); border-color: rgba(192, 132, 252, 0.35); color: var(--accent-purple); }
+.role-pill--green { background: rgba(61, 213, 152, 0.14); border-color: rgba(61, 213, 152, 0.35); color: var(--success); }
+.role-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.profile-card {
+  background: var(--surface); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 16px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden;
+}
+.profile-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent-sand), var(--accent-blue), var(--accent-cyan));
+}
+.profile-header { display: flex; align-items: center; gap: 14px; }
+.avatar-bubble {
+  width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(142, 168, 255, 0.2), rgba(0, 242, 254, 0.1)); border: 1px solid rgba(142, 168, 255, 0.3); color: var(--accent-blue);
+}
+.avatar-bubble--sand { background: linear-gradient(135deg, rgba(214, 199, 168, 0.25), rgba(251, 191, 36, 0.1)); border-color: rgba(214, 199, 168, 0.4); color: var(--accent-sand); }
+.avatar-bubble--purple { background: linear-gradient(135deg, rgba(192, 132, 252, 0.25), rgba(244, 114, 182, 0.15)); border-color: rgba(192, 132, 252, 0.4); color: var(--accent-purple); }
+.avatar-bubble--green { background: linear-gradient(135deg, rgba(61, 213, 152, 0.25), rgba(0, 242, 254, 0.15)); border-color: rgba(61, 213, 152, 0.4); color: var(--success); }
+.profile-meta h2 { font-family: var(--font-display); font-size: 17px; color: var(--text-1); letter-spacing: 0.05em; margin-bottom: 2px; }
+.profile-meta .role-subtitle { font-size: 12px; color: var(--accent-sand); font-weight: 500; }
+.profile-stats-row {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 10px;
+}
+.profile-stat { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.profile-stat-lbl { font-size: 10px; text-transform: uppercase; color: var(--text-3); letter-spacing: 0.06em; }
+.profile-stat-val { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--text-1); }
+.quick-nav { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 6px 2px; scrollbar-width: none; }
+.quick-nav::-webkit-scrollbar { display: none; }
+.quick-nav-btn {
+  white-space: nowrap; padding: 8px 14px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 600;
+  color: var(--text-2); background: var(--surface); border: 1px solid var(--border); text-decoration: none;
+  display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+}
+.quick-nav-btn:active, .quick-nav-btn.active { background: var(--accent-blue-soft); color: var(--accent-blue); border-color: var(--border-blue); }
+.section-card {
+  background: var(--surface); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 18px 16px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 14px;
+}
+.section-head { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+.section-title-wrap { display: flex; flex-direction: column; gap: 2px; }
+.section-eyebrow { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-sand); }
+.section-title { font-family: var(--font-display); font-size: 15px; color: var(--text-1); letter-spacing: 0.04em; display: flex; align-items: center; gap: 8px; }
+.section-badge { font-size: 10px; font-family: var(--font-mono); padding: 2px 7px; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.08); color: var(--text-2); }
+.topic-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; display: flex; flex-direction: column; gap: 10px; transition: transform 0.15s ease; }
+.topic-card-head { display: flex; align-items: flex-start; gap: 10px; }
+.topic-icon {
+  width: 32px; height: 32px; border-radius: var(--radius-md); display: grid; place-items: center; font-size: 14px; flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06); color: var(--accent-sand); border: 1px solid var(--border);
+}
+.topic-icon--blue { background: var(--accent-blue-soft); color: var(--accent-blue); border-color: var(--border-blue); }
+.topic-icon--cyan { background: rgba(0, 242, 254, 0.12); color: var(--accent-cyan); border-color: rgba(0, 242, 254, 0.3); }
+.topic-icon--purple { background: rgba(192, 132, 252, 0.12); color: var(--accent-purple); border-color: rgba(192, 132, 252, 0.3); }
+.topic-icon--green { background: rgba(61, 213, 152, 0.12); color: var(--success); border-color: rgba(61, 213, 152, 0.3); }
+.topic-title { font-size: 13.5px; font-weight: 700; color: var(--text-1); line-height: 1.25; }
+.topic-subtitle { font-size: 11px; color: var(--text-3); }
+.topic-body { font-size: 12.5px; color: var(--text-2); line-height: 1.55; }
+.topic-body strong { color: var(--text-1); }
+.topic-body ul { padding-left: 18px; margin-top: 6px; display: flex; flex-direction: column; gap: 5px; }
+.topic-body li { font-size: 12px; }
+.highlight-box {
+  background: rgba(214, 199, 168, 0.07); border-left: 3px solid var(--accent-sand); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 8px 10px; font-size: 11.5px; color: var(--accent-sand); margin-top: 6px; line-height: 1.45;
+}
+.highlight-box--blue { background: rgba(142, 168, 255, 0.08); border-left-color: var(--accent-blue); color: var(--accent-blue); }
+.highlight-box--green { background: rgba(61, 213, 152, 0.08); border-left-color: var(--success); color: var(--success); }
+.highlight-box--purple { background: rgba(192, 132, 252, 0.08); border-left-color: var(--accent-purple); color: var(--accent-purple); }
+.highlight-box--danger { background: rgba(255, 107, 107, 0.08); border-left-color: var(--danger); color: #ff9999; }
+.timeline { display: flex; flex-direction: column; gap: 12px; position: relative; padding-left: 16px; }
+.timeline::before {
+  content: ''; position: absolute; top: 10px; bottom: 10px; left: 6px; width: 2px;
+  background: linear-gradient(180deg, var(--accent-sand), var(--accent-blue), var(--accent-purple)); opacity: 0.4;
+}
+.timeline-step {
+  position: relative; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;
+}
+.timeline-step::before {
+  content: ''; position: absolute; left: -14px; top: 16px; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent-sand); border: 2px solid var(--bg-0); box-shadow: 0 0 6px var(--accent-sand);
+}
+.timeline-step:nth-child(2)::before { background: var(--accent-blue); box-shadow: 0 0 6px var(--accent-blue); }
+.timeline-step:nth-child(3)::before { background: var(--accent-cyan); box-shadow: 0 0 6px var(--accent-cyan); }
+.timeline-step:nth-child(4)::before { background: var(--accent-purple); box-shadow: 0 0 6px var(--accent-purple); }
+.timeline-time { font-family: var(--font-mono); font-size: 10px; color: var(--accent-sand); text-transform: uppercase; letter-spacing: 0.08em; display: flex; justify-content: space-between; }
+.timeline-title { font-size: 13px; font-weight: 700; color: var(--text-1); }
+.timeline-script { background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 10px; font-size: 11.5px; color: #e2e8f0; font-style: italic; line-height: 1.5; }
+.timeline-action { font-size: 11px; color: var(--accent-cyan); display: flex; align-items: center; gap: 5px; font-weight: 600; }
+.faq-accordion { display: flex; flex-direction: column; gap: 10px; }
+.faq-item { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: all 0.2s ease; }
+.faq-question {
+  width: 100%; text-align: left; background: transparent; border: none; padding: 12px 14px; display: flex;
+  align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; color: var(--text-1);
+  font-family: inherit; font-size: 12.5px; font-weight: 600;
+}
+.faq-question i.chevron { font-size: 11px; color: var(--text-3); transition: transform 0.2s ease; }
+.faq-item.open .faq-question i.chevron { transform: rotate(180deg); color: var(--accent-blue); }
+.faq-item.open { border-color: var(--border-blue); background: var(--surface-strong); }
+.faq-answer { display: none; padding: 0 14px 14px 14px; font-size: 12px; color: var(--text-2); line-height: 1.55; border-top: 1px dashed rgba(255, 255, 255, 0.08); margin-top: 2px; padding-top: 10px; }
+.faq-item.open .faq-answer { display: block; }
+.pro-tip { background: rgba(61, 213, 152, 0.1); border: 1px solid rgba(61, 213, 152, 0.3); border-radius: var(--radius-md); padding: 6px 10px; margin-top: 8px; font-size: 11px; color: var(--success); display: flex; align-items: center; gap: 6px; }
+.expo-bottom-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 14, 26, 0.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-strong); display: flex; justify-content: space-around; align-items: center; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); z-index: 200;
+}
+.expo-tab-link {
+  display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; color: var(--text-3);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.04em; padding: 4px 8px; border-radius: var(--radius-md); transition: all 0.2s ease; min-width: 64px;
+}
+.expo-tab-link i { font-size: 16px; }
+.expo-tab-link.active { color: var(--accent-sand); background: rgba(214, 199, 168, 0.12); }
+.expo-tab-link.active--blue { color: var(--accent-blue); background: rgba(142, 168, 255, 0.14); }
+.expo-tab-link.active--purple { color: var(--accent-purple); background: rgba(192, 132, 252, 0.14); }
+.expo-tab-link.active--green { color: var(--success); background: rgba(61, 213, 152, 0.14); }
+.key-badge { display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; min-width: 18px; }
+.code-box { background: #04060a; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px; font-family: var(--font-mono); font-size: 11px; color: #c9d1d9; overflow-x: auto; line-height: 1.45; }
+.code-box .kw { color: #ff7b72; }
+.code-box .fn { color: #d2a8ff; }
+.code-box .str { color: #a5d6ff; }
+.code-box .cm { color: #8b949e; font-style: italic; }
+.code-box .num { color: #79c0ff; }
+.concept-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.concept-cell { background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px; display: flex; flex-direction: column; gap: 4px; }
+.concept-cell-title { font-size: 11px; font-weight: 700; color: var(--accent-sand); text-transform: uppercase; letter-spacing: 0.05em; }
+.concept-cell-desc { font-size: 11.5px; color: var(--text-2); line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <div class="expo-app">
+        <!-- Header Móvil Fijo -->
+        <header class="expo-header">
+            <div class="header-row">
+                <a href="index.html" class="header-brand">
+                    <div class="brand-icon"><i class="fa-solid fa-palette"></i></div>
+                    <div class="brand-info">
+                        <h1>ESTELARIS</h1>
+                        <p>Ficha de Exposición &bull; Móvil</p>
+                    </div>
+                </a>
+                <span class="role-pill role-pill--sand">
+                    <span class="dot"></span> VISUAL
+                </span>
+            </div>
+        </header>
+
+        <!-- Banner de Perfil de Ximena -->
+        <section class="profile-card">
+            <div class="profile-header">
+                <div class="avatar-bubble avatar-bubble--sand">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div class="profile-meta">
+                    <h2>Ximena</h2>
+                    <div class="role-subtitle">Dirección de Arte &bull; UI/UX &bull; Gráficos 3D</div>
+                </div>
+            </div>
+
+            <div class="profile-stats-row">
+                <div class="profile-stat">
+                    <span class="profile-stat-lbl">Tu Misión</span>
+                    <span class="profile-stat-val" style="color:var(--accent-sand);">Estética & UI</span>
+                </div>
+                <div class="profile-stat">
+                    <span class="profile-stat-lbl">Tiempo sugerido</span>
+                    <span class="profile-stat-val">3 - 4 min</span>
+                </div>
+                <div class="profile-stat">
+                    <span class="profile-stat-lbl">Impacto</span>
+                    <span class="profile-stat-val" style="color:var(--success);">Inmersión 10/10</span>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <i class="fa-solid fa-lightbulb"></i> <strong>Tu objetivo:</strong> Demostrar que Estelaris no es solo un programa con bolitas en pantalla, sino un <strong>observatorio astronómico editorial</strong> diseñado con rigor estético, psicología del color, iluminación realista y usabilidad limpia.
+            </div>
+        </section>
+
+        <!-- Navegación Rápida de Temas -->
+        <nav class="quick-nav" aria-label="Temas rápidos">
+            <a href="#filosofia" class="quick-nav-btn"><i class="fa-solid fa-compass-drafting"></i> Estilo & Paleta</a>
+            <a href="#graficos3d" class="quick-nav-btn"><i class="fa-solid fa-cube"></i> Renderizado 3D</a>
+            <a href="#entorno" class="quick-nav-btn"><i class="fa-solid fa-meteor"></i> Partículas & Fondo</a>
+            <a href="#geologia" class="quick-nav-btn"><i class="fa-solid fa-layer-group"></i> Corte SVG</a>
+            <a href="#guion" class="quick-nav-btn"><i class="fa-solid fa-microphone-lines"></i> Tu Guion</a>
+            <a href="#anticorche" class="quick-nav-btn"><i class="fa-solid fa-shield-halved"></i> Anti-Corche</a>
+        </nav>
+
+        <!-- SECCIÓN 1: FILOSOFÍA VISUAL Y UI/UX -->
+        <article class="section-card" id="filosofia">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-eyebrow">Pilar 01 — Dirección de Arte</span>
+                    <h3 class="section-title"><i class="fa-solid fa-eye" style="color:var(--accent-sand);"></i> Filosofía "Anti-Genérico"</h3>
+                </div>
+                <span class="section-badge">UI/UX</span>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-card-head">
+                    <div class="topic-icon"><i class="fa-solid fa-ban"></i></div>
+                    <div>
+                        <div class="topic-title">No es un juego arcade, es un Observatorio</div>
+                        <div class="topic-subtitle">Rompiendo el cliché de la ciencia ficción</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    La mayoría de proyectos escolares usan fondos morados de neón chillón y botones fluorescentes. En <strong>Estelaris</strong> adoptamos una línea <strong>editorial y de instrumentación científica real</strong>:
+                    <ul>
+                        <li><strong>Inspiración:</strong> Interfaces de telemetría de observatorios como el ESO (Very Large Telescope) y consolas de monitoreo orbital de la NASA y la ESA.</li>
+                        <li><strong>Glassmorphism calibrado:</strong> Paneles con <code>backdrop-filter: blur(18px)</code> que permiten vislumbrar el cosmos y las órbitas detrás sin perder contraste ni legibilidad.</li>
+                        <li><strong>Modo Inmersivo (Tecla F8):</strong> Oculta instantáneamente todo el HUD para convertir la simulación en un proyector de planetario puro.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-cell">
+                    <div class="concept-cell-title"><i class="fa-solid fa-palette"></i> Paleta Cromática</div>
+                    <div class="concept-cell-desc">
+                        <strong>Deep Space (#06080f):</strong> Negro no puro para evitar fatiga.<br>
+                        <strong>Arena Estelar (#d6c7a8):</strong> Jerarquía noble.<br>
+                        <strong>Azul Hielo (#8ea8ff):</strong> Tecnología y frío cósmico.
+                    </div>
+                </div>
+                <div class="concept-cell">
+                    <div class="concept-cell-title"><i class="fa-solid fa-font"></i> Tipografía Tripartita</div>
+                    <div class="concept-cell-desc">
+                        <strong>Orbitron:</strong> Títulos y marcas cósmicas.<br>
+                        <strong>Instrument Sans:</strong> Textos editoriales y botones.<br>
+                        <strong>JetBrains Mono:</strong> Telemetría y valores matemáticos exactos.
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- SECCIÓN 2: RENDERIZADO 3D & ILUMINACIÓN -->
+        <article class="section-card" id="graficos3d">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-eyebrow">Pilar 02 — Three.js Graphics</span>
+                    <h3 class="section-title"><i class="fa-solid fa-sun" style="color:#fbbf24;"></i> Iluminación Solar & Texturas</h3>
+                </div>
+                <span class="section-badge">Motor 3D</span>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-card-head">
+                    <div class="topic-icon topic-icon--blue"><i class="fa-solid fa-lightbulb"></i></div>
+                    <div>
+                        <div class="topic-title">Física de la Luz: Día y Noche Realistas</div>
+                        <div class="topic-subtitle">Three.PointLight en el centro del Sol</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <ul>
+                        <li><strong>Luz Solar Central:</strong> El Sol no es solo un adorno, aloja un <code>THREE.PointLight</code> omnidireccional de alta intensidad. Cuando la Tierra o Marte rotan, <strong>la cara expuesta se ilumina y la cara posterior queda en penumbra nocturna real</strong>.</li>
+                        <li><strong>Luz Ambiental Suave:</strong> Un <code>AmbientLight</code> tenue (0.08x) evita que el lado oscuro sea un agujero negro absoluto, simulando la dispersión estelar del espacio profundo.</li>
+                        <li><strong>Texturas PBR de Alta Resolución:</strong> Mapeadas sobre esferas 3D con texturas de la NASA de la Tierra, Júpiter con su Gran Mancha Roja, Marte, Mercurio, Saturno con textura difusa y anillos semitransparentes con mapa de transparencia (canal alfa).</li>
+                        <li><strong>Modelos GLTF / GLB:</strong> Carga de mallas 3D optimizadas mediante <code>GLTFLoader</code> para lunas y astros especiales.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-card-head">
+                    <div class="topic-icon topic-icon--cyan"><i class="fa-solid fa-ring"></i></div>
+                    <div>
+                        <div class="topic-title">Capas Científicas Visibles (HUD en 3D)</div>
+                        <div class="topic-subtitle">Superposiciones visuales para entender la física</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <ul>
+                        <li><strong>Órbitas Keplerianas (F2):</strong> Trayectorias elípticas finas generadas con <code>LineLoop</code> que trazan la ruta matemática del astro en el espacio.</li>
+                        <li><strong>Zona Habitable Goldilocks (Tecla H):</strong> Un disco traslúcido verde esmeralda que indica visualmente la franja de temperatura donde el agua puede mantenerse en estado líquido.</li>
+                        <li><strong>Esfera de Hill / Campo de Gravedad (F7):</strong> Esfera wireframe cian que delimita la burbuja donde la gravedad del planeta domina sobre la del Sol.</li>
+                        <li><strong>Vectores de Estado 3D (F6):</strong> Flechas dinámicas en tiempo real: <strong>Cian</strong> para velocidad tangencial y <strong>Magenta</strong> para aceleración gravitatoria.</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- SECCIÓN 3: ENTORNO CÓSMICO, PARTÍCULAS Y CORTE SVG -->
+        <article class="section-card" id="entorno">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-eyebrow">Pilar 03 — Ambiente & Microscopio</span>
+                    <h3 class="section-title"><i class="fa-solid fa-atom" style="color:var(--accent-purple);"></i> Partículas & Laboratorio SVG</h3>
+                </div>
+                <span class="section-badge">FX & SVG</span>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-card-head">
+                    <div class="topic-icon topic-icon--purple"><i class="fa-solid fa-sparkles"></i></div>
+                    <div>
+                        <div class="topic-title">4.600 Partículas en Tiempo Real</div>
+                        <div class="topic-subtitle">Profundidad de campo y densidad espacial</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <ul>
+                        <li><strong>Cinturón de Asteroides:</strong> 1.800 asteroides individuales entre Marte y Júpiter generados proceduralmente con dispersión vertical gaussiana.</li>
+                        <li><strong>Cinturón de Kuiper:</strong> 2.800 fragmentos helados más allá de Neptuno que enmarcan la frontera del sistema.</li>
+                        <li><strong>Viento Espacial Warp (Canvas 2D):</strong> Una capa superpuesta transparente en <code>#warp-canvas</code> con partículas horizontales que se estiran cuando aumentas la velocidad de la simulación.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="topic-card" id="geologia">
+                <div class="topic-card-head">
+                    <div class="topic-icon topic-icon--green"><i class="fa-solid fa-layer-group"></i></div>
+                    <div>
+                        <div class="topic-title">Corte Geológico Transversal SVG (Ctrl + I)</div>
+                        <div class="topic-subtitle">Inspección interna interactiva</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    En vez de una imagen estática aburrida, diseñamos un <strong>diagrama vectorial SVG interactivo</strong>:
+                    <ul>
+                        <li>Permite hacer clic sobre la <strong>Corteza, Manto Superior, Manto Inferior, Núcleo Externo Líquido o Núcleo Interno Sólido</strong>.</li>
+                        <li>El SVG resalta la capa con un resplandor dinámico y sincroniza la ficha con profundidad (km), temperatura (°C), presión (GPa) y composición química de gases en barras de espectroscopía.</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- SECCIÓN 4: GUION PASO A PASO PARA XIMENA -->
+        <article class="section-card" id="guion">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-eyebrow">Tu Actuación en la Expo</span>
+                    <h3 class="section-title"><i class="fa-solid fa-microphone-lines" style="color:var(--accent-blue);"></i> Guion de Exposición</h3>
+                </div>
+                <span class="section-badge">Minuto a Minuto</span>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-step">
+                    <div class="timeline-time">
+                        <span>Paso 1 &bull; Introducción</span>
+                        <span>0:00 - 0:45</span>
+                    </div>
+                    <div class="timeline-title">Presentar el concepto y la Dirección de Arte</div>
+                    <div class="timeline-script">
+                        "Buenas tardes profesores y compañeros. En Estelaris me encargué de toda la Dirección de Arte, el diseño UI/UX y la experiencia visual 3D. Nuestro objetivo principal fue alejarnos del cliché de los proyectos espaciales de neón arcade y concebir una interfaz de observatorio astronómico profesional, sobria y limpia..."
+                    </div>
+                    <div class="timeline-action">
+                        <i class="fa-solid fa-hand-pointer"></i> Muestra en pantalla el modo inmersivo con <strong>F8</strong> y luego vuelve al HUD.
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-time">
+                        <span>Paso 2 &bull; Iluminación y Gráficos</span>
+                        <span>0:45 - 1:45</span>
+                    </div>
+                    <div class="timeline-title">Demostrar las capas 3D y la iluminación</div>
+                    <div class="timeline-script">
+                        "En el espacio, la luz lo es todo. Situamos un PointLight en el Sol para generar sombras reales en los planetas. Fíjense cómo se aprecia la fase diurna y nocturna al orbitar la Tierra. Además, añadimos capas de visualización científica: las órbitas keplerianas, el Cinturón de Asteroides con 1.800 partículas, y la Zona Habitable Goldilocks con la tecla H..."
+                    </div>
+                    <div class="timeline-action">
+                        <i class="fa-solid fa-hand-pointer"></i> Presiona <strong>H</strong> para mostrar la Zona Habitable y activa órbitas con <strong>F2</strong>.
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-time">
+                        <span>Paso 3 &bull; Modo Investigativo SVG</span>
+                        <span>1:45 - 2:45</span>
+                    </div>
+                    <div class="timeline-title">Abrir el Laboratorio de Corte Geológico</div>
+                    <div class="timeline-script">
+                        "Para que la experiencia no se quedara solo en mirar la superficie exterior de los planetas, diseñamos el Modo Investigativo con Ctrl + I. Aquí renderizamos un corte geológico vectorial interactivo en SVG. Al tocar cualquier capa, como el manto o el núcleo terrestre, la interfaz revela en tiempo real su composición mineral, presiones extremas y espectroscopía de gases..."
+                    </div>
+                    <div class="timeline-action">
+                        <i class="fa-solid fa-hand-pointer"></i> Presiona <strong>Ctrl + I</strong>, selecciona la Tierra y haz clic en el Núcleo Interno.
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-time">
+                        <span>Paso 4 &bull; Cierre & Pase a Emmanuel</span>
+                        <span>2:45 - 3:15</span>
+                    </div>
+                    <div class="timeline-title">Conectar la estética con la física</div>
+                    <div class="timeline-script">
+                        "Cada elemento visual responde a datos y leyes científicas rigurosas. Para explicar cómo cobran vida todas estas órbitas y cómo responde la física del sistema, le cedo la palabra a mi compañero Emmanuel, quien les mostrará el motor de simulación y funcionamiento..."
+                    </div>
+                    <div class="timeline-action">
+                        <i class="fa-solid fa-arrow-right"></i> Señala a Emmanuel para una transición fluida.
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- SECCIÓN 5: BANCO ANTI-CORCHE (PREGUNTAS TRAMPA) -->
+        <article class="section-card" id="anticorche">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-eyebrow">Para que nadie te corche</span>
+                    <h3 class="section-title"><i class="fa-solid fa-shield-halved" style="color:var(--danger);"></i> Escudo Anti-Corche</h3>
+                </div>
+                <span class="section-badge">Q&A Maestro</span>
+            </div>
+
+            <p style="font-size:12px; color:var(--text-2);">Toca cada pregunta para desplegar la respuesta perfecta si el profesor o jurado intenta ponerte a prueba:</p>
+
+            <div class="faq-accordion">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                        <span>1. "¿Por qué los tamaños y distancias de los planetas no están a escala real exacta en la pantalla?"</span>
+                        <i class="fa-solid fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <strong>Respuesta Maestra:</strong> "Excelente pregunta, profesor. Si usáramos la escala física real 1:1, el Sistema Solar es 99.999% vacío: el Sol mediría 1 metro de diámetro y la Tierra sería una mota de polvo de 9 milímetros a más de 100 metros de distancia, volviéndose completamente invisible e inusable en una pantalla. Por eso aplicamos una <strong>escala logarítmica visual calibrada</strong> que preserva las proporciones relativas entre planetas interiores, gigantes gaseosos y lunas, garantizando tanto el valor pedagógico como la estética."
+                        <div class="pro-tip"><i class="fa-solid fa-check"></i> Demuestra que conoces la escala real del universo y justificas el diseño.</div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                        <span>2. "¿Qué técnica usaste para que los paneles flotantes no tapen la escena 3D?"</span>
+                        <i class="fa-solid fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <strong>Respuesta Maestra:</strong> "Implementamos tres soluciones de diseño UI/UX: 1) <strong>Glassmorphism translúcido</strong> con desenfoque de fondo para mantener la percepción de profundidad cósmica; 2) <strong>Paneles colapsables</strong> con chevrons y memoria de estado; y 3) Un <strong>Modo Inmersivo absoluto mediante la tecla F8</strong> que oculta todo el DOM con un solo toque para disfrutar de la vista pura del observatorio."
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                        <span>3. "¿Por qué usar SVG en el corte de planetas en lugar de una imagen JPG o PNG?"</span>
+                        <i class="fa-solid fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <strong>Respuesta Maestra:</strong> "Un PNG es estático, pesado y se pixela al ampliar. El <strong>SVG es vectorial, infinitamente nítido y está integrado directamente en el DOM</strong>. Esto nos permite manipular cada capa geológica con código (cambiar colores, generar arcos con fórmulas trigonométricas, añadir eventos de clic y emitir resplandores animados) con un peso de archivo casi nulo."
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                        <span>4. "¿Cómo lograste que 4.600 partículas no ralenticen la visualización?"</span>
+                        <i class="fa-solid fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <strong>Respuesta Maestra:</strong> "No renderizamos 4.600 mallas individuales porque eso colapsaría las llamadas de dibujado (draw calls). En su lugar utilizamos <code>THREE.Points</code> junto con <code>THREE.BufferGeometry</code>, agrupando todas las coordenadas en un único búfer de memoria gráfica en la GPU que se dibuja en un solo pase a 60 FPS estables."
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Botones de Acción Rápida para Ensayar -->
+        <div style="display:flex; gap:10px; margin-top:8px;">
+            <a href="../index.html" class="btn btn--primary" style="flex:1; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:12px; background:linear-gradient(135deg, rgba(214,199,168,0.25), rgba(214,199,168,0.08)); border:1px solid var(--accent-sand); color:var(--accent-sand); font-weight:700; font-size:13px;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Estelaris 3D
+            </a>
+            <a href="emmanuel.html" class="btn btn--secondary" style="flex:1; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:12px; background:rgba(142,168,255,0.12); border:1px solid rgba(142,168,255,0.3); color:var(--accent-blue); font-weight:700; font-size:13px;">
+                Siguiente: Emmanuel <i class="fa-solid fa-chevron-right"></i>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Barra Inferior Fija para Smartphone -->
+    <nav class="expo-bottom-bar" aria-label="Navegación de roles">
+        <a href="index.html" class="expo-tab-link">
+            <i class="fa-solid fa-house"></i>
+            <span>Hub</span>
+        </a>
+        <a href="ciencia.html" class="expo-tab-link">
+            <i class="fa-solid fa-atom"></i>
+            <span>Ciencia</span>
+        </a>
+        <a href="ximena.html" class="expo-tab-link active">
+            <i class="fa-solid fa-palette"></i>
+            <span>Ximena</span>
+        </a>
+        <a href="emmanuel.html" class="expo-tab-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Emmanuel</span>
+        </a>
+        <a href="carlos.html" class="expo-tab-link">
+            <i class="fa-solid fa-code"></i>
+            <span>Carlos</span>
+        </a>
+        <a href="carlos_identidad.html" class="expo-tab-link">
+            <i class="fa-solid fa-circle-question"></i>
+            <span>Plus</span>
+        </a>
+    </nav>
+
+</body>
+</html>

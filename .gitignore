@@ -1,0 +1,12 @@
+﻿# Blender source files
+*.blend
+*.blend1
+
+# IDE config
+.idea/
+.vscode/
+
+# OS files
+Thumbs.db
+.DS_Store
+

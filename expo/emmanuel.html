@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Emmanuel — Rol Funcionamiento & Física | Estelaris Expo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+:root {
+  --bg-0: #06080f;
+  --bg-1: #080c18;
+  --surface: rgba(19, 23, 38, 0.85);
+  --surface-2: rgba(24, 30, 51, 0.90);
+  --surface-strong: rgba(27, 33, 56, 0.98);
+  --surface-glass: rgba(19, 23, 38, 0.65);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-accent: rgba(214, 199, 168, 0.30);
+  --border-blue: rgba(142, 168, 255, 0.30);
+  --text-1: #eef2ff;
+  --text-2: #9aa2bc;
+  --text-3: #6e7896;
+  --muted: #8d97b5;
+  --accent-sand: #d6c7a8;
+  --accent-sand-soft: rgba(214, 199, 168, 0.12);
+  --accent-blue: #8ea8ff;
+  --accent-blue-soft: rgba(142, 168, 255, 0.12);
+  --accent-cyan: #00f2fe;
+  --accent-purple: #c084fc;
+  --accent-pink: #f472b6;
+  --success: #3dd598;
+  --danger: #ff6b6b;
+  --warning: #fbbf24;
+  --radius-xl: 18px;
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --radius-pill: 999px;
+  --shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  --shadow-glow: 0 0 20px rgba(142, 168, 255, 0.15);
+  --font-display: 'Orbitron', sans-serif;
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 15px; scroll-behavior: smooth; }
+body {
+  background: 
+    radial-gradient(900px 500px at 15% -5%, rgba(142, 168, 255, 0.12), transparent 70%),
+    radial-gradient(800px 400px at 85% 15%, rgba(214, 199, 168, 0.09), transparent 60%),
+    linear-gradient(180deg, #070a14 0%, #06080f 50%, #030408 100%);
+  color: var(--text-1);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  min-height: 100vh;
+  padding: 12px 12px 80px 12px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+.expo-app { max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.expo-header {
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 10px;
+  z-index: 100;
+}
+.header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.header-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+.brand-icon {
+  width: 38px; height: 38px; border-radius: var(--radius-md); display: grid; place-items: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border-strong); color: var(--accent-sand); font-size: 16px; flex-shrink: 0;
+}
+.brand-info h1 { font-family: var(--font-display); font-size: 13px; letter-spacing: 0.16em; font-weight: 700; line-height: 1.1; color: var(--text-1); }
+.brand-info p { font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; }
+.role-pill {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: var(--radius-pill);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  background: var(--accent-blue-soft); border: 1px solid var(--border-blue); color: var(--accent-blue);
+}
+.role-pill--sand { background: var(--accent-sand-soft); border-color: var(--border-accent); color: var(--accent-sand); }
+.role-pill--purple { background: rgba(192, 132, 252, 0.14); border-color: rgba(192, 132, 252, 0.35); color: var(--accent-purple); }
+.role-pill--green { background: rgba(61, 213, 152, 0.14); border-color: rgba(61, 213, 152, 0.35); color: var(--success); }
+.role-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.profile-card {
+  background: var(--surface); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 16px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden;
+}
+.profile-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent-sand), var(--accent-blue), var(--accent-cyan));
+}
+.profile-header { display: flex; align-items: center; gap: 14px; }
+.avatar-bubble {
+  width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(142, 168, 255, 0.2), rgba(0, 242, 254, 0.1)); border: 1px solid rgba(142, 168, 255, 0.3); color: var(--accent-blue);
+}
+.avatar-bubble--sand { background: linear-gradient(135deg, rgba(214, 199, 168, 0.25), rgba(251, 191, 36, 0.1)); border-color: rgba(214, 199, 168, 0.4); color: var(--accent-sand); }
+.avatar-bubble--purple { background: linear-gradient(135deg, rgba(192, 132, 252, 0.25), rgba(244, 114, 182, 0.15)); border-color: rgba(192, 132, 252, 0.4); color: var(--accent-purple); }
+.avatar-bubble--green { background: linear-gradient(135deg, rgba(61, 213, 152, 0.25), rgba(0, 242, 254, 0.15)); border-color: rgba(61, 213, 152, 0.4); color: var(--success); }
+.profile-meta h2 { font-family: var(--font-display); font-size: 17px; color: var(--text-1); letter-spacing: 0.05em; margin-bottom: 2px; }
+.profile-meta .role-subtitle { font-size: 12px; color: var(--accent-sand); font-weight: 500; }
+.profile-stats-row {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 10px;
+}
+.profile-stat { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.profile-stat-lbl { font-size: 10px; text-transform: uppercase; color: var(--text-3); letter-spacing: 0.06em; }
+.profile-stat-val { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--text-1); }
+.quick-nav { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 6px 2px; scrollbar-width: none; }
+.quick-nav::-webkit-scrollbar { display: none; }
+.quick-nav-btn {
+  white-space: nowrap; padding: 8px 14px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 600;
+  color: var(--text-2); background: var(--surface); border: 1px solid var(--border); text-decoration: none;
+  display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+}
+.quick-nav-btn:active, .quick-nav-btn.active { background: var(--accent-blue-soft); color: var(--accent-blue); border-color: var(--border-blue); }
+.section-card {
+  background: var(--surface); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 18px 16px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 14px;
+}
+.section-head { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+.section-title-wrap { display: flex; flex-direction: column; gap: 2px; }
+.section-eyebrow { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-sand); }
+.section-title { font-family: var(--font-display); font-size: 15px; color: var(--text-1); letter-spacing: 0.04em; display: flex; align-items: center; gap: 8px; }
+.section-badge { font-size: 10px; font-family: var(--font-mono); padding: 2px 7px; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.08); color: var(--text-2); }
+.topic-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; display: flex; flex-direction: column; gap: 10px; transition: transform 0.15s ease; }
+.topic-card-head { display: flex; align-items: flex-start; gap: 10px; }
+.topic-icon {
+  width: 32px; height: 32px; border-radius: var(--radius-md); display: grid; place-items: center; font-size: 14px; flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06); color: var(--accent-sand); border: 1px solid var(--border);
+}
+.topic-icon--blue { background: var(--accent-blue-soft); color: var(--accent-blue); border-color: var(--border-blue); }
+.topic-icon--cyan { background: rgba(0, 242, 254, 0.12); color: var(--accent-cyan); border-color: rgba(0, 242, 254, 0.3); }
+.topic-icon--purple { background: rgba(192, 132, 252, 0.12); color: var(--accent-purple); border-color: rgba(192, 132, 252, 0.3); }
+.topic-icon--green { background: rgba(61, 213, 152, 0.12); color: var(--success); border-color: rgba(61, 213, 152, 0.3); }
+.topic-title { font-size: 13.5px; font-weight: 700; color: var(--text-1); line-height: 1.25; }
+.topic-subtitle { font-size: 11px; color: var(--text-3); }
+.topic-body { font-size: 12.5px; color: var(--text-2); line-height: 1.55; }
+.topic-body strong { color: var(--text-1); }
+.topic-body ul { padding-left: 18px; margin-top: 6px; display: flex; flex-direction: column; gap: 5px; }
+.topic-body li { font-size: 12px; }
+.highlight-box {
+  background: rgba(214, 199, 168, 0.07); border-left: 3px solid var(--accent-sand); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 8px 10px; font-size: 11.5px; color: var(--accent-sand); margin-top: 6px; line-height: 1.45;
+}
+.highlight-box--blue { background: rgba(142, 168, 255, 0.08); border-left-color: var(--accent-blue); color: var(--accent-blue); }
+.highlight-box--green { background: rgba(61, 213, 152, 0.08); border-left-color: var(--success); color: var(--success); }
+.highlight-box--purple { background: rgba(192, 132, 252, 0.08); border-left-color: var(--accent-purple); color: var(--accent-purple); }
+.highlight-box--danger { background: rgba(255, 107, 107, 0.08); border-left-color: var(--danger); color: #ff9999; }
+.timeline { display: flex; flex-direction: column; gap: 12px; position: relative; padding-left: 16px; }
+.timeline::before {
+  content: ''; position: absolute; top: 10px; bottom: 10px; left: 6px; width: 2px;
+  background: linear-gradient(180deg, var(--accent-sand), var(--accent-blue), var(--accent-purple)); opacity: 0.4;
+}
+.timeline-step {
+  position: relative; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;
+}
+.timeline-step::before {
+  content: ''; position: absolute; left: -14px; top: 16px; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent-sand); border: 2px solid var(--bg-0); box-shadow: 0 0 6px var(--accent-sand);
+}
+.timeline-step:nth-child(2)::before { background: var(--accent-blue); box-shadow: 0 0 6px var(--accent-blue); }
+.timeline-step:nth-child(3)::before { background: var(--accent-cyan); box-shadow: 0 0 6px var(--accent-cyan); }
+.timeline-step:nth-child(4)::before { background: var(--accent-purple); box-shadow: 0 0 6px var(--accent-purple); }
+.timeline-time { font-family: var(--font-mono); font-size: 10px; color: var(--accent-sand); text-transform: uppercase; letter-spacing: 0.08em; display: flex; justify-content: space-between; }
+.timeline-title { font-size: 13px; font-weight: 700; color: var(--text-1); }
+.timeline-script { background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 10px; font-size: 11.5px; color: #e2e8f0; font-style: italic; line-height: 1.5; }
+.timeline-action { font-size: 11px; color: var(--accent-cyan); display: flex; align-items: center; gap: 5px; font-weight: 600; }
+.faq-accordion { display: flex; flex-direction: column; gap: 10px; }
+.faq-item { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: all 0.2s ease; }
+.faq-question {
+  width: 100%; text-align: left; background: transparent; border: none; padding: 12px 14px; display: flex;
+  align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; color: var(--text-1);
+  font-family: inherit; font-size: 12.5px; font-weight: 600;
+}
+.faq-question i.chevron { font-size: 11px; color: var(--text-3); transition: transform 0.2s ease; }
+.faq-item.open .faq-question i.chevron { transform: rotate(180deg); color: var(--accent-blue); }
+.faq-item.open { border-color: var(--border-blue); background: var(--surface-strong); }
+.faq-answer { display: none; padding: 0 14px 14px 14px; font-size: 12px; color: var(--text-2); line-height: 1.55; border-top: 1px dashed rgba(255, 255, 255, 0.08); margin-top: 2px; padding-top: 10px; }
+.faq-item.open .faq-answer { display: block; }
+.pro-tip { background: rgba(61, 213, 152, 0.1); border: 1px solid rgba(61, 213, 152, 0.3); border-radius: var(--radius-md); padding: 6px 10px; margin-top: 8px; font-size: 11px; color: var(--success); display: flex; align-items: center; gap: 6px; }
+.expo-bottom-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 14, 26, 0.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-strong); display: flex; justify-content: space-around; align-items: center; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); z-index: 200;
+}
+.expo-tab-link {
+  display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; color: var(--text-3);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.04em; padding: 4px 8px; border-radius: var(--radius-md); transition: all 0.2s ease; min-width: 64px;
+}
+.expo-tab-link i { font-size: 16px; }
+.expo-tab-link.active { color: var(--accent-sand); background: rgba(214, 199, 168, 0.12); }
+.expo-tab-link.active--blue { color: var(--accent-blue); background: rgba(142, 168, 255, 0.14); }
+.expo-tab-link.active--purple { color: var(--accent-purple); background: rgba(192, 132, 252, 0.14); }
+.expo-tab-link.active--green { color: var(--success); background: rgba(61, 213, 152, 0.14); }
+.key-badge { display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; min-width: 18px; }
+.code-box { background: #04060a; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px; font-family: var(--font-mono); font-size: 11px; color: #c9d1d9; overflow-x: auto; line-height: 1.45; }
+.code-box .kw { color: #ff7b72; }
+.code-box .fn { color: #d2a8ff; }
+.code-box .str { color: #a5d6ff; }
+.code-box .cm { color: #8b949e; font-style: italic; }
+.code-box .num { color: #79c0ff; }
+.concept-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.concept-cell { background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px; display: flex; flex-direction: column; gap: 4px; }
+.concept-cell-title { font-size: 11px; font-weight: 700; color: var(--accent-sand); text-transform: uppercase; letter-spacing: 0.05em; }
+.concept-cell-desc { font-size: 11.5px; color: var(--text-2); line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <div class="expo-app">
+        <!-- Header Móvil Fijo -->
+        <header class="expo-header">
+            <div class="header-row">
+                <a href="index.html" class="header-brand">
+                    <div class="brand-icon"><i class="fa-solid fa-atom"></i></div>
+                    <div class="brand-info">
+                        <h1>ESTELARIS</h1>
+                        <p>Ficha de Exposición &bull; Móvil</p>
+                    </div>
+                </a>
+                <span class="role-pill role-pill--purple">
+                    <span class="dot"></span> FUNCIONAMIENTO
+                </span>
+            </div>
+        </header>
+
+        <!-- Banner de Perfil de Emmanuel -->
+        <section class="profile-card">
+            <div class="profile-header">
+                <div class="avatar-bubble avatar-bubble--purple">
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
+                <div class="profile-meta">
+                    <h2>Emmanuel</h2>
+                    <div class="role-subtitle">Mecánica Celeste &bull; Simulación &bull; Sandbox</div>
+                </div>
+            </div>
+
+            <div class="profile-stats-row">
+                <div class="profile-stat">
+                    <span class="profile-stat-lbl">Tu Misión</span>
+                    <span class="profile-stat-val" style="color:var(--accent-purple);">Física & Eventos</span>
+                </div>
+                <div class="profile-stat">
+                    <span class="profile-stat-lbl">Tiempo sugerido</span>
+                    <span class="profile-stat-val">3 - 4 min</span>
+                </div>
+                <div class="profile-stat">
+                    <span class="profile-stat-lbl">Poder</span>
+                    <span class="profile-stat-val" style="color:var(--warning);">5 Cataclismos</span>
+                </div>
+            </div>
+
+            <div class="highlight-box highlight-box--purple">
+                <i class="fa-solid fa-bolt"></i> <strong>Tu objetivo:</strong> Dejar al jurado con la boca abierta demostrando cómo funciona la física del sistema, activando los <strong>escenarios cataclísmicos en vivo</strong> (como Gigante Roja o Eliminar el Sol) y explicando las leyes de Kepler y Newton.
+            </div>
+        </section>
+
+        <!-- Navegación Rápida de Temas -->
+        <nav class="quick-nav" aria-label="Temas rápidos">
+            <a href="#fisica" class="quick-nav-btn"><i class="fa-solid fa-calculator"></i> Kepler & Newton</a>
+            <a href="#tiempo" class="quick-nav-btn"><i class="fa-solid fa-clock"></i> Tiempo & G</a>
+            <a href="#cataclismos" class="quick-nav-btn"><i class="fa-solid fa-burst"></i> Cataclismos</a>
+            <a href="#mutador" class="quick-nav-btn"><i class="fa-solid fa-wand-magic-sparkles"></i> Mutador & Telemetría</a>
+            <a href="#guion" class="quick-nav-btn"><i class="fa-solid fa-microphone-lines"></i> Tu Guion</a>
+            <a href="#anticorche" class="quick-nav-btn"><i class="fa-solid fa-shield-halved"></i> Anti-Corche</a>
+        </nav>
+
+        <!-- SECCIÓN 1: FÍSICA Y MECÁNICA CELESTE -->
+        <article class="section-card" id="fisica">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-eyebrow">Pilar 01 — Fundamentos Teóricos</span>
+                    <h3 class="section-title"><i class="fa-solid fa-infinity" style="color:var(--accent-purple);"></i> Leyes de Kepler & Gravedad</h3>
+                </div>
+                <span class="section-badge">Física 100% Real</span>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-card-head">
+                    <div class="topic-icon topic-icon--purple"><i class="fa-solid fa-scale-balanced"></i></div>
+                    <div>
+                        <div class="topic-title">Las 3 Leyes de Kepler en Acción</div>
+                        <div class="topic-subtitle">Cómo se mueven los 17 cuerpos del sistema</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <ul>
+                        <li><strong>1ª Ley (Órbitas Elípticas):</strong> Los planetas no giran en círculos perfectos, sino en elipses con el Sol en uno de sus focos. En Estelaris, cada planeta tiene su excentricidad real ($e = 0.0167$ para la Tierra, $e = 0.2056$ para Mercurio).</li>
+                        <li><strong>2ª Ley (Ley de las Áreas):</strong> El radio vector que une al Sol y al planeta barre áreas iguales en tiempos iguales. <em>Cuando un planeta pasa por el perihelio (más cerca al Sol) acelera; en el afelio (más lejos) se ralentiza.</em></li>
+                        <li><strong>3ª Ley (Ley de los Periodos):</strong> $T^2 \propto a^3$. El cuadrado del periodo orbital es proporcional al cubo del semieje mayor. Mercurio tarda solo 88 días en dar una vuelta, mientras que Plutón tarda 248 años.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-card-head">
+                    <div class="topic-icon topic-icon--blue"><i class="fa-solid fa-bolt-lightning"></i></div>
+                    <div>
+                        <div class="topic-title">Energía Mecánica y Conservación Orbital</div>
+                        <div class="topic-subtitle">Telemetría calculada en tiempo real</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    Al seleccionar cualquier astro, el panel derecho calcula:
+                    <ul>
+                        <li><strong>Energía Cinética ($E_k = \frac{1}{2} m v^2$):</strong> Energía debida a la velocidad de traslación instantánea (indicada en verde).</li>
+                        <li><strong>Energía Potencial Gravitatoria ($E_p = -G \frac{M m}{r}$):</strong> La profundidad del pozo gravitatorio (indicada en rojo).</li>
+                        <li><strong>Velocidad Orbital Teórica ($v = \sqrt{G M / r}$):</strong> Si modificas la distancia o la masa, la velocidad se recalcula de inmediato.</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- SECCIÓN 2: CONTROL TEMPORAL Y CONSTANTES -->
+        <article class="section-card" id="tiempo">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-eyebrow">Pilar 02 — Control de la Simulación</span>
+                    <h3 class="section-title"><i class="fa-solid fa-gauge-high" style="color:var(--accent-cyan);"></i> Tiempo & Constante G</h3>
+                </div>
+                <span class="section-badge">Panel Izquierdo</span>
+            </div>
+
+            <div class="concept-grid">
+                <div class="concept-cell">
+                    <div class="concept-cell-title"><i class="fa-solid fa-forward"></i> Velocidad Temporal</div>
+                    <div class="concept-cell-desc">
+                        Deslizador de <strong>0.0x a 10.0x</strong>. Permite acelerar años en segundos o congelar la simulación con la tecla <span class="key-badge">L</span> o Barra Espaciadora.
+                    </div>
+                </div>
+                <div class="concept-cell">
+                    <div class="concept-cell-title"><i class="fa-solid fa-calendar-day"></i> Modo Día a Día (E)</div>
+                    <div class="concept-cell-desc">
+                        Calibración exacta donde <strong>1 segundo real = 1 día terrestre</strong>. Ideal para ver la rotación y traslación a escala humana.
+                    </div>
+                </div>
+                <div class="concept-cell">
+                    <div class="concept-cell-title"><i class="fa-solid fa-magnet"></i> Constante G Universal</div>
+                    <div class="concept-cell-desc">
+                        Deslizador para alterar la constante gravitacional $G$ (0.1x a 5.0x). Si duplicas G, los planetas se aceleran para no caer al Sol.
+                    </div>
+                </div>
+                <div class="concept-cell">
+                    <div class="concept-cell-title"><i class="fa-solid fa-rotate-left"></i> Reinicio Efemérides</div>
+                    <div class="concept-cell-desc">
+                        Restaura el reloj a <strong>T = 0 (01 ENE 2026)</strong> y las posiciones astronómicas iniciales con un solo clic.
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- SECCIÓN 3: ESCENARIOS CATACLÍSMICOS (SANDBOX) -->
+        <article class="section-card" id="cataclismos">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-eyebrow">Pilar 03 — Laboratorio Cósmico</span>
+                    <h3 class="section-title"><i class="fa-solid fa-fire" style="color:var(--danger);"></i> 5 Escenarios de Cataclismo</h3>
+                </div>
+                <span class="section-badge">1 Clic</span>
+            </div>
+
+            <p style="font-size:12px; color:var(--text-2);">Estas son tus cartas maestras para impresionar al público durante la exposición:</p>
+
+            <div class="topic-card">
+                <div class="topic-card-head">
+                    <div class="topic-icon" style="background:rgba(255,107,107,0.15); color:var(--danger); border-color:rgba(255,107,107,0.4);"><i class="fa-solid fa-sun"></i></div>
+                    <div>
+                        <div class="topic-title">1. Gigante Roja (El Fin del Sol)</div>
+                        <div class="topic-subtitle">Evolución estelar y expansión térmica</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <strong>Qué ocurre:</strong> El Sol agota su hidrógeno y se expande <strong>30 veces su radio</strong> convirtiéndose en una estrella gigante roja. Devora las órbitas de Mercurio y Venus y calcina la Tierra. La Zona Habitable (Goldilocks) se desplaza más allá del cinturón de asteroides hasta las lunas de Júpiter.
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-card-head">
+                    <div class="topic-icon" style="background:rgba(142,168,255,0.15); color:var(--accent-blue); border-color:rgba(142,168,255,0.4);"><i class="fa-solid fa-moon"></i></div>
+                    <div>
+                        <div class="topic-title">2. Eliminar el Sol (Escape Inercial)</div>
+                        <div class="topic-subtitle">Demostración de la 1ª Ley de Newton</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <strong>Qué ocurre:</strong> El Sol se apaga y su gravedad desaparece instantáneamente ($G \cdot M = 0$). Al perder la fuerza centrípeta que los retiene, <strong>todos los planetas salen disparados en línea recta tangencial</strong> hacia la oscuridad del espacio interestelar como planetas errantes.
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-card-head">
+                    <div class="topic-icon" style="background:rgba(251,191,36,0.15); color:var(--warning); border-color:rgba(251,191,36,0.4);"><i class="fa-solid fa-certificate"></i></div>
+                    <div>
+                        <div class="topic-title">3. Júpiter Binario (Ignición Estelar)</div>
+                        <div class="topic-subtitle">Nace una segunda estrella en el sistema</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <strong>Qué ocurre:</strong> Júpiter multiplica su masa 80 veces, superando el límite de masa de Jeans e iniciando la fusión termonuclear de hidrógeno. El Sistema Solar se convierte en un <strong>sistema estelar binario</strong>, generando perturbaciones y caos gravitatorio en los planetas rocosos.
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-card-head">
+                    <div class="topic-icon" style="background:rgba(192,132,252,0.15); color:var(--accent-purple); border-color:rgba(192,132,252,0.4);"><i class="fa-solid fa-meteor"></i></div>
+                    <div>
+                        <div class="topic-title">4. Invasor Cósmico (Estrella Errante)</div>
+                        <div class="topic-subtitle">Caos Gravitacional N-Body</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <strong>Qué ocurre:</strong> Una estrella de neutrones hiperdensa cruza el Sistema Solar a velocidad hiperbólica, deformando las órbitas de Saturno, Urano y Neptuno mediante asistencia gravitatoria caótica.
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-card-head">
+                    <div class="topic-icon" style="background:rgba(255,107,107,0.15); color:var(--danger); border-color:rgba(255,107,107,0.4);"><i class="fa-solid fa-burst"></i></div>
+                    <div>
+                        <div class="topic-title">5. Gran Impacto & Asteroides (Tecla K)</div>
+                        <div class="topic-subtitle">Balística orbital y ondas de choque 3D</div>
+                    </div>
+                </div>
+                <div class="topic-body">
+                    <strong>Qué ocurre:</strong> Al presionar <span class="key-badge">K</span> o el botón de impacto, se calcula una trayectoria balística hacia el astro enfocado. Al colisionar, se detona una onda de choque esférica 3D luminosa y se altera la masa del objetivo.
+                </div>
+            </div>
+        </article>
+
+        <!-- SECCIÓN 4: MUTADOR CÓSMICO & TELEMETRÍA -->
+        <article class="section-card" id="mutador">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-eyebrow">Pilar 04 — Interactividad Total</span>
+                    <h3 class="section-title"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent-sand);"></i> Mutador Cósmico "¿Qué pasaría si...?"</h3>
+                </div>
+                <span class="section-badge">Panel Derecho</span>
+            </div>
+
+            <div class="topic-body" style="font-size:12.5px; color:var(--text-2);">
+                Al hacer clic en cualquier planeta (por ejemplo, la Tierra o Marte), se desbloquea el <strong>Mutador Astrofísico</strong>:
+                <ul>
+                    <li><strong>Deslizador de Tamaño / Radio (0.2x a 30x):</strong> Puedes inflar la Tierra al tamaño de Júpiter o reducirla a un asteroide.</li>
+                    <li><strong>Deslizador de Masa Gravitatoria (0.05x a 80x):</strong> Aumenta la gravedad de un astro para ver cómo se expande su <strong>Esfera de Hill</strong> (burbuja de atracción gravitatoria) y cómo afecta a sus lunas.</li>
+                    <li><strong>Botón Restaurar Astro:</strong> Devuelve al planeta sus valores astronómicos reales de inmediato.</li>
+                </ul>
+            </div>
+        </article>
+
+        <!-- SECCIÓN 5: GUION PASO A PASO PARA EMMANUEL -->
+        <article class="section-card" id="guion">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-eyebrow">Tu Actuación en la Expo</span>
+                    <h3 class="section-title"><i class="fa-solid fa-microphone-lines" style="color:var(--accent-purple);"></i> Guion de Exposición</h3>
+                </div>
+                <span class="section-badge">Minuto a Minuto</span>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-step">
+                    <div class="timeline-time">
+                        <span>Paso 1 &bull; Tomar la palabra</span>
+                        <span>0:00 - 0:40</span>
+                    </div>
+                    <div class="timeline-title">Conectar la interfaz con la simulación física</div>
+                    <div class="timeline-script">
+                        "Muchas gracias Ximena. Ahora que vimos la interfaz y la representación visual, pasemos al corazón funcional de Estelaris: el motor de simulación física y mecánica celeste. Cada uno de los cuerpos celestes que ven en pantalla no sigue una simple animación fija, sino las Leyes de Gravitación de Newton y las Leyes de Kepler..."
+                    </div>
+                    <div class="timeline-action">
+                        <i class="fa-solid fa-hand-pointer"></i> Haz clic en la Tierra para abrir la telemetría en el panel derecho.
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-time">
+                        <span>Paso 2 &bull; Dinámica del Tiempo y Mutador</span>
+                        <span>0:40 - 1:30</span>
+                    </div>
+                    <div class="timeline-title">Demostrar los deslizadores y el Modo Día a Día</div>
+                    <div class="timeline-script">
+                        "En el panel izquierdo podemos manipular el tejido del tiempo. Con el slider de velocidad podemos acelerar o pausar con la tecla L, o activar el Modo Día a Día con la tecla E para calibrar 1 segundo = 1 día terrestre. Además, creamos el Mutador Cósmico: ¿qué pasaría si la Tierra tuviera 10 veces más masa? Si muevo el slider de masa, fíjense cómo su Esfera de Hill crece en tiempo real..."
+                    </div>
+                    <div class="timeline-action">
+                        <i class="fa-solid fa-hand-pointer"></i> Mueve el slider de masa de la Tierra y muestra la Esfera de Hill con <strong>F7</strong>.
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-time">
+                        <span>Paso 3 &bull; El Gran Clímax: Los Cataclismos</span>
+                        <span>1:30 - 2:40</span>
+                    </div>
+                    <div class="timeline-title">Detonar los Escenarios Cataclísmicos</div>
+                    <div class="timeline-script">
+                        "Para que el observatorio sea un verdadero laboratorio interactivo de astrofísica, programamos 5 escenarios de cataclismo a un solo clic. Por ejemplo, si detonamos el escenario 'Gigante Roja', el Sol se expande 30 veces devorando a Mercurio y Venus... O si activamos 'Eliminar el Sol', fíjense en la 1ª Ley de Newton: al perder la gravedad central, todos los planetas escapan en línea recta tangencial hacia el espacio interestelar..."
+                    </div>
+                    <div class="timeline-action">
+                        <i class="fa-solid fa-hand-pointer"></i> Haz clic en <strong>Gigante Roja</strong> y luego en <strong>Restablecer Universo</strong>, o dispara un asteroide con <strong>K</strong>.
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-time">
+                        <span>Paso 4 &bull; Cierre & Pase a Carlos</span>
+                        <span>2:40 - 3:15</span>
+                    </div>
+                    <div class="timeline-title">Ceder la palabra al arquitecto de código</div>
+                    <div class="timeline-script">
+                        "Como pueden ver, la física responde con total fluidez ante cualquier alteración del usuario. Pero, ¿cómo se calculan todas estas fuerzas en la GPU a 60 cuadros por segundo sin congelar el navegador? Para explicar la arquitectura de software y el código fuente, los dejo con mi compañero Carlos..."
+                    </div>
+                    <div class="timeline-action">
+                        <i class="fa-solid fa-arrow-right"></i> Señala a Carlos para el cierre técnico.
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- SECCIÓN 6: BANCO ANTI-CORCHE PARA EMMANUEL -->
+        <article class="section-card" id="anticorche">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <span class="section-eyebrow">Para que nadie te corche</span>
+                    <h3 class="section-title"><i class="fa-solid fa-shield-halved" style="color:var(--danger);"></i> Escudo Anti-Corche</h3>
+                </div>
+                <span class="section-badge">Q&A Maestro</span>
+            </div>
+
+            <p style="font-size:12px; color:var(--text-2);">Toca cada pregunta para desplegar la respuesta con autoridad científica:</p>
+
+            <div class="faq-accordion">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                        <span>1. "¿Cómo calculan la velocidad orbital de cada planeta?"</span>
+                        <i class="fa-solid fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <strong>Respuesta Maestra:</strong> "La velocidad orbital se rige por la ecuación de equilibrio entre la fuerza centrípeta y la atracción gravitatoria newtoniana: $v = \sqrt{G \frac{M}{r}}$. En órbitas elípticas utilizamos la ecuación de conservación vis-viva: $v^2 = G M \left(\frac{2}{r} - \frac{1}{a}\right)$, donde $r$ es la distancia instantánea y $a$ es el semieje mayor de la elipse. Por eso Mercurio vuela a casi 47 km/s mientras que Neptuno orbita a apenas 5.4 km/s."
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                        <span>2. "¿Qué es exactamente la 'Esfera de Hill' que se muestra en el simulador?"</span>
+                        <i class="fa-solid fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <strong>Respuesta Maestra:</strong> "La Esfera de Hill es la región espacial esférica alrededor de un cuerpo astronómico (como la Tierra o Júpiter) donde su atracción gravitatoria supera a la del Sol. Se calcula aproximadamente como $r_H \approx a \sqrt[3]{\frac{m}{3M}}$. Cualquier luna o satélite dentro de esa esfera permanecerá en órbita; si sale de ella, el Sol lo arrebatará. En nuestro simulador, si aumentas la masa del planeta con el slider, la Esfera de Hill crece visualmente en 3D en tiempo real."
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                        <span>3. "¿Por qué los planetas salen en línea recta cuando 'Eliminas el Sol'?"</span>
+                        <i class="fa-solid fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <strong>Respuesta Maestra:</strong> "Por la <strong>Primera Ley de Newton o Principio de Inercia</strong>: todo cuerpo permanece en movimiento rectilíneo uniforme a menos que una fuerza externa neta actúe sobre él. La órbita elíptica existe porque la gravedad del Sol ejerce una aceleración centrípeta continua que curva su trayectoria. Al eliminar la masa del Sol ($M = 0$), la fuerza gravitatoria cae a cero instantáneamente y el planeta continúa moviéndose en la dirección del vector velocidad tangencial que tenía en ese milisegundo exacto."
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                        <span>4. "¿El tiempo de la simulación se desfasa si baja el rendimiento del computador?"</span>
+                        <i class="fa-solid fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <strong>Respuesta Maestra:</strong> "No, porque no avanzamos el tiempo sumando un número fijo por frame, sino utilizando <strong>Delta Time ($\Delta t$)</strong> mediante <code>performance.now()</code>. Si los FPS bajan de 60 a 30 por una carga pesada, el motor calcula el tiempo real transcurrido entre cuadros y compensa la posición orbital, garantizando que 1 año simulado dure exactamente lo mismo independientemente del hardware."
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Botones de Acción Rápida -->
+        <div style="display:flex; gap:10px; margin-top:8px;">
+            <a href="ximena.html" class="btn btn--secondary" style="flex:1; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:12px; background:rgba(214,199,168,0.12); border:1px solid rgba(214,199,168,0.3); color:var(--accent-sand); font-weight:700; font-size:13px;">
+                <i class="fa-solid fa-chevron-left"></i> Anterior: Ximena
+            </a>
+            <a href="carlos.html" class="btn btn--secondary" style="flex:1; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:12px; background:rgba(142,168,255,0.12); border:1px solid rgba(142,168,255,0.3); color:var(--accent-blue); font-weight:700; font-size:13px;">
+                Siguiente: Carlos <i class="fa-solid fa-chevron-right"></i>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Barra Inferior Fija para Smartphone -->
+    <nav class="expo-bottom-bar" aria-label="Navegación de roles">
+        <a href="index.html" class="expo-tab-link">
+            <i class="fa-solid fa-house"></i>
+            <span>Hub</span>
+        </a>
+        <a href="ciencia.html" class="expo-tab-link">
+            <i class="fa-solid fa-atom"></i>
+            <span>Ciencia</span>
+        </a>
+        <a href="ximena.html" class="expo-tab-link">
+            <i class="fa-solid fa-palette"></i>
+            <span>Ximena</span>
+        </a>
+        <a href="emmanuel.html" class="expo-tab-link active--purple">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Emmanuel</span>
+        </a>
+        <a href="carlos.html" class="expo-tab-link">
+            <i class="fa-solid fa-code"></i>
+            <span>Carlos</span>
+        </a>
+        <a href="carlos_identidad.html" class="expo-tab-link">
+            <i class="fa-solid fa-circle-question"></i>
+            <span>Plus</span>
+        </a>
+    </nav>
+
+</body>
+</html>
