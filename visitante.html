@@ -82,69 +82,94 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border);
             border-radius: var(--radius-xl);
-            padding: 12px 16px;
+            padding: 8px 12px;
             box-shadow: var(--shadow);
             position: sticky;
-            top: 10px;
+            top: 8px;
             z-index: 100;
+            box-sizing: border-box;
+            width: 100%;
         }
 
         .header-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            flex-wrap: nowrap;
         }
 
         .header-brand {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             text-decoration: none;
             color: inherit;
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .brand-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: var(--radius-md);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             display: grid;
             place-items: center;
             background: linear-gradient(135deg, rgba(214, 199, 168, 0.25), rgba(142, 168, 255, 0.15));
             border: 1px solid var(--border-accent);
             color: var(--accent-sand);
-            font-size: 16px;
+            font-size: 13px;
             flex-shrink: 0;
-            box-shadow: 0 0 16px rgba(214, 199, 168, 0.2);
+            box-shadow: 0 0 12px rgba(214, 199, 168, 0.2);
+        }
+
+        .brand-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .brand-info h1 {
             font-family: var(--font-display);
             font-size: 13px;
-            letter-spacing: 0.16em;
+            letter-spacing: 0.12em;
             font-weight: 700;
             line-height: 1.1;
             color: var(--text-1);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .brand-info p {
-            font-size: 10.5px;
-            color: var(--text-2);
+            font-size: 9px;
+            color: var(--text-3);
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            margin: 2px 0 0 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
         .btn-launch-3d {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
+            gap: 5px;
+            padding: 5px 10px;
             border-radius: var(--radius-pill);
             background: linear-gradient(135deg, rgba(61, 213, 152, 0.22), rgba(0, 242, 254, 0.18));
             border: 1px solid rgba(61, 213, 152, 0.45);
@@ -153,7 +178,9 @@
             font-size: 10.5px;
             font-weight: 700;
             text-decoration: none;
-            transition: all 0.2s ease;
+            transition: all 0.18s ease;
+            white-space: nowrap;
+            line-height: 1;
         }
 
         .btn-launch-3d:active {
@@ -163,18 +190,19 @@
         .btn-exit-header {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
+            gap: 5px;
+            padding: 5px 10px;
             border-radius: var(--radius-pill);
             background: linear-gradient(135deg, rgba(214, 199, 168, 0.18), rgba(142, 168, 255, 0.14));
             border: 1px solid var(--border-accent);
             color: var(--accent-sand);
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 700;
             text-decoration: none;
-            transition: all 0.2s ease;
+            transition: all 0.18s ease;
             white-space: nowrap;
+            line-height: 1;
         }
 
         .btn-exit-header:active {
@@ -904,20 +932,20 @@
         <!-- Header Móvil Superior -->
         <header class="visitor-header">
             <div class="header-row">
-                <a href="index.html" class="btn-exit-header" title="Volver al Observatorio 3D">
-                    <i class="fa-solid fa-arrow-left"></i> Observatorio
-                </a>
-                <a href="index.html" class="header-brand">
+                <a href="index.html" class="header-brand" title="Inicio Estelaris">
                     <div class="brand-icon"><i class="fa-solid fa-circle-nodes"></i></div>
                     <div class="brand-info">
                         <h1>ESTELARIS</h1>
-                        <p>Pasaporte</p>
+                        <p>Pasaporte Móvil</p>
                     </div>
                 </a>
                 <div class="header-actions">
-                    <button class="btn-launch-3d" onclick="openQrModal()" title="Mostrar QR para compartir">
-                        <i class="fa-solid fa-qrcode"></i> QR
+                    <button class="btn-exit-header" onclick="openQrModal()" title="Mostrar código QR para compartir">
+                        <i class="fa-solid fa-qrcode"></i> <span>QR</span>
                     </button>
+                    <a href="index.html" class="btn-launch-3d" title="Entrar al Observatorio 3D">
+                        <i class="fa-solid fa-arrow-left"></i> <span>3D</span>
+                    </a>
                 </div>
             </div>
         </header>
@@ -1603,14 +1631,15 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.outputEncoding = THREE.sRGBEncoding;
 
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+            // Iluminación balanceada y cinematográfica: tonos realistas sin brillo excesivo ni sobreexposición
+            const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.35);
             scene.add(ambientLight);
 
-            const sunLight = new THREE.DirectionalLight(0xfff6dd, 2.0);
-            sunLight.position.set(4, 3, 5);
+            const sunLight = new THREE.DirectionalLight(0xfff8ee, 1.15);
+            sunLight.position.set(5, 3, 4);
             scene.add(sunLight);
 
-            const backLight = new THREE.DirectionalLight(0x8ea8ff, 0.4);
+            const backLight = new THREE.DirectionalLight(0x818cf8, 0.22);
             backLight.position.set(-4, -2, -3);
             scene.add(backLight);
 
@@ -1691,15 +1720,15 @@
                 } else {
                     mat = new THREE.MeshStandardMaterial({
                         map: tex,
-                        roughness: 0.65,
-                        metalness: 0.1
+                        roughness: 0.78,
+                        metalness: 0.04
                     });
                 }
             } else {
                 mat = new THREE.MeshStandardMaterial({
                     color: hexColor,
-                    roughness: 0.65,
-                    metalness: 0.15
+                    roughness: 0.78,
+                    metalness: 0.04
                 });
             }
 
