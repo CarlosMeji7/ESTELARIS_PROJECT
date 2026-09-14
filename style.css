@@ -66,7 +66,7 @@ body{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:16px;
+  gap:12px;
   flex-wrap:nowrap;
   max-width: 100%;
   background: var(--surface);
@@ -75,34 +75,35 @@ body{
   border:1px solid var(--border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow);
-  padding:8px 14px;
-  min-height:56px;
+  padding:6px 14px;
+  min-height:48px;
   flex-shrink:0;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
 }
 
 .header-left{
-  display:flex;align-items:center;gap:12px;flex-shrink:0;
+  display:flex;align-items:center;gap:10px;flex-shrink:1;min-width:0;
 }
 .brand-mark{
-  width:38px;height:38px;
+  width:34px;height:34px;
   display:grid;place-items:center;
   background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
   border:1px solid var(--border-strong);
-  border-radius:10px;
+  border-radius:9px;
   color:var(--accent-sand);
-  font-size:15px;
+  font-size:14px;
   flex:0 0 auto;
 }
 .brand-text h1{
   font-family:var(--font-display);
-  font-size:14px;letter-spacing:0.18em;font-weight:700;line-height:1;
+  font-size:13.5px;letter-spacing:0.18em;font-weight:700;line-height:1;
   color:var(--text-1);
 }
 .brand-text p{
-  font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;
-  color:var(--text-3);font-weight:600;margin-top:3px;
+  font-size:9px;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--text-3);font-weight:600;margin-top:2px;
 }
 .version-pill{
   display:inline-flex;align-items:center;gap:6px;
@@ -110,7 +111,7 @@ body{
   text-transform:uppercase;color:var(--text-2);
   background: rgba(255,255,255,0.05);
   border:1px solid var(--border);
-  padding:5px 9px;border-radius:var(--radius-pill);
+  padding:4px 8px;border-radius:var(--radius-pill);
   white-space:nowrap;
   flex-shrink:0;
 }
@@ -130,42 +131,40 @@ body{
   flex-shrink:0;
 }
 
-/* Mini-Panel Desplegable de Métricas Cósmicas (Debajo del Título) */
+/* Mini-Panel Desplegable de Métricas Cósmicas (Ajustado al lado del título, menudito verticalmente) */
 .cosmic-metrics-pill {
-  position: absolute;
-  top: 72px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   z-index: 55;
   pointer-events: auto;
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  max-width: calc(100vw - 24px);
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
 }
 
 .metrics-pill-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(14, 18, 34, 0.92);
-  backdrop-filter: blur(18px) saturate(1.2);
-  -webkit-backdrop-filter: blur(18px) saturate(1.2);
-  border: 1px solid var(--border-strong);
+  gap: 5px;
+  height: 25px;
+  padding: 2px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
   border-radius: var(--radius-pill);
-  padding: 5px 14px;
   color: var(--text-2);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255,255,255,0.08) inset;
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  transition: all 0.18s ease;
   user-select: none;
+  white-space: nowrap;
+  line-height: 1;
 }
 
 .metrics-pill-trigger:hover {
-  background: rgba(24, 30, 52, 0.98);
+  background: rgba(214, 199, 168, 0.14);
   color: var(--text-1);
   border-color: var(--accent-sand);
 }
@@ -173,17 +172,18 @@ body{
 .metrics-pill-summary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  white-space: nowrap;
 }
 
 .pill-dot {
   opacity: 0.35;
-  font-size: 9px;
+  font-size: 8px;
 }
 
 .pill-chevron {
-  font-size: 9.5px;
-  transition: transform 0.24s ease;
+  font-size: 8px;
+  transition: transform 0.22s ease;
   color: var(--text-3);
   margin-left: 2px;
 }
@@ -193,21 +193,31 @@ body{
   color: var(--accent-sand);
 }
 
+.cosmic-metrics-pill:not(.is-collapsed) .metrics-pill-trigger {
+  background: rgba(214, 199, 168, 0.18);
+  border-color: var(--accent-sand);
+  color: var(--text-1);
+  box-shadow: 0 0 12px rgba(214, 199, 168, 0.25);
+}
+
 .metrics-pill-dropdown {
-  width: 320px;
-  max-width: 92vw;
-  margin-top: 6px;
-  background: rgba(10, 14, 26, 0.97);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 310px;
+  max-width: 90vw;
+  background: rgba(10, 14, 26, 0.98);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-xl);
   padding: 12px;
-  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.75), 0 1px 0 rgba(255,255,255,0.08) inset;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.85), 0 1px 0 rgba(255,255,255,0.08) inset;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  animation: fadeInPill 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
+  animation: fadeInPill 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .cosmic-metrics-pill.is-collapsed .metrics-pill-dropdown {
@@ -215,7 +225,7 @@ body{
 }
 
 @keyframes fadeInPill {
-  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -1512,15 +1522,52 @@ input[type="range"]::-moz-range-thumb{
   .brand-text p{display:none}
   .version-pill{display:none}
   .header-actions{display:none}
+  .hud-header{
+    min-height: 44px;
+    padding: 5px 10px;
+    gap: 8px;
+  }
+  .brand-mark{
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+  }
+  .brand-text h1{
+    font-size: 12px;
+  }
   .cosmic-metrics-pill{
-    top: 66px;
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+  }
+  .metrics-pill-trigger{
+    height: 24px;
+    padding: 2px 8px;
+    font-size: 9.5px;
+    gap: 4px;
+  }
+  .metrics-pill-dropdown{
+    position: fixed;
+    top: calc(52px + env(safe-area-inset-top, 6px));
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-width: calc(100vw - 20px);
+    margin: 0 auto;
   }
 }
 @media (max-width: 640px){
   .hud-container{padding:6px}
   .metric{padding:4px 6px}
   .metric-label{font-size:8.5px}
-  .brand-text h1{font-size:12px}
+  .brand-text h1{font-size:11.5px}
+}
+@media (max-width: 480px){
+  .pill-summary-bodies-dot,
+  #pill-summary-bodies {
+    display: none !important;
+  }
 }
 
 /* Banner de Propagación Relativista (Velocidad c) */

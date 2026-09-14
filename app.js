@@ -5192,7 +5192,7 @@ function setupUIEventListeners() {
         mobBtnQr.addEventListener('click', openDesktopQrModal);
     }
 
-    // Mini-panel desplegable de métricas
+    // Mini-panel desplegable de métricas (Ajustado al lado del título)
     const cosmicMetricsPill = document.getElementById('cosmic-metrics-pill');
     const btnToggleMetrics = document.getElementById('btn-toggle-metrics');
     if (btnToggleMetrics && cosmicMetricsPill) {
@@ -5200,6 +5200,13 @@ function setupUIEventListeners() {
             e.stopPropagation();
             const isCollapsed = cosmicMetricsPill.classList.toggle('is-collapsed');
             btnToggleMetrics.setAttribute('aria-expanded', String(!isCollapsed));
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!cosmicMetricsPill.classList.contains('is-collapsed') && !cosmicMetricsPill.contains(e.target)) {
+                cosmicMetricsPill.classList.add('is-collapsed');
+                btnToggleMetrics.setAttribute('aria-expanded', 'false');
+            }
         });
     }
 
@@ -5285,6 +5292,8 @@ function animate() {
     if (time >= lastFpsUpdateTime + 1000) {
         fps = Math.round((frameCount * 1000) / (time - lastFpsUpdateTime));
         if (statFps) statFps.textContent = fps;
+        const pillSummaryFps = document.getElementById('pill-summary-fps');
+        if (pillSummaryFps) pillSummaryFps.textContent = fps + ' FPS';
 
         // Optimización dinámica de resolución en dispositivos móviles
         if (window.innerWidth < 768 && renderer) {
