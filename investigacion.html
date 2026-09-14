@@ -23,13 +23,23 @@
 
             <!-- SELECTOR MINIMALISTA DE CUERPOS (Carrusel horizontal táctil) -->
             <nav class="inv-nav-pills" id="inv-nav-bar" aria-label="Selector de astro"></nav>
+
+            <!-- SELECTOR DE VISTA MÓVIL (Estructura y Capas vs Datos Científicos) -->
+            <div class="inv-mobile-switch" id="inv-mobile-switch" role="tablist" aria-label="Modo de visualización móvil">
+                <button class="inv-mob-switch-btn is-active" id="btn-inv-view-diagram" data-view="diagram" role="tab" aria-selected="true">
+                    <i class="fa-solid fa-layer-group"></i> <span>1. Corte de Capas</span>
+                </button>
+                <button class="inv-mob-switch-btn" id="btn-inv-view-data" data-view="data" role="tab" aria-selected="false">
+                    <i class="fa-solid fa-flask-vial"></i> <span>2. Ciencia & Datos</span>
+                </button>
+            </div>
         </header>
 
         <!-- LAYOUT DE 2 COLUMNAS LIMPIAS -->
-        <div class="inv-layout">
+        <div class="inv-layout" id="inv-layout">
             
             <!-- COLUMNA IZQUIERDA: DIAGRAMA DE CORTE & CAPAS -->
-            <section class="inv-col-diagram">
+            <section class="inv-col-diagram is-mobile-visible" id="inv-col-diagram">
                 <!-- Visor SVG Central -->
                 <div class="inv-svg-stage-box" id="inv-diagram-wrapper">
                     <svg id="inv-cutaway-svg" viewBox="0 0 500 500" class="inv-svg-canvas" preserveAspectRatio="xMidYMid meet"></svg>
@@ -72,7 +82,7 @@
             </section>
 
             <!-- COLUMNA DERECHA: PESTAÑAS CIENTÍFICAS MINIMALISTAS -->
-            <section class="inv-col-data">
+            <section class="inv-col-data" id="inv-col-data">
                 <!-- Navegación por Pestañas -->
                 <div class="inv-tabs-nav" role="tablist">
                     <button class="inv-tab-btn is-active" data-tab="tab-spectroscopy" role="tab">Química Atmosférica</button>

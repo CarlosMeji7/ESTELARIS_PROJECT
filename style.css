@@ -131,40 +131,43 @@ body{
   flex-shrink:0;
 }
 
-/* Mini-Panel Desplegable de Métricas Cósmicas (Ajustado al lado del título, menudito verticalmente) */
+/* Mini-Panel Desplegable de Métricas Cósmicas (Debajo de la cabecera, menudito verticalmente) */
 .cosmic-metrics-pill {
-  position: relative;
-  z-index: 55;
+  position: absolute;
+  top: 54px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 85;
   pointer-events: auto;
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  flex-shrink: 0;
 }
 
 .metrics-pill-trigger {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 25px;
-  padding: 2px 10px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid var(--border);
+  height: 22px;
+  padding: 0 10px;
+  background: rgba(10, 14, 26, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-pill);
   color: var(--text-2);
   font-family: var(--font-mono);
   font-size: 10px;
+  line-height: 22px;
   cursor: pointer;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
   transition: all 0.18s ease;
   user-select: none;
   white-space: nowrap;
-  line-height: 1;
 }
 
 .metrics-pill-trigger:hover {
-  background: rgba(214, 199, 168, 0.14);
+  background: rgba(24, 30, 52, 0.96);
   color: var(--text-1);
   border-color: var(--accent-sand);
 }
@@ -194,16 +197,17 @@ body{
 }
 
 .cosmic-metrics-pill:not(.is-collapsed) .metrics-pill-trigger {
-  background: rgba(214, 199, 168, 0.18);
+  background: rgba(24, 30, 52, 0.98);
   border-color: var(--accent-sand);
   color: var(--text-1);
-  box-shadow: 0 0 12px rgba(214, 199, 168, 0.25);
+  box-shadow: 0 0 12px rgba(214, 199, 168, 0.28);
 }
 
 .metrics-pill-dropdown {
   position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
   width: 310px;
   max-width: 90vw;
   background: rgba(10, 14, 26, 0.98);
@@ -1436,6 +1440,9 @@ input[type="range"]::-moz-range-thumb{
     z-index: 120;
     max-height: calc(100vh - 150px);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    padding-bottom: calc(85px + env(safe-area-inset-bottom, 20px));
     background: rgba(13, 17, 30, 0.96);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -1461,6 +1468,9 @@ input[type="range"]::-moz-range-thumb{
     z-index: 120;
     max-height: 68dvh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom, 12px));
     background: rgba(13, 17, 30, 0.97);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
@@ -1536,24 +1546,26 @@ input[type="range"]::-moz-range-thumb{
     font-size: 12px;
   }
   .cosmic-metrics-pill{
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
+    position: absolute;
+    top: calc(46px + env(safe-area-inset-top, 4px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 85;
   }
   .metrics-pill-trigger{
-    height: 24px;
-    padding: 2px 8px;
+    height: 21px;
+    padding: 0 8px;
     font-size: 9.5px;
     gap: 4px;
+    line-height: 21px;
   }
   .metrics-pill-dropdown{
     position: fixed;
-    top: calc(52px + env(safe-area-inset-top, 6px));
+    top: calc(72px + env(safe-area-inset-top, 6px));
     left: 10px;
     right: 10px;
     width: auto;
-    max-width: calc(100vw - 20px);
+    max-width: 360px;
     margin: 0 auto;
   }
 }

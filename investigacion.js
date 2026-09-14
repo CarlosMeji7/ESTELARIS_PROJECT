@@ -913,7 +913,7 @@
         populateScientificPanes(bodyData);
     }
 
-    // --- SETUP DE TABS ---
+    // --- SETUP DE TABS CIENTÍFICAS ---
     function setupTabs() {
         const tabs = document.querySelectorAll('.inv-tab-btn');
         const panes = document.querySelectorAll('.inv-tab-pane');
@@ -932,6 +932,41 @@
         });
     }
 
+    // --- SETUP DE SWITCHER MÓVIL (CORTE DE CAPAS vs CIENCIA & DATOS) ---
+    function setupMobileViewSwitch() {
+        const btnDiagram = document.getElementById('btn-inv-view-diagram');
+        const btnData = document.getElementById('btn-inv-view-data');
+        const colDiagram = document.getElementById('inv-col-diagram');
+        const colData = document.getElementById('inv-col-data');
+        const layout = document.getElementById('inv-layout');
+
+        if (!btnDiagram || !btnData || !colDiagram || !colData) return;
+
+        function setMobileView(view) {
+            if (view === 'diagram') {
+                btnDiagram.classList.add('is-active');
+                btnDiagram.setAttribute('aria-selected', 'true');
+                btnData.classList.remove('is-active');
+                btnData.setAttribute('aria-selected', 'false');
+
+                colDiagram.classList.add('is-mobile-visible');
+                colData.classList.remove('is-mobile-visible');
+            } else {
+                btnData.classList.add('is-active');
+                btnData.setAttribute('aria-selected', 'true');
+                btnDiagram.classList.remove('is-active');
+                btnDiagram.setAttribute('aria-selected', 'false');
+
+                colData.classList.add('is-mobile-visible');
+                colDiagram.classList.remove('is-mobile-visible');
+            }
+            if (layout) layout.scrollTop = 0;
+        }
+
+        btnDiagram.addEventListener('click', () => setMobileView('diagram'));
+        btnData.addEventListener('click', () => setMobileView('data'));
+    }
+
     // --- ABRIR / CERRAR MODAL ---
     function openModal(bodyName) {
         const root = document.getElementById('investigation-root');
@@ -943,6 +978,21 @@
 
         const targetKey = (bodyName && celestialScienceData[bodyName]) ? bodyName : (currentBodyKey || 'Tierra');
         switchBody(targetKey);
+
+        // En móvil iniciar siempre con la vista de capas activa
+        const btnDiagram = document.getElementById('btn-inv-view-diagram');
+        const btnData = document.getElementById('btn-inv-view-data');
+        const colDiagram = document.getElementById('inv-col-diagram');
+        const colData = document.getElementById('inv-col-data');
+        if (btnDiagram && btnData && colDiagram && colData) {
+            btnDiagram.classList.add('is-active');
+            btnData.classList.remove('is-active');
+            colDiagram.classList.add('is-mobile-visible');
+            colData.classList.remove('is-mobile-visible');
+        }
+
+        const layout = document.getElementById('inv-layout');
+        if (layout) layout.scrollTop = 0;
 
         document.body.style.overflow = 'hidden';
     }
@@ -961,6 +1011,7 @@
     // --- INICIALIZACIÓN ---
     function init() {
         setupTabs();
+        setupMobileViewSwitch();
 
         const btnClose = document.getElementById('btn-close-investigation');
         if (btnClose) btnClose.addEventListener('click', closeModal);

@@ -183,6 +183,47 @@
     border-radius: 50%;
 }
 
+/* SELECTOR DE VISTA MÓVIL (Oculto por defecto en escritorio) */
+.inv-mobile-switch {
+    display: none;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 3px;
+    margin-top: 2px;
+}
+
+.inv-mob-switch-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: #94a3b8;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.inv-mob-switch-btn.is-active {
+    color: #ffffff;
+    background: rgba(142, 168, 255, 0.18);
+    border-color: rgba(142, 168, 255, 0.35);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.inv-mob-switch-btn i {
+    font-size: 11px;
+    color: #38bdf8;
+}
+
 .inv-btn-close {
     width: 32px;
     height: 32px;
@@ -603,19 +644,19 @@
 @media (max-width: 768px) {
     .inv-backdrop {
         padding: 4px;
-        padding-top: max(8px, env(safe-area-inset-top));
-        padding-bottom: max(8px, env(safe-area-inset-bottom));
+        padding-top: max(6px, env(safe-area-inset-top));
+        padding-bottom: max(6px, env(safe-area-inset-bottom));
         padding-left: max(4px, env(safe-area-inset-left));
         padding-right: max(4px, env(safe-area-inset-right));
     }
     .inv-modal {
         height: 100dvh;
-        max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 8px);
+        max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 6px);
         border-radius: 12px;
     }
     .inv-header {
-        padding: 10px 12px;
-        gap: 8px;
+        padding: 8px 10px;
+        gap: 6px;
     }
     .inv-header-top-row {
         display: flex;
@@ -623,13 +664,16 @@
         justify-content: space-between;
     }
     .inv-title {
-        font-size: 18px;
+        font-size: 17px;
+    }
+    .inv-mobile-switch {
+        display: flex;
     }
     .inv-nav-pills {
         overflow-x: auto;
         flex-wrap: nowrap;
         white-space: nowrap;
-        padding-bottom: 4px;
+        padding-bottom: 2px;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
     }
@@ -637,20 +681,76 @@
         display: none;
     }
     .inv-layout {
+        display: flex;
+        flex-direction: column;
         padding: 10px;
         gap: 12px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+        /* Padding inferior generoso para que NUNCA se corte por la barra de herramientas de Brave */
+        padding-bottom: calc(85px + env(safe-area-inset-bottom, 24px));
     }
+
+    /* Alternancia de vistas en móvil */
+    .inv-col-diagram,
+    .inv-col-data {
+        display: none !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .inv-col-diagram.is-mobile-visible,
+    .inv-col-data.is-mobile-visible {
+        display: flex !important;
+        flex-direction: column;
+        gap: 12px;
+    }
+
     .inv-svg-stage-box {
-        height: 200px;
+        height: 210px;
+        max-height: 34vh;
+    }
+    .inv-layer-ruler {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .inv-layer-ruler::-webkit-scrollbar {
+        display: none;
+    }
+    .inv-layer-dossier {
+        padding: 12px;
+        gap: 10px;
+    }
+    .inv-dossier-grid {
+        gap: 8px;
+    }
+    .inv-cell-value {
+        font-size: 11.5px;
+    }
+
+    /* Columna de datos científicos en móvil: sin scroll anidado bloqueante */
+    .inv-col-data {
+        overflow: visible;
+        height: auto;
+        padding: 12px;
     }
     .inv-tabs-nav {
         overflow-x: auto;
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
+        margin-bottom: 10px;
+        padding-bottom: 6px;
     }
     .inv-tabs-nav::-webkit-scrollbar {
         display: none;
+    }
+    .inv-tabs-body {
+        overflow: visible;
+        height: auto;
+        flex: none;
+        padding-right: 0;
     }
     .inv-trivia-list {
         grid-template-columns: 1fr;
