@@ -68,19 +68,19 @@ body{
   justify-content:space-between;
   gap:16px;
   flex-wrap:nowrap;
-  overflow-x:auto;
-  scrollbar-width:none;
+  max-width: 100%;
   background: var(--surface);
   backdrop-filter: blur(18px) saturate(1.15);
   -webkit-backdrop-filter: blur(18px) saturate(1.15);
   border:1px solid var(--border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow);
-  padding:10px 16px;
-  min-height:60px;
+  padding:8px 14px;
+  min-height:56px;
   flex-shrink:0;
+  box-sizing: border-box;
+  overflow: hidden;
 }
-.hud-header::-webkit-scrollbar{display:none}
 
 .header-left{
   display:flex;align-items:center;gap:12px;flex-shrink:0;
@@ -131,8 +131,14 @@ body{
   border:1px solid var(--border);
   border-radius: var(--radius-pill);
   padding:3px 6px;
-  flex-shrink:0;
+  flex-shrink:1;
+  min-width: 0;
   max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.header-metrics::-webkit-scrollbar {
+  display: none;
 }
 .metric{
   display:flex;align-items:center;gap:8px;
