@@ -35,6 +35,10 @@ let selectedBody = null;
 let hoveredBody = null;
 let selectionReticle = null;
 let focusBody = null;
+let touchDragStartX = 0;
+let touchDragStartY = 0;
+let touchDragStartTime = 0;
+let lowFpsCounter = 0;
 
 // Memoria y transición de cámara
 let savedPreFocusCameraPos = new THREE.Vector3();
@@ -1078,12 +1082,15 @@ function init() {
     scene.background = new THREE.Color(0x020308);
     scene.fog = new THREE.FogExp2(0x020308, 0.00015);
 
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 2.0, 45000);
+    const isMobileInit = window.innerWidth < 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const initialFov = isMobileInit && window.innerHeight > window.innerWidth ? 72 : 60;
+    camera = new THREE.PerspectiveCamera(initialFov, window.innerWidth / window.innerHeight, 2.0, 45000);
     camera.position.set(0, 1100, 1800);
 
     renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    const initialMaxPixelRatio = isMobileInit ? 1.25 : 1.5;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, initialMaxPixelRatio));
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.1;
@@ -1095,6 +1102,10 @@ function init() {
     controls.dampingFactor = 0.05;
     controls.maxDistance = 45000;
     controls.minDistance = 4;
+    controls.touches = {
+        ONE: THREE.TOUCH.ROTATE,
+        TWO: THREE.TOUCH.DOLLY_PAN
+    };
     initialCameraPos = camera.position.clone();
     initialControlsTarget = controls.target.clone();
 
@@ -1145,6 +1156,11 @@ function init() {
 
     // Eventos
     window.addEventListener('resize', onWindowResize);
+    window.addEventListener('pointerdown', (e) => {
+        touchDragStartX = e.clientX;
+        touchDragStartY = e.clientY;
+        touchDragStartTime = performance.now();
+    }, { passive: true });
     window.addEventListener('click', onSceneClick);
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('keydown', onKeyDown);
@@ -3997,7 +4013,11 @@ function updateBodyCount() {
 
 // --- INTERACCIÓN CON EL RATÓN & ESCENA ---
 function onSceneClick(event) {
-    if (event.target.closest('.hud-container, .panel-toggle, .celestial-dock, button, input, label, .modal-backdrop')) return;
+    if (event.target.closest('.hud-container, .panel-toggle, .celestial-dock, .mobile-bottom-bar, button, input, label, .modal-backdrop, .qr-modal-backdrop')) return;
+
+    // Evitar selección accidental si el usuario estaba rotando o haciendo pan con mouse o touch
+    const moveDist = Math.hypot(event.clientX - touchDragStartX, event.clientY - touchDragStartY);
+    if (moveDist > 14) return;
 
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -4177,6 +4197,11 @@ function resetCamera() {
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
+    if (window.innerWidth < 768 && window.innerHeight > window.innerWidth) {
+        camera.fov = 72;
+    } else {
+        camera.fov = baseCameraFov || 60;
+    }
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     resizeWarpCanvas();
@@ -4998,6 +5023,132 @@ function setupUIEventListeners() {
             header.setAttribute('aria-expanded', String(!collapsed));
         });
     });
+
+    // Autocolapsar panel izquierdo en móviles y pantallas pequeñas al inicio para vista despejada
+    if (window.innerWidth < 980 && leftPanel) {
+        leftPanel.classList.add('is-collapsed');
+        if (btnToggleLeft) {
+            btnToggleLeft.classList.add('is-collapsed');
+            btnToggleLeft.setAttribute('aria-expanded', 'false');
+            const icon = btnToggleLeft.querySelector('i');
+            if (icon) icon.className = 'fa-solid fa-chevron-right';
+        }
+    }
+
+    // Botones de la barra de navegación móvil táctil
+    const mobBtnPlanets = document.getElementById('mob-btn-planets');
+    if (mobBtnPlanets) {
+        mobBtnPlanets.addEventListener('click', () => {
+            const dockMenu = document.getElementById('dock-dropdown-menu');
+            if (dockMenu) {
+                const isHidden = dockMenu.classList.contains('hidden');
+                setDockMenuState(isHidden);
+            }
+        });
+    }
+
+    const mobBtnControls = document.getElementById('mob-btn-controls');
+    if (mobBtnControls && leftPanel) {
+        mobBtnControls.addEventListener('click', () => {
+            const collapsed = leftPanel.classList.toggle('is-collapsed');
+            if (btnToggleLeft) {
+                btnToggleLeft.classList.toggle('is-collapsed', collapsed);
+            }
+            if (!collapsed && infoPanel && !infoPanel.classList.contains('is-collapsed')) {
+                infoPanel.classList.add('is-collapsed');
+            }
+        });
+    }
+
+    const mobBtnTelemetry = document.getElementById('mob-btn-telemetry');
+    if (mobBtnTelemetry && infoPanel) {
+        mobBtnTelemetry.addEventListener('click', () => {
+            const isCurrentlyHidden = infoPanel.classList.contains('is-collapsed') || infoPanel.classList.contains('hidden');
+            if (isCurrentlyHidden) {
+                if (!selectedBody) {
+                    const defaultBody = bodies.find(b => b.name === 'Tierra') || bodies[1];
+                    selectBody(defaultBody, false);
+                }
+                infoPanel.classList.remove('hidden');
+                infoPanel.classList.remove('is-collapsed');
+                if (btnToggleRight) btnToggleRight.classList.remove('is-collapsed');
+                if (leftPanel && !leftPanel.classList.contains('is-collapsed')) {
+                    leftPanel.classList.add('is-collapsed');
+                }
+            } else {
+                infoPanel.classList.add('is-collapsed');
+                if (btnToggleRight) btnToggleRight.classList.add('is-collapsed');
+            }
+        });
+    }
+
+    const mobBtnInv = document.getElementById('mob-btn-investigation');
+    if (mobBtnInv) {
+        mobBtnInv.addEventListener('click', () => {
+            openInvestigationMode(selectedBody);
+        });
+    }
+
+    const mobBtnQr = document.getElementById('mob-btn-qr');
+    if (mobBtnQr) {
+        mobBtnQr.addEventListener('click', openDesktopQrModal);
+    }
+
+    // Modal de Código QR en Header
+    const btnOpenQrHeader = document.getElementById('btn-open-qr-header');
+    if (btnOpenQrHeader) {
+        btnOpenQrHeader.addEventListener('click', openDesktopQrModal);
+    }
+
+    const desktopQrModal = document.getElementById('desktop-qr-modal');
+    const btnCloseQrModal = document.getElementById('btn-close-qr-modal');
+    if (btnCloseQrModal && desktopQrModal) {
+        btnCloseQrModal.addEventListener('click', () => {
+            desktopQrModal.classList.remove('is-open');
+        });
+        desktopQrModal.addEventListener('click', (e) => {
+            if (e.target === desktopQrModal) {
+                desktopQrModal.classList.remove('is-open');
+            }
+        });
+    }
+
+    const btnCopyQrUrl = document.getElementById('btn-copy-qr-url');
+    if (btnCopyQrUrl) {
+        btnCopyQrUrl.addEventListener('click', () => {
+            const url = document.getElementById('desktop-qr-url').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                btnCopyQrUrl.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
+                setTimeout(() => {
+                    btnCopyQrUrl.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar';
+                }, 2000);
+            }).catch(() => {
+                showToast('Enlace listo para compartir');
+            });
+        });
+    }
+}
+
+function openDesktopQrModal() {
+    const modal = document.getElementById('desktop-qr-modal');
+    const qrImg = document.getElementById('desktop-qr-image');
+    const urlSpan = document.getElementById('desktop-qr-url');
+    if (!modal) return;
+
+    let targetUrl;
+    if (window.location.protocol.startsWith('http')) {
+        const basePath = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+        targetUrl = basePath + 'visitante.html';
+    } else {
+        targetUrl = 'https://carlosmeji7.github.io/ESTELARIS_PROJECT/visitante.html';
+    }
+
+    if (urlSpan) urlSpan.textContent = targetUrl;
+    if (qrImg) {
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(targetUrl)}&bgcolor=ffffff&color=06080f&margin=10`;
+    }
+
+    modal.classList.add('is-open');
 }
 
 // --- BUCLE DE ANIMACIÓN & RENDER (60 FPS) ---
@@ -5016,6 +5167,19 @@ function animate() {
     if (time >= lastFpsUpdateTime + 1000) {
         fps = Math.round((frameCount * 1000) / (time - lastFpsUpdateTime));
         if (statFps) statFps.textContent = fps;
+
+        // Optimización dinámica de resolución en dispositivos móviles
+        if (window.innerWidth < 768 && renderer) {
+            if (fps < 38 && lowFpsCounter < 3) {
+                lowFpsCounter++;
+                if (lowFpsCounter >= 2 && renderer.getPixelRatio() > 1.0) {
+                    renderer.setPixelRatio(1.0);
+                }
+            } else if (fps >= 55 && lowFpsCounter > 0) {
+                lowFpsCounter = 0;
+            }
+        }
+
         frameCount = 0;
         lastFpsUpdateTime = time;
     }

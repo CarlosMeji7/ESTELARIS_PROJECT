@@ -74,6 +74,15 @@
                     <span>Volver al Sistema Solar</span>
                 </button>
                 <div class="metric-divider"></div>
+                <button id="btn-open-qr-header" class="btn btn--primary btn--compact" style="font-size:11px; padding: 5px 10px; gap:6px; background:linear-gradient(135deg, rgba(214,199,168,0.25), rgba(251,191,36,0.18)); border-color:rgba(214,199,168,0.45); color:var(--accent-sand);" title="Generar código QR para que los asistentes lo vean en su celular">
+                    <i class="fa-solid fa-qrcode"></i>
+                    <span>QR Móvil / Celular</span>
+                </button>
+                <a href="visitante.html" id="btn-open-passport-header" class="btn btn--ghost btn--compact" style="font-size:11px; padding: 5px 10px; gap:6px; text-decoration:none; display:inline-flex; align-items:center; color:var(--text-1);" title="Abrir Pasaporte Interactivo del Visitante para celular">
+                    <i class="fa-solid fa-mobile-screen" style="color:var(--accent-blue);"></i>
+                    <span>Pasaporte Móvil</span>
+                </a>
+                <div class="metric-divider"></div>
                 <div class="metric metric--live">
                     <span class="metric-label">Rendimiento</span>
                     <strong id="stat-fps" class="metric-value">60 <span>FPS</span></strong>
@@ -520,6 +529,70 @@
         </nav>
 
         <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+    </div>
+
+    <!-- BARRA DE NAVEGACIÓN MÓVIL TÁCTIL (Visible solo en smartphones <= 768px) -->
+    <nav class="mobile-bottom-bar" id="mobile-bottom-bar" aria-label="Navegación táctil móvil">
+        <button id="mob-btn-planets" class="mob-tab-btn" title="Seleccionar Astro">
+            <i class="fa-solid fa-globe"></i>
+            <span>Astros</span>
+        </button>
+        <button id="mob-btn-controls" class="mob-tab-btn" title="Controles y Cataclismos">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Controles</span>
+        </button>
+        <button id="mob-btn-telemetry" class="mob-tab-btn" title="Telemetría & Mutador">
+            <i class="fa-solid fa-chart-simple"></i>
+            <span>Telemetría</span>
+        </button>
+        <button id="mob-btn-investigation" class="mob-tab-btn" title="Modo Investigativo">
+            <i class="fa-solid fa-microscope"></i>
+            <span>Capas</span>
+        </button>
+        <a href="visitante.html" class="mob-tab-btn" style="text-decoration:none;" title="Pasaporte del Visitante">
+            <i class="fa-solid fa-passport"></i>
+            <span>Pasaporte</span>
+        </a>
+        <button id="mob-btn-qr" class="mob-tab-btn" style="color:var(--accent-sand);" title="Compartir QR">
+            <i class="fa-solid fa-qrcode"></i>
+            <span>QR</span>
+        </button>
+    </nav>
+
+    <!-- MODAL DE CÓDIGO QR PARA PROYECTAR O MOSTRAR A VISITANTES -->
+    <div class="qr-modal-backdrop" id="desktop-qr-modal" role="dialog" aria-modal="true" aria-label="Código QR para celular">
+        <div class="qr-modal-card">
+            <div class="qr-modal-head">
+                <div class="qr-modal-brand">
+                    <i class="fa-solid fa-qrcode" style="color:var(--accent-sand); font-size:22px;"></i>
+                    <div>
+                        <h3>ESTELARIS EN TU CELULAR</h3>
+                        <p>Código QR para el público y jurado</p>
+                    </div>
+                </div>
+                <button class="btn-close" id="btn-close-qr-modal" aria-label="Cerrar">&times;</button>
+            </div>
+            <div class="qr-modal-body">
+                <div class="qr-display-box">
+                    <img id="desktop-qr-image" src="" alt="Código QR de Estelaris">
+                </div>
+                <div class="qr-instructions">
+                    <p><strong>¡Apunta la cámara de tu celular hacia la pantalla!</strong></p>
+                    <p>Accede de inmediato al Pasaporte Estelar interactivo, calculadora de peso cósmico, corte interno de planetas y al simulador orbital 3D.</p>
+                </div>
+                <div class="qr-url-box">
+                    <span id="desktop-qr-url">https://carlosmeji7.github.io/ESTELARIS_PROJECT/</span>
+                    <button id="btn-copy-qr-url" class="btn btn--ghost btn--compact" title="Copiar enlace al portapapeles">
+                        <i class="fa-solid fa-copy"></i> Copiar
+                    </button>
+                </div>
+            </div>
+            <div class="qr-modal-footer">
+                <a href="visitante.html" target="_blank" class="btn btn--primary" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Pasaporte del Visitante
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- CONTENEDOR MODULAR MODO INVESTIGATIVO (Carga asíncrona de investigacion.html sin recargar la página) -->

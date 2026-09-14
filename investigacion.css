@@ -1,4 +1,4 @@
-﻿/* ============================================================================
+/* ============================================================================
    ESTELARIS — MÓDULO DE INVESTIGACIÓN (DISEÑO MINIMALISTA Y PROFESIONAL)
    ============================================================================ */
 
@@ -594,6 +594,25 @@
 }
 
 @media (max-width: 768px) {
+    .inv-backdrop {
+        padding: 6px;
+    }
+    .inv-modal {
+        height: 96vh;
+        max-height: 96vh;
+    }
+    .inv-header {
+        padding: 10px 14px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .inv-layout {
+        padding: 12px;
+        gap: 16px;
+    }
+    .inv-svg-stage-box {
+        height: 220px;
+    }
     .inv-trivia-list {
         grid-template-columns: 1fr;
     }

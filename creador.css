@@ -272,6 +272,38 @@
     }
 }
 
+@media (max-width: 768px) {
+    .pc-backdrop {
+        padding: 6px;
+    }
+    .pc-modal {
+        height: 96vh;
+        max-height: 96vh;
+    }
+    .pc-body {
+        display: flex;
+        flex-direction: column;
+        height: calc(100% - 66px);
+        overflow-y: auto;
+    }
+    .pc-col-viewport {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        height: 240px;
+        min-height: 240px;
+        flex-shrink: 0;
+        padding: 10px;
+    }
+    .pc-canvas-wrapper {
+        min-height: 180px;
+    }
+    .pc-col-controls {
+        flex: 1;
+        overflow-y: visible;
+        padding: 14px;
+    }
+}
+
 /* COLUMNA IZQUIERDA: VISOR 3D */
 .pc-col-viewport {
     border-right: 1px solid rgba(255, 255, 255, 0.08);
