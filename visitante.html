@@ -1107,19 +1107,56 @@
         <div class="visitor-view" id="view-trivia">
             <!-- Desafío Cósmico / Trivia para Asistentes -->
             <section class="trivia-card" id="trivia-section">
+                <!-- Header de Ronda -->
                 <div class="section-header-compact">
-                    <h3 style="font-family:var(--font-display); font-size:14px; color:var(--text-1); display:flex; align-items:center; gap:7px;">
-                        <i class="fa-solid fa-circle-question" style="color:var(--accent-purple);"></i> Desafío Cósmico del Jurado & Visitantes
+                    <h3 style="font-family:var(--font-display); font-size:13.5px; color:var(--text-1); display:flex; align-items:center; gap:7px;">
+                        <i class="fa-solid fa-circle-question" style="color:var(--accent-purple);"></i>
+                        <span>Desafío Cósmico</span>
+                        <span id="trivia-step-badge" style="font-family:var(--font-mono); font-size:10.5px; color:var(--accent-sand); background:rgba(214,199,168,0.14); padding:2px 7px; border-radius:4px; font-weight:600;">1 de 5</span>
                     </h3>
-                    <span id="trivia-score" style="font-family:var(--font-mono); font-size:11px; color:var(--success); font-weight:700;">0 / 5</span>
+                    <span id="trivia-score" style="font-family:var(--font-mono); font-size:11.5px; color:var(--success); font-weight:700;">Aciertos: 0 / 5</span>
                 </div>
-                <div class="trivia-question" id="trivia-question-text">
-                    ¿Qué astro del Sistema Solar tiene una densidad tan baja que flotaría en una bañera de agua gigante?
+
+                <!-- Contenedor Activo de Pregunta -->
+                <div id="trivia-play-container">
+                    <div class="trivia-question" id="trivia-question-text">
+                        Cargando desafío cósmico...
+                    </div>
+                    <div class="trivia-options" id="trivia-options-box">
+                        <!-- Botones inyectados por JS -->
+                    </div>
+                    <div class="trivia-feedback" id="trivia-feedback" style="display:none; margin-top:10px;"></div>
+                    <button id="btn-next-trivia" class="btn-launch-big" style="margin-top:12px; display:none; padding:10px 14px; font-size:12px; width:100%;" onclick="advanceTriviaQuestion()">
+                        <span>Siguiente Pregunta</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
                 </div>
-                <div class="trivia-options" id="trivia-options-box">
-                    <!-- Botones inyectados por JS -->
+
+                <!-- Pantalla de Conclusión de la Ronda (5 Preguntas) con Confirmación para Jugar Otra -->
+                <div id="trivia-completed-box" style="display:none; text-align:center; padding:16px 8px; flex-direction:column; gap:14px; align-items:center;">
+                    <div style="font-size:40px; line-height:1;">🚀</div>
+                    <div>
+                        <h4 style="font-family:var(--font-display); font-size:16px; color:var(--text-1); margin:0 0 6px 0;">
+                            ¡Has completado esta ronda de 5 preguntas!
+                        </h4>
+                        <div id="trivia-final-badge" style="display:inline-block; font-family:var(--font-mono); font-size:14px; font-weight:700; color:var(--accent-sand); background:rgba(214,199,168,0.15); padding:5px 14px; border-radius:var(--radius-pill); border:1px solid rgba(214,199,168,0.35);">
+                            Puntaje: 5 / 5
+                        </div>
+                    </div>
+                    <p id="trivia-final-msg" style="font-size:12px; color:var(--text-2); line-height:1.45; margin:0; max-width:320px;">
+                        ¡Excelente conocimiento astronómico!
+                    </p>
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px; width:100%; box-sizing:border-box;">
+                        <p style="font-size:12px; color:var(--text-1); font-weight:600; margin:0 0 6px 0;">
+                            ¿Deseas responder otras 5 preguntas?
+                        </p>
+                        <p style="font-size:11px; color:var(--text-3); margin:0 0 12px 0;">
+                            Tenemos un banco de 80 preguntas científicas (fáciles y difíciles) que se eligen al azar en cada ronda.
+                        </p>
+                        <button class="btn-launch-big" onclick="startTriviaRound()" style="width:100%; padding:11px; font-size:12px; font-weight:700;">
+                            <i class="fa-solid fa-rotate-right"></i> Jugar otra ronda (5 preguntas nuevas)
+                        </button>
+                    </div>
                 </div>
-                <div class="trivia-feedback" id="trivia-feedback"></div>
             </section>
         </div>
 
@@ -1501,45 +1538,512 @@
             }
         ];
 
-        // --- PREGUNTAS DE LA TRIVIA CÓSMICA ---
-        const TRIVIA_QUESTIONS = [
+        // --- BANCO DE 80 PREGUNTAS CIENTÍFICAS RESPALDADAS (NASA / ESA / JPL / IAU) ---
+        const TRIVIA_BANK_80 = [
+            // 1 - 10: FÍSICA PLANETARIA Y PROPIEDADES BÁSICAS
             {
-                q: '¿Qué planeta del Sistema Solar tiene una densidad menor que la del agua (por lo que flotaría en un océano colosal)?',
+                q: '¿Qué planeta del Sistema Solar tiene una densidad menor que la del agua (flotaría en un océano colosal)?',
                 options: ['Marte', 'Saturno', 'Júpiter', 'Neptuno'],
                 answer: 1,
-                why: '¡Correcto! Saturno tiene una densidad media de apenas 0.687 g/cm³, mientras que el agua tiene 1.0 g/cm³.'
+                why: 'Saturno tiene una densidad media de apenas 0.687 g/cm³, mientras que el agua líquida tiene 1.0 g/cm³.'
             },
             {
-                q: 'Si el Sol desapareciera en este instante, ¿cuánto tiempo tardaríamos en la Tierra en quedarnos a oscuras y perder su gravedad?',
-                options: ['Instantáneamente (0 segundos)', 'Aproximadamente 8 minutos y 20 segundos', '1 hora', '24 horas'],
+                q: 'Si el Sol desapareciera en este instante, ¿cuánto tardaría la Tierra en quedarse a oscuras y desorbitarse?',
+                options: ['0 segundos (instantáneo)', 'Aproximadamente 8 minutos y 20 segundos', '1 hora', '24 horas'],
                 answer: 1,
-                why: '¡Exacto! Según la Relatividad de Einstein, ni la luz ni la gravedad viajan más rápido que c (~300,000 km/s). Tardan ~8.3 min en recorrer 1 AU.'
+                why: 'La gravedad y la luz viajan a la velocidad c (~300,000 km/s). Tardan ~8.3 minutos en recorrer 1 AU hasta la Tierra.'
             },
             {
-                q: '¿Dónde se encuentra el volcán más alto conocido de todo el Sistema Solar (Monte Olimpo, 22 km de altura)?',
-                options: ['Venus', 'Luna', 'Marte', 'Ío'],
+                q: '¿Dónde se encuentra el volcán más alto conocido del Sistema Solar (Monte Olimpo, 22 km de elevación)?',
+                options: ['Venus', 'La Luna', 'Marte', 'Ío'],
                 answer: 2,
-                why: '¡Muy bien! El Monte Olimpo en Marte triplica la altura del Monte Everest en la Tierra.'
+                why: 'El Monte Olimpo en Marte triplica la altura del Monte Everest y es un volcán en escudo gigante.'
             },
             {
-                q: '¿En cuál de estos cuerpos celestes una persona de 70 kg pesaría apenas 4.4 kg?',
-                options: ['Plutón', 'Mercurio', 'Luna', 'Venus'],
+                q: '¿En cuál de estos mundos una persona de 70 kg pesaría apenas 4.4 kg debido a su diminuta gravedad?',
+                options: ['Plutón', 'Mercurio', 'La Luna', 'Venus'],
                 answer: 0,
-                why: '¡Acertaste! La gravedad de Plutón es sólo el 6.3% de la gravedad terrestre.'
+                why: 'La gravedad superficial de Plutón es solo el 6.3% de la gravedad terrestre (0.62 m/s²).'
             },
             {
-                q: '¿Qué luna joviana posee un océano líquido oculto bajo su corteza de hielo con más agua que todos los océanos terrestres combinados?',
-                options: ['Ío', 'Europa', 'Ganimedes', 'Titán'],
+                q: '¿Qué luna posee un océano global de agua líquida bajo su corteza de hielo con el doble de agua que la Tierra?',
+                options: ['Ío', 'Europa', 'Fobos', 'Titán'],
                 answer: 1,
-                why: '¡Brillante! Europa es uno de los candidatos más prometedores para la búsqueda de vida marina extraterrestre.'
+                why: 'Europa alberga un océano salino subglacial de hasta 100 km de profundidad calentado por mareas gravitacionales.'
+            },
+            {
+                q: '¿Cuál es el planeta con la temperatura superficial media más alta de todo el Sistema Solar (~465 °C)?',
+                options: ['Mercurio', 'Venus', 'Marte', 'Júpiter'],
+                answer: 1,
+                why: 'Venus sufre un efecto invernadero desbocado por su densa atmósfera de 96% CO2, siendo más caliente que Mercurio.'
+            },
+            {
+                q: '¿Qué planeta orbita más cerca del Sol, completando una traslación en solo 88 días terrestres?',
+                options: ['Venus', 'Mercurio', 'Marte', 'Tierra'],
+                answer: 1,
+                why: 'Mercurio tiene el semieje mayor más pequeño (0.387 AU) y la velocidad orbital más rápida (~47.4 km/s).'
+            },
+            {
+                q: '¿Cuál es el elemento químico más abundante en la masa del Sol y en todo el Universo observable?',
+                options: ['Helio', 'Oxígeno', 'Hidrógeno', 'Hierro'],
+                answer: 2,
+                why: 'El Sol está compuesto aproximadamente por un 73.5% de hidrógeno y un 24.8% de helio en masa.'
+            },
+            {
+                q: '¿Cuál es el satélite natural más grande del Sistema Solar (incluso más grande que el planeta Mercurio)?',
+                options: ['Titán', 'La Luna', 'Ganimedes', 'Calisto'],
+                answer: 2,
+                why: 'Ganimedes (luna de Júpiter) mide 5,268 km de diámetro, superando con creces a Mercurio (4,879 km).'
+            },
+            {
+                q: '¿Qué planeta tiene una rotación retrógrada (gira al revés) y su día dura más que su año?',
+                options: ['Marte', 'Venus', 'Urano', 'Neptuno'],
+                answer: 1,
+                why: 'Venus tarda 243 días terrestres en rotar sobre su eje, pero solo 225 días en dar una vuelta completa al Sol.'
+            },
+
+            // 11 - 20: LUNAS, ANILLOS Y ATMÓSFERAS
+            {
+                q: '¿Cuál es la única luna del Sistema Solar con una atmósfera densa y lagos estables de hidrocarburos líquidos?',
+                options: ['Europa', 'Titán', 'Encélado', 'Tritón'],
+                answer: 1,
+                why: 'Titán (luna de Saturno) posee mares y lagos de metano y etano líquido a -179 °C y una atmósfera de nitrógeno.'
+            },
+            {
+                q: '¿Qué planeta del Sistema Solar rota casi acostado con una inclinación axial extrema de 97.8 grados?',
+                options: ['Saturno', 'Júpiter', 'Urano', 'Neptuno'],
+                answer: 2,
+                why: 'Urano rueda sobre su plano orbital, probablemente debido a una colisión colosal con un protoplaneta primordial.'
+            },
+            {
+                q: 'La Gran Mancha Roja de Júpiter es un fenómeno atmosférico colosal clasificado como:',
+                options: ['Un cráter de impacto volcánico', 'Una tormenta anticiclónica gigante', 'Un agujero en la atmósfera', 'Una nube de azufre sólido'],
+                answer: 1,
+                why: 'Es un anticiclón de alta presión cuyos vientos superan los 430 km/h y lleva activo más de 350 años.'
+            },
+            {
+                q: 'La distancia media de la Tierra al Sol equivale a 1 Unidad Astronómica (AU), que corresponde a:',
+                options: ['50 millones de km', '100 millones de km', '149.6 millones de km', '300 millones de km'],
+                answer: 2,
+                why: '1 AU está definida formalmente por la Unión Astronómica Internacional como exactamente 149,597,870,700 metros.'
+            },
+            {
+                q: '¿Qué luna de Júpiter es el objeto geológicamente más activo del Sistema Solar, con más de 400 volcanes activos?',
+                options: ['Europa', 'Calisto', 'Ío', 'Amaltea'],
+                answer: 2,
+                why: 'Las intensas mareas gravitatorias de Júpiter y sus lunas flexionan la roca de Ío, generando calor volcánico extremo.'
+            },
+            {
+                q: '¿Qué pequeña luna helada de Saturno expulsa plumas y géiseres de vapor de agua salada al espacio en su polo sur?',
+                options: ['Encélado', 'Mimas', 'Dione', 'Rea'],
+                answer: 0,
+                why: 'Encélado alimenta el anillo E de Saturno con sus géiseres de agua salina provenientes de su océano interior.'
+            },
+            {
+                q: 'Según la teoría científica dominante, ¿cómo se formó la Luna de la Tierra hace 4,500 millones de años?',
+                options: ['Fue capturada del cinturón de Kuiper', 'Por el impacto gigante de un protoplaneta llamado Theia', 'Por fisión espontánea de la Tierra rápida', 'Por condensación independiente sin colisión'],
+                answer: 1,
+                why: 'La hipótesis del Gran Impacto explica la composición isotópica idéntica entre el manto terrestre y la Luna.'
+            },
+            {
+                q: '¿Qué porcentaje aproximado de toda la masa del Sistema Solar se encuentra concentrado únicamente en el Sol?',
+                options: ['50%', '75%', '90%', '99.86%'],
+                answer: 3,
+                why: 'El Sol contiene el 99.86% de la masa total; Júpiter contiene la mayor parte del 0.14% restante.'
+            },
+            {
+                q: '¿Qué telescopio espacial infrarrojo fue lanzado en 2021 y opera orbitando el punto de Lagrange L2?',
+                options: ['Hubble', 'Spitzer', 'James Webb (JWST)', 'Kepler'],
+                answer: 2,
+                why: 'El telescopio James Webb de la NASA/ESA/CSA observa en infrarrojo profundo protegido térmicamente a 1.5M km de la Tierra.'
+            },
+            {
+                q: '¿A qué se debe el característico color rojizo de la superficie del planeta Marte?',
+                options: ['Oxidación de minerales de hierro (herrumbre)', 'Lava basáltica incandescente activa', 'Nubes perpetuas de metano y azufre', 'Vegetación microscópica roja'],
+                answer: 0,
+                why: 'El regolito marciano es rico en óxidos de hierro (Fe2O3) que se dispersan en su atmósfera polvorienta.'
+            },
+
+            // 21 - 30: EXPLORACIÓN, FÍSICA ORBITAL Y ESCAPE
+            {
+                q: '¿Cuál fue la primera nave espacial humana en cruzar la heliopausa y entrar formalmente al espacio interestelar?',
+                options: ['Apolo 11', 'Voyager 1', 'Pioneer 10', 'New Horizons'],
+                answer: 1,
+                why: 'Voyager 1 cruzó la heliopausa en agosto de 2012 a una distancia de aproximadamente 121 AU del Sol.'
+            },
+            {
+                q: '¿Qué planeta posee la mayor velocidad de escape en su superficie (~59.5 km/s)?',
+                options: ['Tierra', 'Saturno', 'Júpiter', 'Neptuno'],
+                answer: 2,
+                why: 'Debido a sus 318 masas terrestres, escapar de la gravedad de Júpiter requiere casi 60 km/s frente a los 11.2 km/s de la Tierra.'
+            },
+            {
+                q: '¿Dónde se encuentra ubicado el Cinturón de Asteroides principal?',
+                options: ['Entre la Tierra y Marte', 'Entre Marte y Júpiter', 'Más allá de Neptuno', 'Entre Mercurio y Venus'],
+                answer: 1,
+                why: 'Se extiende entre 2.2 y 3.2 AU del Sol, donde la gravedad de Júpiter impidió la agregación de un planeta.'
+            },
+            {
+                q: '¿Cuál es el cuerpo más masivo del Cinturón de Asteroides principal, catalogado también como planeta enano?',
+                options: ['Vesta', 'Palas', 'Higia', 'Ceres'],
+                answer: 3,
+                why: 'Ceres mide 940 km de diámetro y contiene cerca de un tercio de toda la masa del cinturón principal.'
+            },
+            {
+                q: '¿Cuál es la presión atmosférica en la superficie sólida de Venus comparada con el nivel del mar en la Tierra?',
+                options: ['Igual (1 bar)', 'La mitad (0.5 bar)', 'Aproximadamente 92 veces mayor (92 bar)', '1000 veces menor'],
+                answer: 2,
+                why: 'La aplastante atmósfera venusiana ejerce 92 atmósferas, equivalente a estar sumergido a 900 metros bajo el mar.'
+            },
+            {
+                q: '¿En qué año alunizó la misión Apolo 11, permitiendo que Neil Armstrong pisara la superficie lunar?',
+                options: ['1957', '1961', '1969', '1975'],
+                answer: 2,
+                why: 'El 20 de julio de 1969, el módulo lunar Eagle tocó suelo en el Mar de la Tranquilidad.'
+            },
+            {
+                q: '¿Qué fuerza fundamental mantiene a los planetas orbitando alrededor del Sol según Newton y Einstein?',
+                options: ['Fuerza electromagnética', 'Fuerza nuclear fuerte', 'Gravedad (curvatura del espacio-tiempo)', 'Presión de radiación estelar'],
+                answer: 2,
+                why: 'La masa solar curva el tejido espacio-temporal creando las trayectorias geodésicas que observamos como órbitas.'
+            },
+            {
+                q: '¿Cuál es el proceso nuclear que libera la energía que hace brillar al Sol?',
+                options: ['Fisión de uranio pesado', 'Combustión química de carbono', 'Fusión nuclear de núcleos de hidrógeno a helio', 'Desintegración radiactiva alfa'],
+                answer: 2,
+                why: 'En el núcleo solar, la cadena protón-protón fusiona 600 millones de toneladas de hidrógeno por segundo.'
+            },
+            {
+                q: '¿Cuál es la temperatura estimada en el centro del núcleo del Sol?',
+                options: ['5,500 °C', '100,000 °C', '15,000,000 °C', '1,000,000,000 °C'],
+                answer: 2,
+                why: 'A 15.7 millones de Kelvin, la presión y temperatura son suficientes para superar la repulsión electrostática entre protones.'
+            },
+            {
+                q: '¿Cuál es la temperatura de la fotosfera (la superficie luminosa visible) del Sol?',
+                options: ['Aproximadamente 5,500 °C (5,778 K)', '15,000 °C', '1,000 °C', '100,000 °C'],
+                answer: 0,
+                why: 'La fotosfera solar emite como un cuerpo negro a ~5,778 K, otorgándole su color blanco-amarillento en el vacío.'
+            },
+
+            // 31 - 40: MECÁNICA CELESTE AVANZADA Y LÍMITES FÍSICOS
+            {
+                q: '¿Cómo se denominan los cinco puntos orbitales donde las fuerzas gravitatorias de dos cuerpos masivos se equilibran?',
+                options: ['Puntos de Kepler', 'Puntos de Lagrange (L1 a L5)', 'Nodos de Newton', 'Horizontes de Hill'],
+                answer: 1,
+                why: 'Joseph-Louis Lagrange descubrió en 1772 estos puntos de equilibrio orbital donde la fuerza centrífuga y gravedad se cancelan.'
+            },
+            {
+                q: '¿Qué nombre recibe la distancia mínima a la que un satélite puede acercarse a su planeta antes de ser destruido por mareas?',
+                options: ['Límite de Chandrasekhar', 'Límite de Roche', 'Radio de Schwarzschild', 'Cota de Oort'],
+                answer: 1,
+                why: 'Dentro del límite de Roche, las fuerzas de marea diferenciales superan la autogravedad del satélite, fragmentándolo en anillos.'
+            },
+            {
+                q: 'La región esférica alrededor de un planeta donde su atracción gravitatoria supera a la del Sol se llama:',
+                options: ['Esfera de Hill', 'Radio de van Allen', 'Zona de Kuiper', 'Esfera de Alfvén'],
+                answer: 0,
+                why: 'La esfera de Hill define el volumen en el que un astro puede retener satélites naturales en órbitas estables.'
+            },
+            {
+                q: 'La Segunda Ley de Kepler (Ley de las Áreas) establece matemáticamente que:',
+                options: ['Las órbitas son círculos perfectos', 'La línea que une al planeta con el Sol barre áreas iguales en tiempos iguales', 'Los planetas viajan a velocidad constante', 'La gravedad disminuye linealmente'],
+                answer: 1,
+                why: 'Implica que los planetas se mueven más rápido en el perihelio (cerca del Sol) y más lento en el afelio.'
+            },
+            {
+                q: 'La velocidad exacta de la luz en el vacío (constante fundamental c) es:',
+                options: ['100,000 km/s', '299,792 km/s', '500,000 km/s', '1,080,000 km/s'],
+                answer: 1,
+                why: 'Es exactamente 299,792,458 m/s, el límite máximo de velocidad para cualquier transmisión de masa o información causal.'
+            },
+            {
+                q: '¿Qué gas absorbe la luz roja y le otorga a Urano y Neptuno su profundo tono azul cian?',
+                options: ['Nitrógeno', 'Monóxido de carbono', 'Metano (CH4)', 'Vapor de agua'],
+                answer: 2,
+                why: 'El metano en las capas atmosféricas superiores absorbe longitudes de onda rojas y refleja la luz azul hacia el espacio.'
+            },
+            {
+                q: '¿Cómo se llama el punto de la órbita de un planeta donde este se encuentra a la mínima distancia del Sol?',
+                options: ['Afelio', 'Perihelio', 'Perigeo', 'Apogeo'],
+                answer: 1,
+                why: 'Perihelio proviene del griego peri (cerca) y helios (Sol). Para la Tierra ocurre en los primeros días de enero.'
+            },
+            {
+                q: '¿Cómo se llama el punto de la órbita de un planeta donde este se encuentra a la máxima distancia del Sol?',
+                options: ['Afelio', 'Perihelio', 'Cenit', 'Nadir'],
+                answer: 0,
+                why: 'Afelio proviene del griego apo (lejos) y helios (Sol). Para la Tierra ocurre en los primeros días de julio.'
+            },
+            {
+                q: '¿Qué gran luna de Neptuno gira en órbita retrógrada (al revés), indicando que fue capturada del Cinturón de Kuiper?',
+                options: ['Nereida', 'Proteo', 'Tritón', 'Talasa'],
+                answer: 2,
+                why: 'Tritón es geológicamente similar a Plutón; su órbita retrógrada terminará destruyéndola dentro del límite de Roche en el futuro.'
+            },
+            {
+                q: '¿Qué fenómeno criovolcánico activo fotografió la sonda Voyager 2 en la superficie de Tritón?',
+                options: ['Géiseres de nitrógeno gaseoso con polvo negro', 'Ríos de hierro fundido', 'Volcanes de ácido sulfúrico', 'Cataratas de agua termal'],
+                answer: 0,
+                why: 'Las plumas de nitrógeno de Tritón se elevan 8 km en su tenue atmósfera antes de curvarse por el viento polar.'
+            },
+
+            // 41 - 50: ASTROFÍSICA, SISTEMA SOLAR EXTERIOR Y LEYES KEPLERIANAS
+            {
+                q: '¿Cuántas veces más masa necesitaría tener Júpiter aproximadamente para haber encendido la fusión nuclear y ser estrella?',
+                options: ['2 veces más', '10 veces más', 'Alrededor de 80 veces más', '1000 veces más'],
+                answer: 2,
+                why: 'Se necesitan ~80 masas jovianas para encender la fusión de hidrógeno estable (o ~13 masas para fusionar deuterio como enana marrón).'
+            },
+            {
+                q: 'Las lunas jovianas Ío, Europa y Ganimedes exhiben una célebre resonancia orbital kepleriana de tipo:',
+                options: ['1:1:1', '4:2:1 de Laplace', '3:2:1', '10:5:2'],
+                answer: 1,
+                why: 'Por cada 4 vueltas de Ío, Europa completa exactamente 2 y Ganimedes 1, manteniendo vivas sus mareas térmicas internas.'
+            },
+            {
+                q: '¿Cuál es la separación más notable y oscura dentro de los anillos principales de Saturno?',
+                options: ['División de Encke', 'División de Cassini', 'Brecha de Maxwell', 'Anillo D'],
+                answer: 1,
+                why: 'La División de Cassini mide 4,800 km de ancho y está limpia de escombros por la resonancia orbital con la luna Mimas.'
+            },
+            {
+                q: '¿Qué sonda robótica europea aterrizó con éxito en la superficie de Titán en enero de 2005?',
+                options: ['Cassini', 'Huygens', 'Rosetta', 'Philae'],
+                answer: 1,
+                why: 'La sonda Huygens de la ESA descendió con paracaídas durante 2.5 horas y transmitió imágenes directas del suelo de Titán.'
+            },
+            {
+                q: '¿Qué misión de la NASA sobrevoló por primera vez el sistema de Plutón y Caronte en julio de 2015?',
+                options: ['Voyager 2', 'New Horizons', 'Dawn', 'Pioneer 11'],
+                answer: 1,
+                why: 'New Horizons fotografió los glaciares de nitrógeno en forma de corazón (Sputnik Planitia) en Plutón.'
+            },
+            {
+                q: '¿Qué misión histórica de la NASA en 2022 impactó cinéticamente contra el asteroide Dimorfo para desviar su órbita?',
+                options: ['DART', 'OSIRIS-REx', 'Hayabusa2', 'Lucy'],
+                answer: 0,
+                why: 'DART demostró por primera vez que la humanidad puede alterar la órbita de un asteroide para defensa planetaria.'
+            },
+            {
+                q: '¿Qué nave espacial de la NASA ha volado más cerca del Sol que cualquier otro objeto construido por el hombre?',
+                options: ['Helios 2', 'Parker Solar Probe', 'Solar Orbiter', 'SOHO'],
+                answer: 1,
+                why: 'La sonda Parker se sumerge en la corona solar a velocidades superiores a 600,000 km/h protegida por un escudo de carbono.'
+            },
+            {
+                q: 'El campo magnético terrestre se genera en su interior mediante el fenómeno conocido como:',
+                options: ['Efecto piezoeléctrico superficial', 'Efecto dínamo en el núcleo externo de hierro líquido', 'Magnetismo fósil en la corteza', 'Radiación de la ionosfera'],
+                answer: 1,
+                why: 'La rotación de la Tierra y la convección de hierro y níquel fundido en el núcleo externo producen corrientes eléctricas colosales.'
+            },
+            {
+                q: 'La gigantesca nube esférica de cometas hipotética que envuelve al Sistema Solar hasta 100,000 AU se llama:',
+                options: ['Cinturón de Van Allen', 'Cinturón de Kuiper', 'Nube de Oort', 'Disco de Acreción'],
+                answer: 2,
+                why: 'Jan Oort propuso en 1950 esta reserva esférica primordial como fuente de los cometas de período largo.'
+            },
+            {
+                q: 'El Cinturón de Kuiper es una región del espacio en forma de disco situada principalmente:',
+                options: ['Entre Mercurio y el Sol', 'Entre Marte y Júpiter', 'Más allá de la órbita de Neptuno (30 a 55 AU)', 'Alrededor de Saturno'],
+                answer: 2,
+                why: 'Contiene millones de restos helados de la formación del Sistema Solar, incluidos Plutón, Haumea y Makemake.'
+            },
+
+            // 51 - 60: CIENCIA ATMOSFÉRICA, GEOFÍSICA Y RELATIVIDAD
+            {
+                q: '¿En qué capa de la atmósfera terrestre se encuentra la capa de ozono que filtra la dañina radiación ultravioleta B?',
+                options: ['Troposfera', 'Estratosfera', 'Mesosfera', 'Termosfera'],
+                answer: 1,
+                why: 'La capa de ozono (O3) reside en la estratosfera, entre 15 y 35 km de altitud sobre la superficie.'
+            },
+            {
+                q: '¿Por qué Mercurio tiene una densidad extraordinariamente alta (5.43 g/cm³) a pesar de su pequeño tamaño?',
+                options: ['Está cubierto de diamantes', 'Posee un núcleo metálico de hierro gigante (~85% de su radio)', 'Tiene una atmósfera súper pesada', 'Está hecho enteramente de plomo'],
+                answer: 1,
+                why: 'Mercurio es prácticamente una esfera de hierro recubierta por una delgada capa de silicato rocoso.'
+            },
+            {
+                q: '¿Cuánto dura aproximadamente el ciclo solar de actividad de manchas y tormentas magnéticas del Sol?',
+                options: ['1 año', '11 años', '50 años', '100 años'],
+                answer: 1,
+                why: 'Cada 11 años el campo magnético del Sol se invierte por completo entre un mínimo y un máximo de manchas solares.'
+            },
+            {
+                q: '¿Cuál es el componente químico principal de las densas nubes amarillas que cubren a Venus?',
+                options: ['Agua pura en suspensión', 'Ácido clorhídrico líquido', 'Gotitas de ácido sulfúrico concentrado (H2SO4)', 'Polvo de azufre sólido'],
+                answer: 2,
+                why: 'El SO2 volcánico reacciona con trazas de vapor de agua bajo la luz UV solar para formar niebla de ácido sulfúrico.'
+            },
+            {
+                q: '¿Cada cuántos años regresa el famoso cometa Halley a las inmediaciones de la Tierra en su órbita periódica?',
+                options: ['10 años', '25 años', '75 - 76 años', '500 años'],
+                answer: 2,
+                why: 'Su última visita fue en 1986 y su próximo perihelio ocurrirá a mediados del año 2061.'
+            },
+            {
+                q: 'Las dos pequeñas lunas irregulares de Marte (Fobos y Deimos) son con casi total seguridad:',
+                options: ['Partes desprendidas de la Luna terrestre', 'Asteroides carbonáceos capturados por la gravedad de Marte', 'Planetas enanos intactos', 'Núcleos de cometas activos'],
+                answer: 1,
+                why: 'Sus espectros y densidades bajas coinciden estrechamente con asteroides de tipo C y D del cinturón de asteroides.'
+            },
+            {
+                q: '¿Qué luna de Urano posee los acantilados más escarpados y altos del Sistema Solar (Verona Rupes, 20 km)?',
+                options: ['Miranda', 'Ariel', 'Umbriel', 'Titania'],
+                answer: 0,
+                why: 'Miranda tiene una geología caótica de fallas; una caída desde Verona Rupes duraría más de 10 minutos por su baja gravedad.'
+            },
+            {
+                q: '¿Por qué la Luna nos muestra siempre la misma cara desde la Tierra?',
+                options: ['Porque la Luna no rota sobre su eje', 'Por acoplamiento de marea: su rotación dura igual que su traslación', 'Por la sombra de la Tierra', 'Porque su cara oculta es de plomo'],
+                answer: 1,
+                why: 'La fricción de marea frenó la rotación lunar hasta sincronizar su período orbital y rotacional en exactamente 27.3 días.'
+            },
+            {
+                q: '¿Cuál es la estrella más cercana a nuestro Sol, situada a unos 4.24 años luz de distancia?',
+                options: ['Sirio A', 'Próxima Centauri', 'Vega', 'Betelgeuse'],
+                answer: 1,
+                why: 'Próxima Centauri es una enana roja que forma parte del sistema estelar triple de Alfa Centauri.'
+            },
+            {
+                q: '¿Qué anomalía orbital en Mercurio sirvió para confirmar la Teoría de la Relatividad General de Einstein en 1915?',
+                options: ['El frenado de su velocidad orbital', 'La precesión anómala de su perihelio (43 segundos de arco/siglo)', 'El cambio en la masa de su núcleo', 'La pérdida de su atmósfera'],
+                answer: 1,
+                why: 'La física de Newton no podía explicar esos 43 segundos de arco que la curvatura del espacio-tiempo resolvió con precisión.'
+            },
+
+            // 61 - 70: DATOS DE REFERENCIA Y OBSERVACIÓN
+            {
+                q: '¿Cuál es el planeta con la densidad media más alta de los ocho que orbitan el Sol (~5.51 g/cm³)?',
+                options: ['Mercurio', 'Venus', 'Tierra', 'Júpiter'],
+                answer: 2,
+                why: 'La Tierra es el planeta más denso debido a su gran núcleo de hierro-níquel comprimido por su propia gravedad.'
+            },
+            {
+                q: '¿Cómo se llaman las zonas en forma de rosquilla donde el campo magnético terrestre atrapa partículas de alta energía?',
+                options: ['Cinturones de Kuiper', 'Cinturones de Van Allen', 'Zonas de Fresnel', 'Capas de Heaviside'],
+                answer: 1,
+                why: 'Descubiertos por el satélite Explorer 1 en 1958, protegen la biosfera canalizando electrones y protones dañinos.'
+            },
+            {
+                q: '¿Qué objeto simbólico llevan a bordo las sondas interestelares Voyager 1 y 2 para hipotéticas civilizaciones?',
+                options: ['Un mapa del tesoro solar de oro', 'El Disco de Oro con sonidos, música e imágenes de la Tierra', 'Un reloj atómico de cesio', 'Un frasco con atmósfera terrestre'],
+                answer: 1,
+                why: 'Contiene 115 imágenes, saludos en 55 idiomas y sonidos de la naturaleza compilados por el equipo de Carl Sagan.'
+            },
+            {
+                q: '¿Qué planeta enano descubierto en 2005 (más masivo que Plutón) precipitó la nueva definición de planeta de la UAI?',
+                options: ['Ceres', 'Sedna', 'Eris', 'Vesta'],
+                answer: 2,
+                why: 'El hallazgo de Eris por Mike Brown demostró que había muchos cuerpos grandes en el Cinturón de Kuiper además de Plutón.'
+            },
+            {
+                q: '¿Qué luna de Saturno tiene el apodo de la "Estrella de la Muerte" debido al inmenso cráter Herschel?',
+                options: ['Mimas', 'Tetis', 'Febe', 'Titán'],
+                answer: 0,
+                why: 'El cráter Herschel mide 130 km de diámetro, casi un tercio del diámetro total de la pequeña luna Mimas (396 km).'
+            },
+            {
+                q: '¿Qué luna de Saturno presenta una mitad tan oscura como el alquitrán y la otra tan blanca como la nieve?',
+                options: ['Jápeto', 'Hiperión', 'Rea', 'Dione'],
+                answer: 0,
+                why: 'Jápeto tiene una dicotomía térmica y de albedo radical: su hemisferio delantero acumula polvo oscuro del anillo de Febe.'
+            },
+            {
+                q: '¿Cuánto tiempo de vida le queda aproximadamente al Sol antes de agotar su hidrógeno y convertirse en gigante roja?',
+                options: ['100 millones de años', '1,000 millones de años', 'Aproximadamente 5,000 millones de años', '1 billón de años'],
+                answer: 2,
+                why: 'El Sol tiene 4,600 millones de años y cuenta con reservas de hidrógeno para brillar estable otros 5,000 millones de años.'
+            },
+            {
+                q: '¿En qué estado de la materia se encuentra prácticamente el 99% de toda la masa del Sol?',
+                options: ['Gas neutro molecular', 'Líquido supercrítico', 'Plasma (gas ionizado con electrones libres)', 'Sólido denso cristalizado'],
+                answer: 2,
+                why: 'A temperaturas de millones de grados, los electrones se separan de los núcleos atómicos formando un plasma conductor.'
+            },
+            {
+                q: '¿Cuál es la velocidad de escape mínima requerida para abandonar la superficie de la Tierra hacia el espacio?',
+                options: ['3.5 km/s', '7.9 km/s', '11.2 km/s', '42.1 km/s'],
+                answer: 2,
+                why: '7.9 km/s es la velocidad orbital baja; para escapar totalmente de la atracción terrestre se necesitan 11.18 km/s.'
+            },
+            {
+                q: '¿Quién fue el matemático y astrónomo alemán que publicó las tres leyes del movimiento planetario a inicios del siglo XVII?',
+                options: ['Galileo Galilei', 'Johannes Kepler', 'Nicolás Copérnico', 'Tycho Brahe'],
+                answer: 1,
+                why: 'Kepler usó las observaciones precisas de Tycho Brahe para demostrar que las órbitas planetarias no son círculos sino elipses.'
+            },
+
+            // 71 - 80: HISTORIA ASTRONÓMICA, QUÍMICA CÓSMICA Y FRONTERAS
+            {
+                q: '¿Quién formuló en 1687 la Ley de la Gravitación Universal en su obra maestra "Philosophiae Naturalis Principia Mathematica"?',
+                options: ['René Descartes', 'Isaac Newton', 'Robert Hooke', 'Edmond Halley'],
+                answer: 1,
+                why: 'Newton unificó la física terrestre y celeste con la ecuación F = G*(m1*m2)/r^2.'
+            },
+            {
+                q: '¿Quién fue la primera persona en observar las cuatro lunas mayores de Júpiter con un telescopio en 1610?',
+                options: ['Galileo Galilei', 'Giordano Bruno', 'Christian Huygens', 'Giovanni Cassini'],
+                answer: 0,
+                why: 'Galileo demostró que no todos los cuerpos celestes giran alrededor de la Tierra, respaldando el modelo heliocéntrico.'
+            },
+            {
+                q: '¿Qué planeta fue descubierto primero por cálculos matemáticos (perturbaciones en Urano) antes de ser visto por telescopio en 1846?',
+                options: ['Plutón', 'Neptuno', 'Saturno', 'Urano'],
+                answer: 1,
+                why: 'Urbain Le Verrier calculó su posición teórica y Johann Galle lo descubrió con telescopio en el Observatorio de Berlín.'
+            },
+            {
+                q: '¿Cuál es el planeta más pequeño de los ocho planetas principales del Sistema Solar?',
+                options: ['Marte', 'Mercurio', 'Venus', 'Tierra'],
+                answer: 1,
+                why: 'Mercurio mide solo 4,879 km de diámetro ecuatorial, apenas un poco mayor que la Luna terrestre (3,474 km).'
+            },
+            {
+                q: '¿Cuál es el gas que compone más del 95% de la tenue atmósfera del planeta Marte?',
+                options: ['Oxígeno', 'Nitrógeno', 'Dióxido de carbono (CO2)', 'Argón'],
+                answer: 2,
+                why: 'La atmósfera marciana tiene un 95.3% de CO2, un 2.6% de nitrógeno y un 1.9% de argón, con una presión de apenas 6 milibares.'
+            },
+            {
+                q: '¿Cuál es el gas más abundante en la atmósfera del planeta Tierra (78% de su volumen)?',
+                options: ['Oxígeno', 'Nitrógeno', 'Dióxido de carbono', 'Hidrógeno'],
+                answer: 1,
+                why: 'El nitrógeno diatómico (N2) compone el 78.08% de la atmósfera terrestre, seguido por el oxígeno (20.95%).'
+            },
+            {
+                q: '¿De qué material están compuestos en más del 99% los espectaculares anillos de Saturno?',
+                options: ['Polvo de hierro y níquel', 'Pedazos y partículas de hielo de agua pura', 'Rocas volcánicas de basalto', 'Gas metano condensado'],
+                answer: 1,
+                why: 'Las partículas varían desde granos milimétricos hasta icebergs de varios metros con un brillo reflectivo altísimo.'
+            },
+            {
+                q: '¿Qué nombre recibe el destello luminoso que observamos cuando un meteoroide se desintegra en la atmósfera?',
+                options: ['Cometa', 'Meteorito', 'Meteoro (o estrella fugaz)', 'Asteroide'],
+                answer: 2,
+                why: 'Meteoro es el trazo de luz por fricción térmica. Solo si sobrevive e impacta el suelo rocoso se le llama meteorito.'
+            },
+            {
+                q: '¿Qué es el viento solar que baña permanentemente a todos los planetas del Sistema Solar?',
+                options: ['Un viento de aire caliente común', 'Un flujo constante de plasma (protones y electrones de alta energía) del Sol', 'Ondas de sonido en el vacío', 'Rayos láser ultravioleta'],
+                answer: 1,
+                why: 'El viento solar viaja a velocidades entre 300 y 800 km/s e interactúa con los campos magnéticos planetarios generando auroras.'
+            },
+            {
+                q: '¿Cómo se llama la frontera exterior donde el viento solar choca contra el medio interestelar de la galaxia?',
+                options: ['Cinturón de Oort', 'Choque de terminación y Heliopausa', 'Límite de Chandrasekhar', 'Frente de Kepler'],
+                answer: 1,
+                why: 'La heliopausa es la frontera final de la burbuja magnética solar (heliosfera); las sondas Voyager 1 y 2 ya la han atravesado.'
             }
         ];
 
         let currentCategoryFilter = 'all';
         let currentBody = CELESTIAL_BODIES[3]; // Tierra por defecto
         let currentLayerIndex = 0;
-        let currentTriviaIndex = 0;
-        let triviaScore = 0;
+        let currentTriviaRound = [];
+        let currentTriviaStep = 0;
+        let currentTriviaScore = 0;
+        let isTriviaAnswered = false;
 
         // --- SISTEMA DE NAVEGACIÓN SPA MODULAR (VISTAS INDEPENDIENTES) ---
         function switchVisitorTab(viewId, btn) {
@@ -1946,54 +2450,135 @@
             });
         }
 
-        // --- TRIVIA INTERACTIVA ---
+        // --- TRIVIA INTERACTIVA (BANCO DE 80 PREGUNTAS EN RONDAS DE 5) ---
+        function startTriviaRound() {
+            // Seleccionar 5 preguntas al azar sin repetición del banco de 80
+            const shuffled = [...TRIVIA_BANK_80].sort(() => 0.5 - Math.random());
+            currentTriviaRound = shuffled.slice(0, 5);
+            currentTriviaStep = 0;
+            currentTriviaScore = 0;
+            isTriviaAnswered = false;
+
+            // Restablecer interfaz visual
+            const playContainer = document.getElementById('trivia-play-container');
+            const completedBox = document.getElementById('trivia-completed-box');
+            if (playContainer) playContainer.style.display = 'block';
+            if (completedBox) completedBox.style.display = 'none';
+
+            renderTriviaQuestion();
+        }
+
         function renderTriviaQuestion() {
-            const q = TRIVIA_QUESTIONS[currentTriviaIndex];
-            document.getElementById('trivia-question-text').textContent = q.q;
-            document.getElementById('trivia-score').textContent = `${triviaScore} / ${TRIVIA_QUESTIONS.length}`;
+            if (!currentTriviaRound || currentTriviaRound.length === 0) {
+                startTriviaRound();
+                return;
+            }
+
+            const q = currentTriviaRound[currentTriviaStep];
+            isTriviaAnswered = false;
+
+            // Actualizar indicadores
+            const badge = document.getElementById('trivia-step-badge');
+            if (badge) badge.textContent = `Pregunta ${currentTriviaStep + 1} de 5`;
+
+            const scoreDisplay = document.getElementById('trivia-score');
+            if (scoreDisplay) scoreDisplay.textContent = `${currentTriviaScore} / 5`;
+
+            const qText = document.getElementById('trivia-question-text');
+            if (qText) qText.textContent = q.q;
 
             const box = document.getElementById('trivia-options-box');
-            if (!box) return;
-            box.innerHTML = '';
+            if (box) {
+                box.innerHTML = '';
+                q.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'trivia-btn';
+                    btn.innerHTML = `<span style="font-family:var(--font-mono); color:var(--accent-sand); font-weight:700;">${String.fromCharCode(65 + idx)}.</span> <span>${opt}</span>`;
+                    btn.onclick = () => handleAnswer(idx, btn);
+                    box.appendChild(btn);
+                });
+            }
 
             const feedback = document.getElementById('trivia-feedback');
-            feedback.style.display = 'none';
+            if (feedback) feedback.style.display = 'none';
 
-            q.options.forEach((opt, idx) => {
-                const btn = document.createElement('button');
-                btn.className = 'trivia-btn';
-                btn.innerHTML = `<span style="font-family:var(--font-mono); color:var(--accent-sand); font-weight:700;">${String.fromCharCode(65 + idx)}.</span> <span>${opt}</span>`;
-                btn.onclick = () => handleAnswer(idx, btn);
-                box.appendChild(btn);
-            });
+            const nextBtn = document.getElementById('btn-next-trivia');
+            if (nextBtn) nextBtn.style.display = 'none';
         }
 
         function handleAnswer(selectedIdx, clickedBtn) {
-            const q = TRIVIA_QUESTIONS[currentTriviaIndex];
+            if (isTriviaAnswered) return;
+            isTriviaAnswered = true;
+
+            const q = currentTriviaRound[currentTriviaStep];
             const allBtns = document.querySelectorAll('.trivia-btn');
             allBtns.forEach(b => b.disabled = true);
 
             const feedback = document.getElementById('trivia-feedback');
-            feedback.style.display = 'block';
+            if (feedback) feedback.style.display = 'block';
 
             if (selectedIdx === q.answer) {
                 clickedBtn.classList.add('correct');
-                triviaScore++;
-                feedback.style.color = 'var(--success)';
-                feedback.innerHTML = `<strong>¡Excelente!</strong> ${q.why}`;
+                currentTriviaScore++;
+                if (feedback) {
+                    feedback.style.color = 'var(--success)';
+                    feedback.innerHTML = `<strong>¡Correcto!</strong> ${q.why}`;
+                }
             } else {
                 clickedBtn.classList.add('wrong');
-                allBtns[q.answer].classList.add('correct');
-                feedback.style.color = 'var(--danger)';
-                feedback.innerHTML = `<strong>Casi...</strong> ${q.why}`;
+                if (allBtns[q.answer]) allBtns[q.answer].classList.add('correct');
+                if (feedback) {
+                    feedback.style.color = 'var(--danger)';
+                    feedback.innerHTML = `<strong>No del todo...</strong> ${q.why}`;
+                }
             }
 
-            document.getElementById('trivia-score').textContent = `${triviaScore} / ${TRIVIA_QUESTIONS.length}`;
+            const scoreDisplay = document.getElementById('trivia-score');
+            if (scoreDisplay) scoreDisplay.textContent = `${currentTriviaScore} / 5`;
 
-            setTimeout(() => {
-                currentTriviaIndex = (currentTriviaIndex + 1) % TRIVIA_QUESTIONS.length;
+            // Botón explícito para avanzar sin prisas y sin bucles infinitos
+            const nextBtn = document.getElementById('btn-next-trivia');
+            if (nextBtn) {
+                nextBtn.style.display = 'inline-flex';
+                if (currentTriviaStep < 4) {
+                    nextBtn.innerHTML = `<span>Siguiente Pregunta</span> <i class="fas fa-arrow-right"></i>`;
+                } else {
+                    nextBtn.innerHTML = `<span>Ver Resultado Final</span> <i class="fas fa-flag-checkered"></i>`;
+                }
+            }
+        }
+
+        function advanceTriviaQuestion() {
+            if (currentTriviaStep < 4) {
+                currentTriviaStep++;
                 renderTriviaQuestion();
-            }, 3500);
+            } else {
+                showTriviaCompletion();
+            }
+        }
+
+        function showTriviaCompletion() {
+            const playContainer = document.getElementById('trivia-play-container');
+            const completedBox = document.getElementById('trivia-completed-box');
+            if (playContainer) playContainer.style.display = 'none';
+            if (completedBox) completedBox.style.display = 'block';
+
+            const finalScore = document.getElementById('trivia-final-score');
+            if (finalScore) finalScore.textContent = `${currentTriviaScore} / 5`;
+
+            const finalTitle = document.getElementById('trivia-final-title');
+            const finalDesc = document.getElementById('trivia-final-desc');
+
+            if (currentTriviaScore === 5) {
+                if (finalTitle) finalTitle.textContent = '¡Puntuación Perfecta! 🚀🌠';
+                if (finalDesc) finalDesc.textContent = '¡Impresionante! Has respondido correctamente todas las preguntas científicas de esta ronda.';
+            } else if (currentTriviaScore >= 3) {
+                if (finalTitle) finalTitle.textContent = '¡Gran Conocimiento Espacial! 🛰️';
+                if (finalDesc) finalDesc.textContent = '¡Muy buen trabajo! Tienes sólidas bases astronómicas y astrofísicas.';
+            } else {
+                if (finalTitle) finalTitle.textContent = '¡Buen Intento Astronáutico! 🔭';
+                if (finalDesc) finalDesc.textContent = 'El cosmos es inmenso y complejo. ¡Sigue explorando y desafiando tus conocimientos!';
+            }
         }
 
         // --- MODAL DE CÓDIGO QR ---
@@ -2025,7 +2610,7 @@
             updateLayerDetails();
             recalcWeight();
             recalcAge();
-            renderTriviaQuestion();
+            startTriviaRound();
 
             document.getElementById('input-weight').addEventListener('input', recalcWeight);
             document.getElementById('input-age').addEventListener('input', recalcAge);
