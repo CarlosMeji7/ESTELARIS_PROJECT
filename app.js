@@ -1084,7 +1084,7 @@ function init() {
 
     const isMobileInit = window.innerWidth < 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     const initialFov = isMobileInit && window.innerHeight > window.innerWidth ? 72 : 60;
-    camera = new THREE.PerspectiveCamera(initialFov, window.innerWidth / window.innerHeight, 2.0, 45000);
+    camera = new THREE.PerspectiveCamera(initialFov, window.innerWidth / window.innerHeight, 0.5, 45000);
     camera.position.set(0, 1100, 1800);
 
     renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -1110,7 +1110,8 @@ function init() {
     initialControlsTarget = controls.target.clone();
 
     controls.addEventListener('start', () => {
-        if (isTransitioningToFocus) {
+        // Solo cancelar transición si ya avanzó más del 20% y el usuario está arrastrando manualmente en 3D
+        if (isTransitioningToFocus && transitionProgress > 0.2) {
             isTransitioningToFocus = false;
             camera.fov = baseCameraFov;
             camera.updateProjectionMatrix();
@@ -1154,21 +1155,20 @@ function init() {
     // Viento Espacial Lateral
     initLateralWarpCanvas();
 
-    // Eventos
+    // Eventos de usuario
     window.addEventListener('resize', onWindowResize);
     window.addEventListener('pointerdown', (e) => {
         touchDragStartX = e.clientX;
         touchDragStartY = e.clientY;
         touchDragStartTime = performance.now();
     }, { passive: true });
+    window.addEventListener('pointerup', onScenePointerUp);
     window.addEventListener('click', onSceneClick);
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('keydown', onKeyDown);
 
     setupUIEventListeners();
     updateBodyCount();
-
-    logToConsole('Estelaris operativo: Pulsa T para Cinemática Nítida o Shift+T para Vuelo Intenso.', 'system');
 }
 
 // --- FONDO ESTELAR ESPECTRAL MULTICAPA ---
@@ -1453,6 +1453,7 @@ function buildKeplerianSolarSystem() {
         isNBody: false
     };
     sunMesh.userData = { body: sunBody };
+    coronaMesh.userData = { body: sunBody };
     bodies.push(sunBody);
 
     // 2. PLANETAS
@@ -2863,7 +2864,10 @@ function updatePhysics(delta) {
     const dayStr = String(simDate.getUTCDate()).padStart(2, '0');
     const monStr = months[simDate.getUTCMonth()];
     const yrStr = simDate.getUTCFullYear();
-    if (statDate) statDate.textContent = dayStr + ' ' + monStr + ' ' + yrStr;
+    const dateFormatted = dayStr + ' ' + monStr + ' ' + yrStr;
+    if (statDate) statDate.textContent = dateFormatted;
+    const pillSummaryDate = document.getElementById('pill-summary-date');
+    if (pillSummaryDate) pillSummaryDate.textContent = dateFormatted;
 
     const sun = bodies.find(b => b.name === 'Sol');
     const isSunGone = !sun || sun.destroyed;
@@ -3372,6 +3376,7 @@ function updatePhysics(delta) {
 // --- SISTEMA FÍSICO DE COLISIÓN DE CÁMARA (ANTI-ATRAVESAMIENTO) ---
 function resolveCameraCollisions() {
     if (!camera || !bodies || bodies.length === 0) return;
+    if (isTransitioningToFocus) return; // Permitir que la trayectoria de arco cinemático fluya con suavidad
 
     const camPos = camera.position;
     const bodyPos = new THREE.Vector3();
@@ -3382,15 +3387,14 @@ function resolveCameraCollisions() {
 
         body.mesh.getWorldPosition(bodyPos);
         const dist = camPos.distanceTo(bodyPos);
-        const safeRadius = (body.radius || 5) * 1.30 + 2.0;
+        const safeRadius = (body.radius || 5) * 1.15 + 1.5;
 
         if (dist < safeRadius) {
-            if (dist < 0.001) {
-                camPos.add(new THREE.Vector3(0, safeRadius, 0));
-            } else {
-                const normal = new THREE.Vector3().subVectors(camPos, bodyPos).normalize();
-                camPos.copy(bodyPos).addScaledVector(normal, safeRadius);
-            }
+            const normal = dist < 0.001 
+                ? new THREE.Vector3(0, 1, 0) 
+                : new THREE.Vector3().subVectors(camPos, bodyPos).normalize();
+            const targetPos = bodyPos.clone().addScaledVector(normal, safeRadius);
+            camPos.lerp(targetPos, 0.25);
         }
     }
 }
@@ -3825,6 +3829,27 @@ function updateCelestialDockActiveState(activeBody) {
     }
 }
 
+function updateMobileBarActiveState() {
+    const mobBtnPlanets = document.getElementById('mob-btn-planets');
+    const mobBtnControls = document.getElementById('mob-btn-controls');
+    const mobBtnTelemetry = document.getElementById('mob-btn-telemetry');
+    const leftPanel = document.querySelector('.left-panel');
+    const dockMenu = document.getElementById('dock-dropdown-menu');
+
+    if (mobBtnPlanets) {
+        const isPlanetsOpen = dockMenu && !dockMenu.classList.contains('hidden');
+        mobBtnPlanets.classList.toggle('is-active', !!isPlanetsOpen);
+    }
+    if (mobBtnControls) {
+        const isControlsOpen = leftPanel && !leftPanel.classList.contains('is-collapsed');
+        mobBtnControls.classList.toggle('is-active', !!isControlsOpen);
+    }
+    if (mobBtnTelemetry) {
+        const isTelemetryOpen = infoPanel && !infoPanel.classList.contains('is-collapsed') && !infoPanel.classList.contains('hidden');
+        mobBtnTelemetry.classList.toggle('is-active', !!isTelemetryOpen);
+    }
+}
+
 let isDockMenuOpen = false;
 function setDockMenuState(isOpen) {
     const menu = document.getElementById('dock-dropdown-menu');
@@ -3838,12 +3863,31 @@ function setDockMenuState(isOpen) {
         menu.classList.add('hidden');
         dock.classList.remove('is-open');
     }
+    updateMobileBarActiveState();
 }
 
-function selectBody(body, autoFocus = true) {
+function hideTelemetryPanel() {
+    if (!infoPanel) return;
+    infoPanel.classList.add('is-collapsed');
+    const _btnR = document.getElementById('btn-toggle-right');
+    if (_btnR) {
+        _btnR.classList.add('is-collapsed');
+        _btnR.setAttribute('aria-expanded', 'false');
+        const _ic = _btnR.querySelector('i');
+        if (_ic) _ic.className = 'fa-solid fa-chevron-left';
+    }
+    updateMobileBarActiveState();
+}
+
+function selectBody(body, autoFocus = true, openTelemetry = false) {
     if (!body) return;
 
     if (selectedBody === body && focusBody === body && !isTransitioningToFocus) {
+        if (openTelemetry && infoPanel) {
+            infoPanel.classList.remove('hidden');
+            infoPanel.classList.remove('is-collapsed');
+            updateMobileBarActiveState();
+        }
         return;
     }
 
@@ -3877,19 +3921,28 @@ function selectBody(body, autoFocus = true) {
         }
     }
 
-    infoPanel.classList.remove('hidden');
-    infoPanel.classList.remove('is-collapsed');
-    const _btnR = document.getElementById('btn-toggle-right');
-    if (_btnR) {
-        _btnR.classList.remove('is-collapsed');
-        _btnR.setAttribute('aria-expanded', 'true');
-        const _ic = _btnR.querySelector('i');
-        if (_ic) _ic.className = 'fa-solid fa-chevron-right';
-        _btnR.style.opacity = '1';
-        _btnR.style.pointerEvents = 'auto';
+    // La telemetría permanece limpia/cerrada a menos que se solicite expresamente o ya estuviera abierta
+    const isTelemetryAlreadyOpen = infoPanel && !infoPanel.classList.contains('hidden') && !infoPanel.classList.contains('is-collapsed');
+    if (openTelemetry || isTelemetryAlreadyOpen) {
+        if (infoPanel) {
+            infoPanel.classList.remove('hidden');
+            infoPanel.classList.remove('is-collapsed');
+        }
+        const _btnR = document.getElementById('btn-toggle-right');
+        if (_btnR) {
+            _btnR.classList.remove('is-collapsed');
+            _btnR.setAttribute('aria-expanded', 'true');
+            const _ic = _btnR.querySelector('i');
+            if (_ic) _ic.className = 'fa-solid fa-chevron-right';
+            _btnR.style.opacity = '1';
+            _btnR.style.pointerEvents = 'auto';
+        }
+    } else {
+        if (infoPanel) infoPanel.classList.add('is-collapsed');
     }
 
     updateCelestialDockActiveState(body);
+    updateMobileBarActiveState();
 
     if (autoFocus) {
         focusCameraOnBody(body);
@@ -4004,23 +4057,24 @@ function navigateCelestialBody(direction = 1) {
     } else {
         nextIndex = (currentIndex + direction + bodies.length) % bodies.length;
     }
-    selectBody(bodies[nextIndex], true);
+    selectBody(bodies[nextIndex], true, false);
 }
 
 function updateBodyCount() {
     if (statBodies) statBodies.textContent = bodies.length;
+    const pillSummaryBodies = document.getElementById('pill-summary-bodies');
+    if (pillSummaryBodies) pillSummaryBodies.textContent = bodies.length + ' astros';
 }
 
-// --- INTERACCIÓN CON EL RATÓN & ESCENA ---
-function onSceneClick(event) {
-    if (event.target.closest('.hud-container, .panel-toggle, .celestial-dock, .mobile-bottom-bar, button, input, label, .modal-backdrop, .qr-modal-backdrop')) return;
+// --- INTERACCIÓN CON EL RATÓN & ESCENA (TÁCTIL Y CLIC) ---
+function isInteractiveUiElement(target) {
+    if (!target) return false;
+    return !!target.closest('.hud-header, .header-actions, .cosmic-metrics-pill, .hud-sidebar:not(.is-collapsed), .panel-toggle, .celestial-dock.is-open, .mobile-bottom-bar, button, input, select, textarea, label, a, .modal-backdrop, .qr-modal-backdrop, .investigation-root:not(.hidden), .planet-creator-root:not(.hidden)');
+}
 
-    // Evitar selección accidental si el usuario estaba rotando o haciendo pan con mouse o touch
-    const moveDist = Math.hypot(event.clientX - touchDragStartX, event.clientY - touchDragStartY);
-    if (moveDist > 14) return;
-
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+function performRaycastSelection(clientX, clientY) {
+    mouse.x = (clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
     const meshes = bodies.map(b => b.mesh).filter(m => m && m.visible);
@@ -4028,25 +4082,53 @@ function onSceneClick(event) {
     // Probar primero los cuerpos principales directamente sin capas hijas
     let intersects = raycaster.intersectObjects(meshes, false);
     if (intersects.length === 0) {
-        // Si no hay impacto directo en la esfera, buscar en hijos
+        // Si no hay impacto directo en la esfera, buscar en hijos (ej. corona solar)
         intersects = raycaster.intersectObjects(meshes, true);
     }
 
     if (intersects.length > 0) {
         let hitObj = intersects[0];
         // Si el primer impacto es el planeta ya enfocado y hay otro planeta en la línea de visión, seleccionar el otro
-        if (selectedBody && hitObj.object && hitObj.object.userData.body === selectedBody && intersects.length > 1) {
+        if (selectedBody && hitObj.object && hitObj.object.userData && hitObj.object.userData.body === selectedBody && intersects.length > 1) {
             hitObj = intersects[1];
         }
 
         let hitMesh = hitObj.object;
-        while (hitMesh && !hitMesh.userData.body && hitMesh.parent) {
+        while (hitMesh && (!hitMesh.userData || !hitMesh.userData.body) && hitMesh.parent) {
             hitMesh = hitMesh.parent;
         }
-        if (hitMesh && hitMesh.userData.body) {
-            selectBody(hitMesh.userData.body, true);
+        if (hitMesh && hitMesh.userData && hitMesh.userData.body) {
+            selectBody(hitMesh.userData.body, true, false);
+            return true;
         }
     }
+    return false;
+}
+
+let lastTapProcessedTime = 0;
+function onScenePointerUp(event) {
+    if (isInteractiveUiElement(event.target)) return;
+
+    const moveDist = Math.hypot(event.clientX - touchDragStartX, event.clientY - touchDragStartY);
+    const duration = performance.now() - touchDragStartTime;
+    if (moveDist > 20 || duration > 360) return;
+
+    if (performance.now() - lastTapProcessedTime < 220) return;
+    lastTapProcessedTime = performance.now();
+
+    performRaycastSelection(event.clientX, event.clientY);
+}
+
+function onSceneClick(event) {
+    if (isInteractiveUiElement(event.target)) return;
+
+    const moveDist = Math.hypot(event.clientX - touchDragStartX, event.clientY - touchDragStartY);
+    if (moveDist > 16) return;
+
+    if (performance.now() - lastTapProcessedTime < 220) return;
+    lastTapProcessedTime = performance.now();
+
+    performRaycastSelection(event.clientX, event.clientY);
 }
 
 function onPointerMove(event) {
@@ -4719,7 +4801,17 @@ window.injectCustomPlanetFromCreator = function(planetConfig) {
 
 // --- CONFIGURACIÓN DE LISTENERS DE UI ---
 function setupUIEventListeners() {
-    if (btnCloseInfo) btnCloseInfo.addEventListener('click', deselectBody);
+    if (btnCloseInfo) {
+        btnCloseInfo.addEventListener('click', (e) => {
+            e.stopPropagation();
+            hideTelemetryPanel();
+        });
+    }
+
+    const btnOpenCreatorCtrl = document.getElementById('btn-open-creator-controls');
+    if (btnOpenCreatorCtrl) {
+        btnOpenCreatorCtrl.addEventListener('click', openPlanetCreatorMode);
+    }
 
     const btnOpenInvHdr = document.getElementById('btn-open-investigation-header');
     if (btnOpenInvHdr) {
@@ -5038,7 +5130,8 @@ function setupUIEventListeners() {
     // Botones de la barra de navegación móvil táctil
     const mobBtnPlanets = document.getElementById('mob-btn-planets');
     if (mobBtnPlanets) {
-        mobBtnPlanets.addEventListener('click', () => {
+        mobBtnPlanets.addEventListener('click', (e) => {
+            e.stopPropagation();
             const dockMenu = document.getElementById('dock-dropdown-menu');
             if (dockMenu) {
                 const isHidden = dockMenu.classList.contains('hidden');
@@ -5049,7 +5142,8 @@ function setupUIEventListeners() {
 
     const mobBtnControls = document.getElementById('mob-btn-controls');
     if (mobBtnControls && leftPanel) {
-        mobBtnControls.addEventListener('click', () => {
+        mobBtnControls.addEventListener('click', (e) => {
+            e.stopPropagation();
             const collapsed = leftPanel.classList.toggle('is-collapsed');
             if (btnToggleLeft) {
                 btnToggleLeft.classList.toggle('is-collapsed', collapsed);
@@ -5057,20 +5151,23 @@ function setupUIEventListeners() {
             if (!collapsed && infoPanel && !infoPanel.classList.contains('is-collapsed')) {
                 infoPanel.classList.add('is-collapsed');
             }
+            updateMobileBarActiveState();
         });
     }
 
     const mobBtnTelemetry = document.getElementById('mob-btn-telemetry');
     if (mobBtnTelemetry && infoPanel) {
-        mobBtnTelemetry.addEventListener('click', () => {
+        mobBtnTelemetry.addEventListener('click', (e) => {
+            e.stopPropagation();
             const isCurrentlyHidden = infoPanel.classList.contains('is-collapsed') || infoPanel.classList.contains('hidden');
             if (isCurrentlyHidden) {
                 if (!selectedBody) {
                     const defaultBody = bodies.find(b => b.name === 'Tierra') || bodies[1];
-                    selectBody(defaultBody, false);
+                    selectBody(defaultBody, false, true);
+                } else {
+                    infoPanel.classList.remove('hidden');
+                    infoPanel.classList.remove('is-collapsed');
                 }
-                infoPanel.classList.remove('hidden');
-                infoPanel.classList.remove('is-collapsed');
                 if (btnToggleRight) btnToggleRight.classList.remove('is-collapsed');
                 if (leftPanel && !leftPanel.classList.contains('is-collapsed')) {
                     leftPanel.classList.add('is-collapsed');
@@ -5079,6 +5176,7 @@ function setupUIEventListeners() {
                 infoPanel.classList.add('is-collapsed');
                 if (btnToggleRight) btnToggleRight.classList.add('is-collapsed');
             }
+            updateMobileBarActiveState();
         });
     }
 
@@ -5092,6 +5190,26 @@ function setupUIEventListeners() {
     const mobBtnQr = document.getElementById('mob-btn-qr');
     if (mobBtnQr) {
         mobBtnQr.addEventListener('click', openDesktopQrModal);
+    }
+
+    // Mini-panel desplegable de métricas
+    const cosmicMetricsPill = document.getElementById('cosmic-metrics-pill');
+    const btnToggleMetrics = document.getElementById('btn-toggle-metrics');
+    if (btnToggleMetrics && cosmicMetricsPill) {
+        btnToggleMetrics.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isCollapsed = cosmicMetricsPill.classList.toggle('is-collapsed');
+            btnToggleMetrics.setAttribute('aria-expanded', String(!isCollapsed));
+        });
+    }
+
+    const btnResetPillSim = document.getElementById('btn-reset-pill-sim');
+    if (btnResetPillSim) {
+        btnResetPillSim.addEventListener('click', (e) => {
+            e.stopPropagation();
+            restoreSolarSystem();
+            logToConsole('Universo restablecido al estado inicial.', 'action');
+        });
     }
 
     // Modal de Código QR en Header
@@ -5243,7 +5361,13 @@ function animate() {
             const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
             const targetCamPos = new THREE.Vector3().addVectors(currentPlanetPos, focusOffset);
             
+            // Arco parabólico que sobrevuela la eclíptica para evitar atravesar el Sol u otros planetas
+            const travelDist = transitionStartCamPos.distanceTo(targetCamPos);
+            const arcHeight = Math.min(480, Math.max(0, travelDist * 0.18));
+            const arcY = Math.sin(ease * Math.PI) * arcHeight;
+
             camera.position.lerpVectors(transitionStartCamPos, targetCamPos, ease);
+            camera.position.y += arcY;
             controls.target.lerpVectors(transitionStartControlsTarget, currentPlanetPos, ease);
 
             const speedFactor = Math.sin(ease * Math.PI);

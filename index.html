@@ -19,7 +19,7 @@
 
     <!-- HUD -->
     <div class="hud-container">
-        <!-- Header editorial -->
+        <!-- Header editorial limpio y minimalista -->
         <header class="hud-header">
             <div class="header-left">
                 <div class="brand-mark" aria-hidden="true">
@@ -34,36 +34,13 @@
                 </span>
             </div>
 
-            <div class="header-metrics">
-                <div class="metric">
-                    <span class="metric-label">Fecha simulada</span>
-                    <strong id="stat-date" class="metric-value" style="color:var(--accent-sand);">01 ENE 2026</strong>
-                </div>
-                <div class="metric-divider"></div>
-                <div class="metric">
-                    <span class="metric-label">Cuerpos</span>
-                    <strong id="stat-bodies" class="metric-value">17</strong>
-                </div>
-                <div class="metric-divider"></div>
-                <div class="metric">
-                    <span class="metric-label">Tiempo</span>
-                    <strong id="stat-time" class="metric-value">0.00 años</strong>
-                </div>
-                <div class="metric-divider"></div>
-                <button id="btn-reset-camera-header" class="metric" style="background:transparent; border:none; cursor:pointer; color:inherit; font-family:inherit; text-align:left;" title="Restablecer cámara (Tecla R)">
-                    <span class="metric-label" style="display:flex; align-items:center; gap:6px; color: var(--accent-blue);">
-                        <i class="fa-solid fa-video"></i>
-                        <span>Cámara</span>
-                    </span>
-                    <strong class="metric-value" style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-2);">Restablecer</strong>
-                </button>
-                <div class="metric-divider"></div>
+            <!-- Acciones directas de cabecera en escritorio -->
+            <div class="header-actions">
                 <button id="btn-open-investigation-header" class="btn btn--primary btn--compact" style="font-size:11px; padding: 5px 10px; gap:6px; background:linear-gradient(135deg, rgba(142,168,255,0.25), rgba(0,242,254,0.18)); border-color:rgba(142,168,255,0.4);" title="Modo Investigativo & Ficha Científica (Ctrl + I)">
                     <i class="fa-solid fa-microscope" style="color:var(--accent-blue);"></i>
-                    <span>Modo Investigativo</span>
+                    <span>Modo Científico</span>
                     <span class="key-badge" style="background:rgba(0,0,0,0.35); border-color:rgba(255,255,255,0.25); font-size:9px; padding:1px 5px;">Ctrl+I</span>
                 </button>
-                <div class="metric-divider"></div>
                 <button id="btn-open-creator-header" class="btn btn--primary btn--compact" style="font-size:11px; padding: 5px 10px; gap:6px; background:linear-gradient(135deg, rgba(61,213,152,0.22), rgba(142,168,255,0.22)); border-color:rgba(61,213,152,0.4);" title="Génesis Planetario & Laboratorio Astroquímico (Ctrl + G)">
                     <i class="fa-solid fa-atom" style="color:var(--success,#3dd598);"></i>
                     <span>Creador Planetario</span>
@@ -73,22 +50,59 @@
                     <i class="fa-solid fa-rotate-left"></i>
                     <span>Volver al Sistema Solar</span>
                 </button>
-                <div class="metric-divider"></div>
-                <button id="btn-open-qr-header" class="btn btn--primary btn--compact" style="font-size:11px; padding: 5px 10px; gap:6px; background:linear-gradient(135deg, rgba(214,199,168,0.25), rgba(251,191,36,0.18)); border-color:rgba(214,199,168,0.45); color:var(--accent-sand);" title="Generar código QR para que los asistentes lo vean en su celular">
+                <button id="btn-open-qr-header" class="btn btn--primary btn--compact" style="font-size:11px; padding: 5px 10px; gap:6px; background:linear-gradient(135deg, rgba(214,199,168,0.25), rgba(251,191,36,0.18)); border-color:rgba(214,199,168,0.45); color:var(--accent-sand);" title="Generar código QR para celular">
                     <i class="fa-solid fa-qrcode"></i>
-                    <span>QR Móvil / Celular</span>
+                    <span>QR Móvil</span>
                 </button>
-                <a href="visitante.html" id="btn-open-passport-header" class="btn btn--ghost btn--compact" style="font-size:11px; padding: 5px 10px; gap:6px; text-decoration:none; display:inline-flex; align-items:center; color:var(--text-1);" title="Abrir Pasaporte Interactivo del Visitante para celular">
+                <a href="visitante.html" id="btn-open-passport-header" class="btn btn--ghost btn--compact" style="font-size:11px; padding: 5px 10px; gap:6px; text-decoration:none; display:inline-flex; align-items:center; color:var(--text-1);" title="Abrir Pasaporte Interactivo del Visitante">
                     <i class="fa-solid fa-mobile-screen" style="color:var(--accent-blue);"></i>
                     <span>Pasaporte Móvil</span>
                 </a>
-                <div class="metric-divider"></div>
-                <div class="metric metric--live">
-                    <span class="metric-label">Rendimiento</span>
-                    <strong id="stat-fps" class="metric-value">60 <span>FPS</span></strong>
-                </div>
             </div>
         </header>
+
+        <!-- MINI-PANEL DE MÉTRICAS DESPLEGABLE (Ubicado justo debajo del título principal) -->
+        <div class="cosmic-metrics-pill is-collapsed" id="cosmic-metrics-pill" role="region" aria-label="Métricas de simulación">
+            <button class="metrics-pill-trigger" id="btn-toggle-metrics" aria-expanded="false" title="Toca para desplegar / ocultar datos de simulación">
+                <span class="metrics-pill-summary">
+                    <i class="fa-solid fa-calendar-day" style="color:var(--accent-sand);"></i>
+                    <strong id="pill-summary-date">01 ENE 2026</strong>
+                    <span class="pill-dot">•</span>
+                    <span id="pill-summary-bodies">17 astros</span>
+                    <span class="pill-dot">•</span>
+                    <span id="pill-summary-fps" style="color:var(--success);">60 FPS</span>
+                </span>
+                <i class="fa-solid fa-chevron-down pill-chevron" id="pill-chevron"></i>
+            </button>
+            <div class="metrics-pill-dropdown" id="metrics-pill-dropdown">
+                <div class="pill-metrics-grid">
+                    <div class="pill-metric-item">
+                        <span class="metric-label">Fecha simulada</span>
+                        <strong id="stat-date" class="metric-value" style="color:var(--accent-sand);">01 ENE 2026</strong>
+                    </div>
+                    <div class="pill-metric-item">
+                        <span class="metric-label">Cuerpos celestes</span>
+                        <strong id="stat-bodies" class="metric-value">17</strong>
+                    </div>
+                    <div class="pill-metric-item">
+                        <span class="metric-label">Tiempo transcurrido</span>
+                        <strong id="stat-time" class="metric-value">0.00 años</strong>
+                    </div>
+                    <div class="pill-metric-item">
+                        <span class="metric-label">Rendimiento en vivo</span>
+                        <strong id="stat-fps" class="metric-value">60 <span>FPS</span></strong>
+                    </div>
+                </div>
+                <div class="pill-metrics-actions">
+                    <button id="btn-reset-camera-header" class="btn btn--ghost btn--compact" style="font-size:11px; flex:1;" title="Restablecer cámara cenital (Tecla R)">
+                        <i class="fa-solid fa-video"></i> Centrar Cámara
+                    </button>
+                    <button id="btn-reset-pill-sim" class="btn btn--secondary btn--compact" style="font-size:11px; flex:1;" title="Reiniciar simulación">
+                        <i class="fa-solid fa-rotate-left"></i> Reiniciar Universo
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- Banner de Propagación Relativista a Velocidad c -->
         <div id="hud-grav-wave-card" class="grav-wave-banner" style="display:none;" aria-live="polite">
@@ -367,7 +381,20 @@
                             </button>
                         </div>
 
-                        <button id="btn-reset-universe" class="btn btn--ghost btn--full" style="margin-top:10px; border-color:rgba(214,199,168,0.3); color:var(--accent-sand);" title="Restablecer el Sistema Solar a su estado inicial perfecto">
+                        <div class="creator-launch-card" style="margin-top:14px; padding:12px; background:linear-gradient(135deg, rgba(61,213,152,0.12), rgba(142,168,255,0.1)); border:1px solid rgba(61,213,152,0.35); border-radius:var(--radius-lg);">
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                                <i class="fa-solid fa-atom" style="font-size:20px; color:var(--success,#3dd598);"></i>
+                                <div>
+                                    <strong style="display:block; font-size:12.5px; color:var(--text-1);">Creador Planetario & Génesis</strong>
+                                    <small style="color:var(--text-3); font-size:10.5px;">Forja exoplanetas, atmósferas y química orbital</small>
+                                </div>
+                            </div>
+                            <button id="btn-open-creator-controls" class="btn btn--primary btn--full" style="background:linear-gradient(135deg, rgba(61,213,152,0.28), rgba(142,168,255,0.22)); border-color:rgba(61,213,152,0.48); font-size:11.5px; font-weight:600;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Abrir Creador de Planetas
+                            </button>
+                        </div>
+
+                        <button id="btn-reset-universe" class="btn btn--ghost btn--full" style="margin-top:10px; border-color:rgba(214,199,168,0.35); color:var(--accent-sand); font-weight:600;" title="Restablecer el Sistema Solar a su estado inicial perfecto">
                             <i class="fa-solid fa-rotate-left"></i> Restablecer Universo Inicial
                         </button>
                     </div>
@@ -545,9 +572,9 @@
             <i class="fa-solid fa-chart-simple"></i>
             <span>Telemetría</span>
         </button>
-        <button id="mob-btn-investigation" class="mob-tab-btn" title="Modo Investigativo">
+        <button id="mob-btn-investigation" class="mob-tab-btn" title="Modo Científico & Capas">
             <i class="fa-solid fa-microscope"></i>
-            <span>Capas</span>
+            <span>Ciencia</span>
         </button>
         <a href="visitante.html" class="mob-tab-btn" style="text-decoration:none;" title="Pasaporte del Visitante">
             <i class="fa-solid fa-passport"></i>

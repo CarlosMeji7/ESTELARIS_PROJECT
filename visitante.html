@@ -160,6 +160,76 @@
             transform: scale(0.96);
         }
 
+        .btn-exit-header {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
+            background: linear-gradient(135deg, rgba(214, 199, 168, 0.18), rgba(142, 168, 255, 0.14));
+            border: 1px solid var(--border-accent);
+            color: var(--accent-sand);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-exit-header:active {
+            transform: scale(0.95);
+            background: rgba(214, 199, 168, 0.26);
+        }
+
+        /* Category Filter Chips */
+        .category-filter-chips {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 2px 2px 6px 2px;
+        }
+        .category-filter-chips::-webkit-scrollbar { display: none; }
+
+        .filter-chip {
+            padding: 5px 12px;
+            border-radius: var(--radius-pill);
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.18s ease;
+            user-select: none;
+        }
+
+        .filter-chip.active {
+            background: rgba(214, 199, 168, 0.18);
+            border-color: var(--accent-sand);
+            color: var(--accent-sand);
+            box-shadow: 0 0 10px rgba(214, 199, 168, 0.2);
+        }
+
+        /* SPA Views */
+        .visitor-view {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            animation: fadeInView 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .visitor-view.active-view {
+            display: flex;
+        }
+
+        @keyframes fadeInView {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* Passport Hero Card */
         .passport-card {
             background: linear-gradient(180deg, rgba(24, 30, 51, 0.95), rgba(14, 18, 32, 0.95));
@@ -707,48 +777,53 @@
             transform: scale(0.98);
         }
 
-        /* Fixed Bottom Bar */
+        /* Fixed Bottom Bar (5 Tabs, 100% Mobile Safe) */
         .visitor-bottom-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(8, 11, 20, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(8, 11, 20, 0.96);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border-top: 1px solid var(--border-strong);
             display: flex;
-            justify-content: space-around;
+            justify-content: stretch;
             align-items: center;
-            padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+            padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
             z-index: 200;
+            max-width: 540px;
+            margin: 0 auto;
         }
 
         .visitor-tab {
+            flex: 1;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 3px;
+            justify-content: center;
+            gap: 2px;
             text-decoration: none;
             color: var(--text-3);
             font-size: 10px;
             font-weight: 600;
-            padding: 4px 6px;
+            padding: 5px 2px;
             border-radius: var(--radius-md);
-            transition: all 0.2s ease;
-            min-width: 58px;
+            transition: all 0.18s ease;
             cursor: pointer;
             border: none;
             background: transparent;
+            user-select: none;
         }
 
         .visitor-tab i {
-            font-size: 16px;
+            font-size: 15px;
         }
 
         .visitor-tab.active {
             color: var(--accent-sand);
-            background: rgba(214, 199, 168, 0.12);
+            background: rgba(214, 199, 168, 0.14);
         }
 
         /* QR Modal */
@@ -829,173 +904,196 @@
         <!-- Header Móvil Superior -->
         <header class="visitor-header">
             <div class="header-row">
+                <a href="index.html" class="btn-exit-header" title="Volver al Observatorio 3D">
+                    <i class="fa-solid fa-arrow-left"></i> Observatorio
+                </a>
                 <a href="index.html" class="header-brand">
                     <div class="brand-icon"><i class="fa-solid fa-circle-nodes"></i></div>
                     <div class="brand-info">
                         <h1>ESTELARIS</h1>
-                        <p>Pasaporte del Visitante</p>
+                        <p>Pasaporte</p>
                     </div>
                 </a>
                 <div class="header-actions">
                     <button class="btn-launch-3d" onclick="openQrModal()" title="Mostrar QR para compartir">
                         <i class="fa-solid fa-qrcode"></i> QR
                     </button>
-                    <a href="index.html" class="btn-launch-3d" style="background:linear-gradient(135deg, rgba(214,199,168,0.2), rgba(142,168,255,0.2)); border-color:var(--accent-sand); color:var(--accent-sand);">
-                        <i class="fa-solid fa-rocket"></i> 3D
-                    </a>
                 </div>
             </div>
         </header>
 
-        <!-- Tarjeta de Bienvenida / Pasaporte -->
-        <section class="passport-card" id="passport-hero">
-            <div class="passport-badge-row">
-                <span class="passport-code" id="passport-number">EXP-VISIT-2026</span>
-                <span class="passport-status"><span class="dot"></span> EXPO EN VIVO</span>
+        <!-- Selector de Cuerpos (Visible en vistas de Planeta y Capas) -->
+        <div class="celestial-selector-container" id="celestial-selector-block">
+            <div class="category-filter-chips" id="category-filter-chips">
+                <button class="filter-chip active" onclick="setCategoryFilter('all', this)">Todos</button>
+                <button class="filter-chip" onclick="setCategoryFilter('planeta', this)">Planetas</button>
+                <button class="filter-chip" onclick="setCategoryFilter('luna', this)">Lunas</button>
+                <button class="filter-chip" onclick="setCategoryFilter('estrella', this)">Estrella</button>
             </div>
-            <h2 class="passport-title">Observatorio de Bolsillo</h2>
-            <p class="passport-desc">
-                Explora el cosmos en tiempo real desde tu propio teléfono. Toca los planetas para ver su corte geológico interno, calcular cuánto pesarías en ellos y poner a prueba tu conocimiento astronómico.
-            </p>
-        </section>
-
-        <!-- Selector Horizontal Táctil de Planetas -->
-        <nav class="planets-scroll-nav" id="planets-nav" aria-label="Selector de cuerpos celestes">
-            <!-- Inyectado por JS -->
-        </nav>
-
-        <!-- Inspector Táctil del Cuerpo Seleccionado -->
-        <section class="inspector-card" id="inspector-section">
-            <div class="inspector-head">
-                <div class="inspector-meta">
-                    <span id="target-category">Planeta Rocoso</span>
-                    <h2 id="target-name">Tierra</h2>
-                </div>
-                <span class="inspector-badge" id="target-distance">1.00 AU del Sol</span>
-            </div>
-
-            <!-- Mini Visor 3D Interactivo Táctil -->
-            <div class="stage-box" id="planet-stage">
-                <canvas id="planet-3d-canvas"></canvas>
-                <div class="stage-hint"><i class="fa-solid fa-hand-pointer"></i> Arrastra para rotar</div>
-            </div>
-
-            <!-- Telemetría Rápida -->
-            <div class="telemetry-grid">
-                <div class="tele-card">
-                    <span class="tele-label">Diámetro</span>
-                    <span class="tele-val" id="tele-diameter">12,742 km</span>
-                </div>
-                <div class="tele-card">
-                    <span class="tele-label">Gravedad Superficial</span>
-                    <span class="tele-val" id="tele-gravity" style="color:var(--accent-sand);">9.81 m/s² (1.0g)</span>
-                </div>
-                <div class="tele-card">
-                    <span class="tele-label">Temperatura Media</span>
-                    <span class="tele-val" id="tele-temp">15°C</span>
-                </div>
-                <div class="tele-card">
-                    <span class="tele-label">Año Planetario</span>
-                    <span class="tele-val" id="tele-year">365.25 días</span>
-                </div>
-            </div>
-            
-            <p id="target-summary" style="font-size:12px; color:var(--text-2); line-height:1.45;"></p>
-        </section>
-
-        <!-- Corte Geológico Interactivo por Capas -->
-        <section class="cutaway-card" id="geology-section">
-            <div class="section-header-compact">
-                <h3><i class="fa-solid fa-layer-group" style="color:var(--accent-blue);"></i> Estructura & Corte Interno</h3>
-                <span style="font-size:10px; font-family:var(--font-mono); color:var(--accent-sand);">ANÁLISIS SVG</span>
-            </div>
-
-            <!-- Diagrama de Corte SVG -->
-            <div class="cutaway-svg-box">
-                <svg id="cutaway-svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet"></svg>
-            </div>
-
-            <!-- Selector de Capas -->
-            <div class="layers-chips" id="layers-chips-container">
-                <!-- Chips inyectados por JS -->
-            </div>
-
-            <!-- Ficha de la capa activa -->
-            <div class="layer-detail-box" id="layer-detail-box">
-                <div class="layer-detail-title">
-                    <span id="layer-name-title">Corteza</span>
-                    <span class="layer-detail-depth" id="layer-depth-val">0 - 40 km</span>
-                </div>
-                <p class="layer-detail-desc" id="layer-desc-text">Capa rocosa externa de silicatos.</p>
-            </div>
-        </section>
-
-        <!-- Herramienta 1: Calculadora de Peso Cósmico -->
-        <section class="tool-card" id="weight-calc-section">
-            <div class="section-header-compact">
-                <h3 style="font-family:var(--font-display); font-size:14px; display:flex; align-items:center; gap:7px;">
-                    <i class="fa-solid fa-scale-balanced" style="color:var(--warning);"></i> ¿Cuánto pesarías en otros mundos?
-                </h3>
-            </div>
-            <p style="font-size:11.5px; color:var(--text-2);">
-                Ingresa tu peso en la Tierra y observa cómo la gravedad de cada cuerpo celeste cambia tu masa percibida:
-            </p>
-            <div class="tool-input-row">
-                <input type="number" class="tool-input" id="input-weight" value="70" min="1" max="400">
-                <span style="font-family:var(--font-mono); font-size:13px; color:var(--accent-sand); font-weight:700;">KG (Tierra)</span>
-            </div>
-            <div class="calc-results-grid" id="weight-results-grid">
+            <nav class="planets-scroll-nav" id="planets-nav" aria-label="Selector de cuerpos celestes">
                 <!-- Inyectado por JS -->
-            </div>
-        </section>
+            </nav>
+        </div>
 
-        <!-- Herramienta 2: Calculadora de Edad Interplanetaria -->
-        <section class="tool-card" id="age-calc-section">
-            <div class="section-header-compact">
-                <h3 style="font-family:var(--font-display); font-size:14px; display:flex; align-items:center; gap:7px;">
-                    <i class="fa-solid fa-hourglass-half" style="color:var(--accent-cyan);"></i> ¿Cuántos años tendrías allá?
-                </h3>
-            </div>
-            <p style="font-size:11.5px; color:var(--text-2);">
-                Un año es el tiempo que tarda un planeta en dar una vuelta completa al Sol:
-            </p>
-            <div class="tool-input-row">
-                <input type="number" class="tool-input" id="input-age" value="20" min="1" max="120">
-                <span style="font-family:var(--font-mono); font-size:13px; color:var(--accent-cyan); font-weight:700;">AÑOS TERRESTRES</span>
-            </div>
-            <div class="calc-results-grid age-results-grid" id="age-results-grid">
-                <!-- Inyectado por JS -->
-            </div>
-        </section>
+        <!-- VISTA 1: Planeta & Visor 3D -->
+        <div class="visitor-view active-view" id="view-planet">
+            <!-- Tarjeta de Bienvenida / Pasaporte -->
+            <section class="passport-card" id="passport-hero">
+                <div class="passport-badge-row">
+                    <span class="passport-code" id="passport-number">EXP-VISIT-2026</span>
+                    <span class="passport-status"><span class="dot"></span> EXPO EN VIVO</span>
+                </div>
+                <h2 class="passport-title">Observatorio de Bolsillo</h2>
+                <p class="passport-desc">
+                    Explora el cosmos en tiempo real desde tu teléfono. Toca los planetas y lunas para ver sus texturas realistas en 3D, su corte interno y telemetría física.
+                </p>
+            </section>
 
-        <!-- Desafío Cósmico / Trivia para Asistentes -->
-        <section class="trivia-card" id="trivia-section">
-            <div class="section-header-compact">
-                <h3 style="font-family:var(--font-display); font-size:14px; color:var(--text-1); display:flex; align-items:center; gap:7px;">
-                    <i class="fa-solid fa-circle-question" style="color:var(--accent-purple);"></i> Desafío Cósmico del Jurado & Visitantes
-                </h3>
-                <span id="trivia-score" style="font-family:var(--font-mono); font-size:11px; color:var(--success); font-weight:700;">0 / 5</span>
-            </div>
-            <div class="trivia-question" id="trivia-question-text">
-                ¿Qué astro del Sistema Solar tiene una densidad tan baja que flotaría en una bañera de agua gigante?
-            </div>
-            <div class="trivia-options" id="trivia-options-box">
-                <!-- Botones inyectados por JS -->
-            </div>
-            <div class="trivia-feedback" id="trivia-feedback"></div>
-        </section>
+            <!-- Inspector Táctil del Cuerpo Seleccionado -->
+            <section class="inspector-card" id="inspector-section">
+                <div class="inspector-head">
+                    <div class="inspector-meta">
+                        <span id="target-category">Planeta Rocoso</span>
+                        <h2 id="target-name">Tierra</h2>
+                    </div>
+                    <span class="inspector-badge" id="target-distance">1.00 AU del Sol</span>
+                </div>
 
-        <!-- Botón Gigante para Lanzar el Observatorio 3D Completo -->
-        <section class="launch-box">
-            <i class="fa-solid fa-meteor" style="font-size:32px; color:var(--accent-sand);"></i>
-            <h3>Simulador Orbital 3D en Vivo</h3>
-            <p>
-                Experimenta las órbitas N-Body completas, activa la velocidad de la luz Einsteiniana y detona cataclismos como la Gigante Roja en tu teléfono.
-            </p>
-            <a href="index.html" class="btn-launch-big">
-                <i class="fa-solid fa-play"></i> ENTRAR AL SIMULADOR 3D
-            </a>
-        </section>
+                <!-- Mini Visor 3D Interactivo Táctil -->
+                <div class="stage-box" id="planet-stage">
+                    <canvas id="planet-3d-canvas"></canvas>
+                    <div class="stage-hint"><i class="fa-solid fa-hand-pointer"></i> Arrastra para rotar</div>
+                </div>
+
+                <!-- Telemetría Rápida -->
+                <div class="telemetry-grid">
+                    <div class="tele-card">
+                        <span class="tele-label">Diámetro</span>
+                        <span class="tele-val" id="tele-diameter">12,742 km</span>
+                    </div>
+                    <div class="tele-card">
+                        <span class="tele-label">Gravedad Superficial</span>
+                        <span class="tele-val" id="tele-gravity" style="color:var(--accent-sand);">9.81 m/s² (1.0g)</span>
+                    </div>
+                    <div class="tele-card">
+                        <span class="tele-label">Temperatura Media</span>
+                        <span class="tele-val" id="tele-temp">15°C</span>
+                    </div>
+                    <div class="tele-card">
+                        <span class="tele-label">Año Planetario</span>
+                        <span class="tele-val" id="tele-year">365.25 días</span>
+                    </div>
+                </div>
+                
+                <p id="target-summary" style="font-size:12px; color:var(--text-2); line-height:1.45;"></p>
+            </section>
+
+            <!-- Botón para Lanzar el Observatorio 3D Completo -->
+            <section class="launch-box">
+                <i class="fa-solid fa-meteor" style="font-size:32px; color:var(--accent-sand);"></i>
+                <h3>Simulador Orbital 3D en Vivo</h3>
+                <p>
+                    Experimenta las órbitas N-Body completas, activa la velocidad de la luz Einsteiniana y viaja libremente por el cosmos.
+                </p>
+                <a href="index.html" class="btn-launch-big">
+                    <i class="fa-solid fa-play"></i> ENTRAR AL SIMULADOR 3D
+                </a>
+            </section>
+        </div>
+
+        <!-- VISTA 2: Capas & Geología -->
+        <div class="visitor-view" id="view-geology">
+            <!-- Corte Geológico Interactivo por Capas -->
+            <section class="cutaway-card" id="geology-section">
+                <div class="section-header-compact">
+                    <h3><i class="fa-solid fa-layer-group" style="color:var(--accent-blue);"></i> Estructura & Corte Interno</h3>
+                    <span style="font-size:10px; font-family:var(--font-mono); color:var(--accent-sand);">ANÁLISIS SVG</span>
+                </div>
+
+                <!-- Diagrama de Corte SVG -->
+                <div class="cutaway-svg-box">
+                    <svg id="cutaway-svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet"></svg>
+                </div>
+
+                <!-- Selector de Capas -->
+                <div class="layers-chips" id="layers-chips-container">
+                    <!-- Chips inyectados por JS -->
+                </div>
+
+                <!-- Ficha de la capa activa -->
+                <div class="layer-detail-box" id="layer-detail-box">
+                    <div class="layer-detail-title">
+                        <span id="layer-name-title">Corteza</span>
+                        <span class="layer-detail-depth" id="layer-depth-val">0 - 40 km</span>
+                    </div>
+                    <p class="layer-detail-desc" id="layer-desc-text">Capa rocosa externa de silicatos.</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- VISTA 3: Peso Cósmico -->
+        <div class="visitor-view" id="view-weight">
+            <!-- Herramienta 1: Calculadora de Peso Cósmico -->
+            <section class="tool-card" id="weight-calc-section">
+                <div class="section-header-compact">
+                    <h3 style="font-family:var(--font-display); font-size:14px; display:flex; align-items:center; gap:7px;">
+                        <i class="fa-solid fa-scale-balanced" style="color:var(--warning);"></i> ¿Cuánto pesarías en otros mundos?
+                    </h3>
+                </div>
+                <p style="font-size:11.5px; color:var(--text-2);">
+                    Ingresa tu peso en la Tierra y observa cómo la gravedad de cada cuerpo celeste cambia tu masa percibida:
+                </p>
+                <div class="tool-input-row">
+                    <input type="number" class="tool-input" id="input-weight" value="70" min="1" max="400">
+                    <span style="font-family:var(--font-mono); font-size:13px; color:var(--accent-sand); font-weight:700;">KG (Tierra)</span>
+                </div>
+                <div class="calc-results-grid" id="weight-results-grid">
+                    <!-- Inyectado por JS -->
+                </div>
+            </section>
+        </div>
+
+        <!-- VISTA 4: Edad Interplanetaria -->
+        <div class="visitor-view" id="view-age">
+            <!-- Herramienta 2: Calculadora de Edad Interplanetaria -->
+            <section class="tool-card" id="age-calc-section">
+                <div class="section-header-compact">
+                    <h3 style="font-family:var(--font-display); font-size:14px; display:flex; align-items:center; gap:7px;">
+                        <i class="fa-solid fa-hourglass-half" style="color:var(--accent-cyan);"></i> ¿Cuántos años tendrías allá?
+                    </h3>
+                </div>
+                <p style="font-size:11.5px; color:var(--text-2);">
+                    Un año es el tiempo que tarda un planeta en dar una vuelta completa al Sol:
+                </p>
+                <div class="tool-input-row">
+                    <input type="number" class="tool-input" id="input-age" value="20" min="1" max="120">
+                    <span style="font-family:var(--font-mono); font-size:13px; color:var(--accent-cyan); font-weight:700;">AÑOS TERRESTRES</span>
+                </div>
+                <div class="calc-results-grid age-results-grid" id="age-results-grid">
+                    <!-- Inyectado por JS -->
+                </div>
+            </section>
+        </div>
+
+        <!-- VISTA 5: Trivia Cósmica -->
+        <div class="visitor-view" id="view-trivia">
+            <!-- Desafío Cósmico / Trivia para Asistentes -->
+            <section class="trivia-card" id="trivia-section">
+                <div class="section-header-compact">
+                    <h3 style="font-family:var(--font-display); font-size:14px; color:var(--text-1); display:flex; align-items:center; gap:7px;">
+                        <i class="fa-solid fa-circle-question" style="color:var(--accent-purple);"></i> Desafío Cósmico del Jurado & Visitantes
+                    </h3>
+                    <span id="trivia-score" style="font-family:var(--font-mono); font-size:11px; color:var(--success); font-weight:700;">0 / 5</span>
+                </div>
+                <div class="trivia-question" id="trivia-question-text">
+                    ¿Qué astro del Sistema Solar tiene una densidad tan baja que flotaría en una bañera de agua gigante?
+                </div>
+                <div class="trivia-options" id="trivia-options-box">
+                    <!-- Botones inyectados por JS -->
+                </div>
+                <div class="trivia-feedback" id="trivia-feedback"></div>
+            </section>
+        </div>
 
         <!-- Créditos del Equipo -->
         <footer style="text-align:center; padding: 14px; font-size:11px; color:var(--text-3); display:flex; flex-direction:column; gap:6px;">
@@ -1008,32 +1106,28 @@
 
     </div>
 
-    <!-- Barra de Navegación Inferior Fija para Smartphone -->
+    <!-- Barra de Navegación Inferior Fija para Smartphone (5 Tabs sin overflow) -->
     <nav class="visitor-bottom-bar" aria-label="Navegación del pasaporte">
-        <button class="visitor-tab active" onclick="scrollToSection('inspector-section', this)">
+        <button class="visitor-tab active" onclick="switchVisitorTab('view-planet', this)">
             <i class="fa-solid fa-globe"></i>
             <span>Planeta</span>
         </button>
-        <button class="visitor-tab" onclick="scrollToSection('geology-section', this)">
+        <button class="visitor-tab" onclick="switchVisitorTab('view-geology', this)">
             <i class="fa-solid fa-layer-group"></i>
             <span>Capas</span>
         </button>
-        <button class="visitor-tab" onclick="scrollToSection('weight-calc-section', this)">
+        <button class="visitor-tab" onclick="switchVisitorTab('view-weight', this)">
             <i class="fa-solid fa-scale-balanced"></i>
             <span>Peso</span>
         </button>
-        <button class="visitor-tab" onclick="scrollToSection('age-calc-section', this)">
+        <button class="visitor-tab" onclick="switchVisitorTab('view-age', this)">
             <i class="fa-solid fa-hourglass-half"></i>
             <span>Edad</span>
         </button>
-        <button class="visitor-tab" onclick="scrollToSection('trivia-section', this)">
+        <button class="visitor-tab" onclick="switchVisitorTab('view-trivia', this)">
             <i class="fa-solid fa-circle-question"></i>
             <span>Trivia</span>
         </button>
-        <a href="index.html" class="visitor-tab" style="color:var(--accent-sand);">
-            <i class="fa-solid fa-rocket"></i>
-            <span>3D Full</span>
-        </a>
     </nav>
 
     <!-- Modal QR Code -->
@@ -1059,12 +1153,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        // --- BASE DE DATOS DE PLANETAS PARA EL VISITANTE ---
+        // --- BASE DE DATOS DE CUERPOS CELESTES (CON TEXTURAS REALES Y LUNAS) ---
         const CELESTIAL_BODIES = [
             {
                 id: 'sol',
                 name: 'Sol',
+                type: 'estrella',
                 category: 'Estrella Enana Amarilla (G2V)',
+                texture: 'assets/textures/sun_tex.jpg',
                 color: '#facc15',
                 diameter: '1,392,700 km',
                 gravity: '274.0 m/s² (27.9g)',
@@ -1073,18 +1169,20 @@
                 year: '230 millones de años',
                 yearEarth: 230000000,
                 distance: 'Centro del Sistema',
-                summary: 'Contiene el 99.86% de toda la masa del Sistema Solar. En su núcleo convierte 600 millones de toneladas de hidrógeno en helio cada segundo.',
+                summary: 'Contiene el 99.86% de toda la masa del Sistema Solar. En su núcleo fusiona 600 millones de toneladas de hidrógeno en helio por segundo.',
                 layers: [
-                    { name: 'Corona Solar', depth: 'Hasta 5,000,000 km', desc: 'Gas ionizado a millones de grados que genera el viento solar.', color: '#fef08a' },
-                    { name: 'Fotosfera', depth: '0 - 500 km', desc: 'Superficie visible donde se emite la luz que llega a la Tierra en 8.3 minutos.', color: '#facc15' },
-                    { name: 'Zona Radiativa', depth: '300,000 km', desc: 'Los fotones tardan más de 100,000 años en atravesar esta densa capa.', color: '#ca8a04' },
-                    { name: 'Núcleo Nuclear', depth: '0 - 175,000 km', desc: 'Reactor de fusión termonuclear a 15,700,000°C.', color: '#ef4444' }
+                    { name: 'Corona Solar', depth: 'Hasta 5,000,000 km', desc: 'Atmósfera externa de plasma ionizado a más de 1,000,000°C.', color: '#fef08a' },
+                    { name: 'Fotosfera', depth: '0 - 500 km', desc: 'Superficie visible de donde emana la radiación solar y la luz diurna.', color: '#facc15' },
+                    { name: 'Zona Radiativa', depth: '300,000 km', desc: 'Los fotones tardan hasta 100,000 años en atravesar esta densa capa.', color: '#ca8a04' },
+                    { name: 'Núcleo Nuclear', depth: '0 - 175,000 km', desc: 'Horno termonuclear a 15,700,000°C produciendo toda la energía del sistema.', color: '#ef4444' }
                 ]
             },
             {
                 id: 'mercurio',
                 name: 'Mercurio',
+                type: 'planeta',
                 category: 'Planeta Rocoso',
+                texture: 'assets/textures/mercury_tex.jpg',
                 color: '#94a3b8',
                 diameter: '4,879 km',
                 gravity: '3.7 m/s² (0.38g)',
@@ -1093,17 +1191,19 @@
                 year: '88 días terrestres',
                 yearEarth: 0.2408,
                 distance: '0.39 AU del Sol',
-                summary: 'El mundo más rápido y más cercano al Sol. No tiene atmósfera sustancial, por lo que experimenta los cambios térmicos más extremos.',
+                summary: 'El mundo más rápido y cercano al Sol. Sin atmósfera densa, experimenta la oscilación térmica más violenta del Sistema Solar.',
                 layers: [
-                    { name: 'Corteza Regolítica', depth: '100 - 300 km', desc: 'Superficie de silicatos plagada de cráteres de impacto.', color: '#94a3b8' },
-                    { name: 'Manto de Silicatos', depth: '500 - 700 km', desc: 'Manto rocoso delgado comprimido.', color: '#64748b' },
-                    { name: 'Núcleo Metálico Gigante', depth: 'Radio de 2,000 km', desc: 'Ocupa el 85% del radio del planeta; compuesto de hierro y níquel.', color: '#cbd5e1' }
+                    { name: 'Corteza Regolítica', depth: '100 - 300 km', desc: 'Superficie de silicatos plagada de cráteres de impacto antiguos.', color: '#94a3b8' },
+                    { name: 'Manto de Silicatos', depth: '500 - 700 km', desc: 'Manto rocoso delgado comprimido por contracción global.', color: '#64748b' },
+                    { name: 'Núcleo Metálico Gigante', depth: 'Radio de 2,000 km', desc: 'Ocupa el 85% del radio planetario; compuesto de hierro y níquel.', color: '#cbd5e1' }
                 ]
             },
             {
                 id: 'venus',
                 name: 'Venus',
+                type: 'planeta',
                 category: 'Planeta Rocoso',
+                texture: 'assets/textures/venus_tex.jpg',
                 color: '#f59e0b',
                 diameter: '12,104 km',
                 gravity: '8.87 m/s² (0.91g)',
@@ -1112,18 +1212,20 @@
                 year: '224.7 días terrestres',
                 yearEarth: 0.6152,
                 distance: '0.72 AU del Sol',
-                summary: 'El infierno del Sistema Solar: un efecto invernadero desbocado con una densa atmósfera de CO₂ y lluvias de ácido sulfúrico.',
+                summary: 'El infierno del Sistema Solar: un efecto invernadero desbocado con atmósfera supercrítica de CO₂ y lluvias de ácido sulfúrico.',
                 layers: [
-                    { name: 'Atmósfera Supercrítica', depth: '0 - 90 bar', desc: '96.5% CO2 con nubes ácidas que atrapan todo el calor infrarrojo.', color: '#fbbf24' },
-                    { name: 'Corteza Basáltica', depth: '20 - 50 km', desc: 'Placas volcánicas activas sin tectónica de placas como la Tierra.', color: '#d97706' },
-                    { name: 'Manto Rocoso', depth: '3,000 km', desc: 'Silicatos viscosos en lenta convección.', color: '#b45309' },
-                    { name: 'Núcleo Metálico', depth: 'Radio de 3,200 km', desc: 'Hierro y níquel sin campo magnético global perceptible.', color: '#78350f' }
+                    { name: 'Atmósfera Supercrítica', depth: '0 - 90 bar', desc: '96.5% CO2 con nubes de ácido sulfúrico que retienen el calor infrarrojo.', color: '#fbbf24' },
+                    { name: 'Corteza Basáltica', depth: '20 - 50 km', desc: 'Placas volcánicas activas continuamente renovadas por magmatismo.', color: '#d97706' },
+                    { name: 'Manto Rocoso', depth: '3,000 km', desc: 'Silicatos viscosos en lenta convección térmica.', color: '#b45309' },
+                    { name: 'Núcleo Metálico', depth: 'Radio de 3,200 km', desc: 'Hierro y níquel sin dinamo magnética activa.', color: '#78350f' }
                 ]
             },
             {
                 id: 'tierra',
                 name: 'Tierra',
+                type: 'planeta',
                 category: 'Planeta Rocoso Habitado',
+                texture: 'assets/textures/earth_tex.jpg',
                 color: '#38bdf8',
                 diameter: '12,742 km',
                 gravity: '9.81 m/s² (1.0g)',
@@ -1135,16 +1237,18 @@
                 summary: 'El oasis azul del cosmos. El único mundo conocido con agua líquida superficial continua, placas tectónicas activas y biosfera floreciente.',
                 layers: [
                     { name: 'Corteza Terrestre', depth: '0 - 40 km', desc: 'Corteza granítica continental y basáltica oceánica.', color: '#38bdf8' },
-                    { name: 'Manto Superior & Astenosfera', depth: '40 - 670 km', desc: 'Roca plástica donde flotan las placas tectónicas.', color: '#0284c7' },
-                    { name: 'Manto Inferior', depth: '670 - 2,890 km', desc: 'Silicatos de magnesio y hierro a altas presiones.', color: '#0369a1' },
-                    { name: 'Núcleo Exterior Líquido', depth: '2,890 - 5,150 km', desc: 'Hierro fundido en rotación que genera el campo geomagnético protector.', color: '#f59e0b' },
-                    { name: 'Núcleo Interior Sólido', depth: '5,150 - 6,371 km', desc: 'Esfera cristalina sólida de hierro-níquel a 5,400°C.', color: '#fef08a' }
+                    { name: 'Manto Superior & Astenosfera', depth: '40 - 670 km', desc: 'Roca dúctil sobre la que se desplazan las placas tectónicas.', color: '#0284c7' },
+                    { name: 'Manto Inferior', depth: '670 - 2,890 km', desc: 'Silicatos de magnesio y hierro a presiones extremas.', color: '#0369a1' },
+                    { name: 'Núcleo Exterior Líquido', depth: '2,890 - 5,150 km', desc: 'Hierro fundido en convección que genera el campo geomagnético.', color: '#f59e0b' },
+                    { name: 'Núcleo Interior Sólido', depth: '5,150 - 6,371 km', desc: 'Esfera cristalina metálica a más de 5,400°C.', color: '#fef08a' }
                 ]
             },
             {
                 id: 'luna',
                 name: 'Luna',
+                type: 'luna',
                 category: 'Satélite Natural Terrestre',
+                texture: 'assets/textures/moon_tex.jpg',
                 color: '#cbd5e1',
                 diameter: '3,474 km',
                 gravity: '1.62 m/s² (0.166g)',
@@ -1153,17 +1257,19 @@
                 year: '27.3 días terrestres',
                 yearEarth: 0.0748,
                 distance: '384,400 km de la Tierra',
-                summary: 'Nacida del Gran Impacto de Theia hace 4,500 millones de años. Estabiliza el eje de rotación terrestre haciendo posible las estaciones climáticas.',
+                summary: 'Nacida del Gran Impacto de Theia hace 4,500 millones de años. Estabiliza el eje de rotación terrestre haciendo posible el clima templado.',
                 layers: [
-                    { name: 'Regolito & Corteza', depth: '0 - 60 km', desc: 'Polvo de impacto pulverizado y anortositas.', color: '#e2e8f0' },
-                    { name: 'Manto Lítico', depth: '60 - 1,000 km', desc: 'Silicatos ricos en olivino y piroxeno.', color: '#94a3b8' },
-                    { name: 'Núcleo Pequeño', depth: 'Radio de 330 km', desc: 'Núcleo metálico parcialmente fundido.', color: '#64748b' }
+                    { name: 'Regolito & Corteza', depth: '0 - 60 km', desc: 'Polvo de impacto pulverizado y anortositas lunares.', color: '#e2e8f0' },
+                    { name: 'Manto Lítico', depth: '60 - 1,000 km', desc: 'Silicatos ricos en olivino y piroxeno sin actividad tectónica.', color: '#94a3b8' },
+                    { name: 'Núcleo Pequeño', depth: 'Radio de 330 km', desc: 'Núcleo metálico parcialmente fundido en enfriamiento.', color: '#64748b' }
                 ]
             },
             {
                 id: 'marte',
                 name: 'Marte',
+                type: 'planeta',
                 category: 'Planeta Rocoso',
+                texture: 'assets/textures/mars_tex.jpg',
                 color: '#ef4444',
                 diameter: '6,779 km',
                 gravity: '3.72 m/s² (0.38g)',
@@ -1172,17 +1278,19 @@
                 year: '687 días terrestres',
                 yearEarth: 1.8808,
                 distance: '1.52 AU del Sol',
-                summary: 'El Planeta Rojo. Alberga el volcán más colosal del Sistema Solar (Monte Olimpo, 22 km) y huellas de antiguos ríos y lagos desecados.',
+                summary: 'El Planeta Rojo. Alberga el volcán más colosal del Sistema Solar (Monte Olimpo, 22 km) y huellas de antiguos cauces fluviales y lagos.',
                 layers: [
-                    { name: 'Corteza Oxidada', depth: '0 - 50 km', desc: 'Rica en óxidos de hierro (herrumbre) que le dan su tono rojizo.', color: '#f87171' },
+                    { name: 'Corteza Oxidada', depth: '0 - 50 km', desc: 'Rica en óxidos de hierro férrico que le otorgan su distintivo color rojizo.', color: '#f87171' },
                     { name: 'Manto Litosférico', depth: '50 - 1,700 km', desc: 'Rocas de silicatos frías y rígidas.', color: '#dc2626' },
-                    { name: 'Núcleo de Hierro-Azufre', depth: 'Radio de 1,800 km', desc: 'Núcleo denso que se enfrió, perdiendo su campo magnético protector.', color: '#991b1b' }
+                    { name: 'Núcleo de Hierro-Azufre', depth: 'Radio de 1,800 km', desc: 'Núcleo metálico denso que perdió su campo magnético protector.', color: '#991b1b' }
                 ]
             },
             {
                 id: 'jupiter',
                 name: 'Júpiter',
+                type: 'planeta',
                 category: 'Gigante Gaseoso',
+                texture: 'assets/textures/jupiter_tex.jpg',
                 color: '#f97316',
                 diameter: '139,820 km',
                 gravity: '24.79 m/s² (2.53g)',
@@ -1191,18 +1299,81 @@
                 year: '11.86 años terrestres',
                 yearEarth: 11.862,
                 distance: '5.20 AU del Sol',
-                summary: 'El coloso del Sistema Solar: 318 veces la masa de la Tierra y 95 lunas. Su Gran Mancha Roja es un anticiclón más grande que la Tierra entera.',
+                summary: 'El coloso del Sistema Solar: 318 veces la masa de la Tierra y 95 lunas. Su Gran Mancha Roja es un anticiclón centenario colosal.',
                 layers: [
-                    { name: 'Atmósfera Turbulenta', depth: '0 - 1,000 km', desc: 'Bandas de hidrógeno y helio con vientos de 500 km/h.', color: '#fdba74' },
-                    { name: 'Hidrógeno Líquido', depth: '1,000 - 20,000 km', desc: 'Océano colosal de hidrógeno comprimido en estado fluido.', color: '#fb923c' },
-                    { name: 'Hidrógeno Metálico', depth: '20,000 - 60,000 km', desc: 'A presiones brutales los electrones fluyen libres creando un metal líquido.', color: '#ea580c' },
-                    { name: 'Núcleo Difuso Rocoso', depth: 'Radio de 15,000 km', desc: 'Mezcla difusa de hielos, metales y silicatos ultra-densos.', color: '#c2410c' }
+                    { name: 'Atmósfera Turbulenta', depth: '0 - 1,000 km', desc: 'Bandas nubosas de hidrógeno y helio con vientos de 500 km/h.', color: '#fdba74' },
+                    { name: 'Hidrógeno Líquido', depth: '1,000 - 20,000 km', desc: 'Océano colosal de hidrógeno comprimido en estado de fluido supercrítico.', color: '#fb923c' },
+                    { name: 'Hidrógeno Metálico', depth: '20,000 - 60,000 km', desc: 'A presiones colosales los electrones fluyen libres generando un metal líquido.', color: '#ea580c' },
+                    { name: 'Núcleo Difuso', depth: 'Radio de 15,000 km', desc: 'Mezcla difusa de hielos, metales y silicatos ultra-densos.', color: '#c2410c' }
+                ]
+            },
+            {
+                id: 'io',
+                name: 'Ío',
+                type: 'luna',
+                category: 'Luna Volcánica de Júpiter',
+                color: '#eab308',
+                diameter: '3,643 km',
+                gravity: '1.79 m/s² (0.183g)',
+                gravityMultiplier: 0.183,
+                temp: '-143°C a 1,600°C en lava',
+                year: '1.77 días terrestres',
+                yearEarth: 0.00485,
+                distance: '421,700 km de Júpiter',
+                summary: 'El cuerpo geológicamente más activo del Sistema Solar, con más de 400 volcanes en erupción constante por la marea gravitacional joviana.',
+                layers: [
+                    { name: 'Corteza de Azufre', depth: '0 - 30 km', desc: 'Llanuras volcánicas cubiertas de escarcha de SO2 y azufre.', color: '#facc15' },
+                    { name: 'Manto de Magma Fundido', depth: '0 - 800 km', desc: 'Océano magmático que alimenta plumas volcánicas de cientos de km de altura.', color: '#ea580c' },
+                    { name: 'Núcleo Metálico', depth: 'Radio de 900 km', desc: 'Núcleo denso de hierro y sulfuro de hierro.', color: '#7c2d12' }
+                ]
+            },
+            {
+                id: 'europa',
+                name: 'Europa',
+                type: 'luna',
+                category: 'Luna con Océano Subterráneo',
+                color: '#93c5fd',
+                diameter: '3,121 km',
+                gravity: '1.31 m/s² (0.134g)',
+                gravityMultiplier: 0.134,
+                temp: '-160°C superficial',
+                year: '3.55 días terrestres',
+                yearEarth: 0.0097,
+                distance: '670,900 km de Júpiter',
+                summary: 'Superficie lisa de hielo cruzada por lineae rojizas. Esconde un océano líquido global con el doble de agua que todos los océanos terrestres combinados.',
+                layers: [
+                    { name: 'Corteza de Hielo H2O', depth: '15 - 25 km', desc: 'Caparazón gélido fracturado por las mareas gravitatorias de Júpiter.', color: '#e0f2fe' },
+                    { name: 'Océano Global Líquido', depth: '60 - 150 km', desc: 'Agua marina templada en contacto con el lecho rocoso, candidata a albergar vida.', color: '#0284c7' },
+                    { name: 'Manto Rocoso & Núcleo', depth: 'Radio de 1,400 km', desc: 'Roca silicatada y corazón de hierro metálico.', color: '#1e3a8a' }
+                ]
+            },
+            {
+                id: 'ganimedes',
+                name: 'Ganimedes',
+                type: 'luna',
+                category: 'La Mayor Luna del Cosmos',
+                color: '#a1a1aa',
+                diameter: '5,268 km',
+                gravity: '1.43 m/s² (0.146g)',
+                gravityMultiplier: 0.146,
+                temp: '-163°C',
+                year: '7.15 días terrestres',
+                yearEarth: 0.0196,
+                distance: '1,070,400 km de Júpiter',
+                summary: 'Más grande que el planeta Mercurio y el planeta enano Plutón. Es el único satélite natural con su propio campo magnético generado internamente.',
+                layers: [
+                    { name: 'Corteza Helada', depth: '0 - 100 km', desc: 'Hielo oscuro impactado y terrenos estriados claros más jóvenes.', color: '#cbd5e1' },
+                    { name: 'Manto de Hielos de Alta Presión', depth: '800 km', desc: 'Múltiples fases cristalinas de hielo comprimido.', color: '#64748b' },
+                    { name: 'Núcleo Líquido de Hierro', depth: 'Radio de 500 km', desc: 'Hierro fundido que actúa como dinamo magnética autónoma.', color: '#334155' }
                 ]
             },
             {
                 id: 'saturno',
                 name: 'Saturno',
+                type: 'planeta',
                 category: 'Gigante Gaseoso Anillado',
+                texture: 'assets/textures/saturn_tex.png',
+                ringsTexture: 'assets/textures/saturn_rings_tex.png',
                 color: '#eab308',
                 diameter: '116,460 km',
                 gravity: '10.44 m/s² (1.07g)',
@@ -1211,17 +1382,41 @@
                 year: '29.46 años terrestres',
                 yearEarth: 29.457,
                 distance: '9.58 AU del Sol',
-                summary: 'La joya del Sistema Solar. Sus anillos se extienden por 282,000 km pero tienen apenas 10 metros de espesor. Su densidad es menor que la del agua.',
+                summary: 'La joya del Sistema Solar. Sus anillos se extienden 282,000 km con apenas 10 metros de espesor. Su densidad media es menor que la del agua líquida.',
                 layers: [
-                    { name: 'Capas de Nubes', depth: '0 - 1,000 km', desc: 'Gases de amoniaco, hidrosulfuro y metano.', color: '#fef08a' },
+                    { name: 'Capas de Nubes', depth: '0 - 1,000 km', desc: 'Gases de amoniaco, hidrosulfuro y metano con hexágono polar.', color: '#fef08a' },
                     { name: 'Hidrógeno Metálico', depth: '30,000 km', desc: 'Genera un potente campo magnético simétrico.', color: '#eab308' },
                     { name: 'Núcleo Rocoso-Hielo', depth: 'Radio de 12,000 km', desc: 'Corazón metálico denso rodeado de hielo de alta presión.', color: '#a16207' }
                 ]
             },
             {
+                id: 'titan',
+                name: 'Titán',
+                type: 'luna',
+                category: 'Satélite con Atmósfera y Lagos',
+                color: '#f59e0b',
+                diameter: '5,150 km',
+                gravity: '1.35 m/s² (0.138g)',
+                gravityMultiplier: 0.138,
+                temp: '-179°C superficial',
+                year: '15.95 días terrestres',
+                yearEarth: 0.0437,
+                distance: '1,221,870 km de Saturno',
+                summary: 'El único satélite con atmósfera densa y el único mundo además de la Tierra con lagos y ríos superficiales estables, formados por metano líquido.',
+                layers: [
+                    { name: 'Atmósfera Densa de N2', depth: '0 - 600 km', desc: 'Niebla anaranjada rica en moléculas orgánicas complejas (tolinas).', color: '#fbbf24' },
+                    { name: 'Corteza de Hielo de Agua', depth: '0 - 80 km', desc: 'Hielo de agua tan duro como granito a -180°C.', color: '#d97706' },
+                    { name: 'Océano Templado Interno', depth: '300 - 400 km', desc: 'Capa líquida salina de agua y amoníaco.', color: '#b45309' },
+                    { name: 'Núcleo de Silicatos', depth: 'Radio de 2,000 km', desc: 'Rocas de silicatos deshidratadas.', color: '#78350f' }
+                ]
+            },
+            {
                 id: 'urano',
                 name: 'Urano',
+                type: 'planeta',
                 category: 'Gigante de Hielo',
+                texture: 'assets/textures/uranus_tex.png',
+                ringsTexture: 'assets/textures/uranus_rings_tex.png',
                 color: '#22d3ee',
                 diameter: '50,724 km',
                 gravity: '8.69 m/s² (0.89g)',
@@ -1230,17 +1425,19 @@
                 year: '84.01 años terrestres',
                 yearEarth: 84.01,
                 distance: '19.22 AU del Sol',
-                summary: 'Gira inclinado 98 grados sobre su costado, posiblemente debido a una colisión en su juventud cósmica. La atmósfera más fría de todos los planetas.',
+                summary: 'Gira inclinado 98 grados sobre su costado, rodando sobre el plano de su órbita. Su atmósfera registra las temperaturas más gélidas de los 8 planetas.',
                 layers: [
-                    { name: 'Atmósfera de Metano', depth: '0 - 2,000 km', desc: 'El metano absorbe la luz roja y le otorga su tono cian característico.', color: '#67e8f9' },
-                    { name: 'Manto de Agua y Hielo Iónico', depth: '10,000 km', desc: 'Fluido denso y conductor llamado océano de amoniaco y agua.', color: '#06b6d4' },
+                    { name: 'Atmósfera de Metano', depth: '0 - 2,000 km', desc: 'El metano absorbe la luz roja otorgándole su tono cian translúcido.', color: '#67e8f9' },
+                    { name: 'Manto de Agua y Hielo Iónico', depth: '10,000 km', desc: 'Fluido supercrítico conductor llamado océano de agua y amoníaco.', color: '#06b6d4' },
                     { name: 'Núcleo Rocoso', depth: 'Radio de 7,000 km', desc: 'Silicatos de hierro compactados.', color: '#0e7490' }
                 ]
             },
             {
                 id: 'neptuno',
                 name: 'Neptuno',
+                type: 'planeta',
                 category: 'Gigante de Hielo',
+                texture: 'assets/textures/neptune_tex.jpg',
                 color: '#3b82f6',
                 diameter: '49,244 km',
                 gravity: '11.15 m/s² (1.14g)',
@@ -1249,17 +1446,19 @@
                 year: '164.8 años terrestres',
                 yearEarth: 164.79,
                 distance: '30.05 AU del Sol',
-                summary: 'El mundo más distante de los 8 clásicos. En sus capas altas se registran los vientos más veloces del Sistema Solar: más de 2,100 km/h.',
+                summary: 'El mundo más distante de los 8 planetas clásicos. Registra los vientos supersónicos más feroces de todo el Sistema Solar: más de 2,100 km/h.',
                 layers: [
-                    { name: 'Atmósfera Azul Índigo', depth: '0 - 3,000 km', desc: 'Metano concentrado y tormentas gigantescas.', color: '#60a5fa' },
-                    { name: 'Manto Superiónico', depth: '12,000 km', desc: 'Se cree que llueven diamantes sólidos por la presión extrema.', color: '#2563eb' },
+                    { name: 'Atmósfera Azul Profundo', depth: '0 - 3,000 km', desc: 'Metano concentrado con bandas de tormentas ultrarrápidas.', color: '#60a5fa' },
+                    { name: 'Manto Superiónico', depth: '12,000 km', desc: 'Presión extrema donde se teoriza que precipitan diamantes sólidos.', color: '#2563eb' },
                     { name: 'Núcleo Rocoso Denso', depth: 'Radio de 7,500 km', desc: 'Roca y metales pesados.', color: '#1d4ed8' }
                 ]
             },
             {
                 id: 'pluton',
                 name: 'Plutón',
+                type: 'planeta',
                 category: 'Planeta Enano del Cinturón de Kuiper',
+                texture: 'assets/textures/pluto_tex.jpg',
                 color: '#c084fc',
                 diameter: '2,376 km',
                 gravity: '0.62 m/s² (0.063g)',
@@ -1268,10 +1467,10 @@
                 year: '248 años terrestres',
                 yearEarth: 248.0,
                 distance: '39.48 AU del Sol',
-                summary: 'Guardián helado del Cinturón de Kuiper con su icónico glaciar en forma de corazón (Sputnik Planitia) y su luna gigante compañera Caronte.',
+                summary: 'Guardián helado del Cinturón de Kuiper con su glaciar de nitrógeno en forma de corazón (Sputnik Planitia) y su luna binaria Caronte.',
                 layers: [
                     { name: 'Corteza de Nitrógeno & Hielo', depth: '0 - 300 km', desc: 'Glaciares de nitrógeno sólido y metano helado.', color: '#e9d5ff' },
-                    { name: 'Posible Océano Subsuperficial', depth: '100 km', desc: 'Agua líquida salina protegida del frío cósmico.', color: '#c084fc' },
+                    { name: 'Posible Océano Subsuperficial', depth: '100 km', desc: 'Agua líquida salina preservada por aislamiento térmico.', color: '#c084fc' },
                     { name: 'Núcleo Rocoso Grande', depth: 'Radio de 850 km', desc: 'Representa el 70% de la masa total de Plutón.', color: '#7e22ce' }
                 ]
             }
@@ -1305,19 +1504,89 @@
             },
             {
                 q: '¿Qué luna joviana posee un océano líquido oculto bajo su corteza de hielo con más agua que todos los océanos terrestres combinados?',
-                options: ['Ío', 'Europa', 'Fobos', 'Titán'],
+                options: ['Ío', 'Europa', 'Ganimedes', 'Titán'],
                 answer: 1,
                 why: '¡Brillante! Europa es uno de los candidatos más prometedores para la búsqueda de vida marina extraterrestre.'
             }
         ];
 
+        let currentCategoryFilter = 'all';
         let currentBody = CELESTIAL_BODIES[3]; // Tierra por defecto
         let currentLayerIndex = 0;
         let currentTriviaIndex = 0;
         let triviaScore = 0;
 
-        // --- MINI VISOR 3D CON THREE.JS ---
+        // --- SISTEMA DE NAVEGACIÓN SPA MODULAR (VISTAS INDEPENDIENTES) ---
+        function switchVisitorTab(viewId, btn) {
+            // Ocultar todas las vistas y mostrar la seleccionada
+            document.querySelectorAll('.visitor-view').forEach(v => v.classList.remove('active-view'));
+            const targetView = document.getElementById(viewId);
+            if (targetView) targetView.classList.add('active-view');
+
+            // Actualizar botones de la barra inferior
+            if (btn) {
+                document.querySelectorAll('.visitor-tab').forEach(t => t.classList.remove('active'));
+                btn.classList.add('active');
+            }
+
+            // El bloque selector de cuerpos sólo se muestra en Planeta y Capas para máxima limpieza
+            const selectorBlock = document.getElementById('celestial-selector-block');
+            if (selectorBlock) {
+                if (viewId === 'view-planet' || viewId === 'view-geology') {
+                    selectorBlock.style.display = 'block';
+                } else {
+                    selectorBlock.style.display = 'none';
+                }
+            }
+
+            // Scroll suave arriba
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Reajustar canvas Three.js si entramos a la vista planeta
+            if (viewId === 'view-planet' && renderer && camera) {
+                requestAnimationFrame(() => {
+                    const container = document.getElementById('planet-stage');
+                    if (container) {
+                        const nw = container.clientWidth;
+                        const nh = container.clientHeight;
+                        if (nw && nh) {
+                            camera.aspect = nw / nh;
+                            camera.updateProjectionMatrix();
+                            renderer.setSize(nw, nh);
+                        }
+                    }
+                });
+            }
+        }
+
+        // --- FILTROS DE CATEGORÍA ---
+        function setCategoryFilter(category, btn) {
+            currentCategoryFilter = category;
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderPlanetsNav();
+        }
+
+        // --- MINI VISOR 3D CON THREE.JS Y TEXTURAS REALISTAS ---
         let scene, camera, renderer, currentMesh, sphereGroup;
+        const textureLoader = new THREE.TextureLoader();
+        const textureCache = {};
+
+        function getTexture(path) {
+            if (!path) return null;
+            if (!textureCache[path]) {
+                textureCache[path] = textureLoader.load(
+                    path,
+                    (tex) => {
+                        tex.encoding = THREE.sRGBEncoding;
+                        if (renderer) renderer.render(scene, camera);
+                    },
+                    undefined,
+                    () => {}
+                );
+            }
+            return textureCache[path];
+        }
 
         function initMini3D() {
             const canvas = document.getElementById('planet-3d-canvas');
@@ -1327,25 +1596,30 @@
 
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
-            camera.position.z = 2.8;
+            camera.position.z = 2.85;
 
             renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
             renderer.setSize(w, h);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.outputEncoding = THREE.sRGBEncoding;
 
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
             scene.add(ambientLight);
 
-            const sunLight = new THREE.DirectionalLight(0xfff6dd, 1.8);
-            sunLight.position.set(3, 2, 4);
+            const sunLight = new THREE.DirectionalLight(0xfff6dd, 2.0);
+            sunLight.position.set(4, 3, 5);
             scene.add(sunLight);
+
+            const backLight = new THREE.DirectionalLight(0x8ea8ff, 0.4);
+            backLight.position.set(-4, -2, -3);
+            scene.add(backLight);
 
             sphereGroup = new THREE.Group();
             scene.add(sphereGroup);
 
             update3DMesh();
 
-            // Interacción táctil para rotar con el dedo
+            // Interacción táctil suave
             let isDragging = false;
             let prevX = 0, prevY = 0;
 
@@ -1371,7 +1645,7 @@
             window.addEventListener('resize', () => {
                 const nw = container.clientWidth;
                 const nh = container.clientHeight;
-                if (nw && nh) {
+                if (nw && nh && camera && renderer) {
                     camera.aspect = nw / nh;
                     camera.updateProjectionMatrix();
                     renderer.setSize(nw, nh);
@@ -1381,7 +1655,7 @@
             function animateMini() {
                 requestAnimationFrame(animateMini);
                 if (sphereGroup && !isDragging) {
-                    sphereGroup.rotation.y += 0.006;
+                    sphereGroup.rotation.y += 0.005;
                 }
                 renderer.render(scene, camera);
             }
@@ -1394,38 +1668,86 @@
                 sphereGroup.remove(sphereGroup.children[0]);
             }
 
-            const geom = new THREE.SphereGeometry(1.0, 48, 48);
+            const geom = new THREE.SphereGeometry(1.0, 64, 64);
             const hexColor = parseInt(currentBody.color.replace('#', '0x'));
 
-            const mat = new THREE.MeshStandardMaterial({
-                color: hexColor,
-                roughness: 0.65,
-                metalness: 0.2
-            });
+            let mat;
+            if (currentBody.texture) {
+                const tex = getTexture(currentBody.texture);
+                if (currentBody.id === 'sol') {
+                    mat = new THREE.MeshBasicMaterial({
+                        map: tex,
+                        color: 0xffffff
+                    });
+                    // Corona brillante para el Sol
+                    const coronaGeom = new THREE.SphereGeometry(1.1, 32, 32);
+                    const coronaMat = new THREE.MeshBasicMaterial({
+                        color: 0xffaa00,
+                        transparent: true,
+                        opacity: 0.32,
+                        side: THREE.BackSide
+                    });
+                    sphereGroup.add(new THREE.Mesh(coronaGeom, coronaMat));
+                } else {
+                    mat = new THREE.MeshStandardMaterial({
+                        map: tex,
+                        roughness: 0.65,
+                        metalness: 0.1
+                    });
+                }
+            } else {
+                mat = new THREE.MeshStandardMaterial({
+                    color: hexColor,
+                    roughness: 0.65,
+                    metalness: 0.15
+                });
+            }
 
             currentMesh = new THREE.Mesh(geom, mat);
             sphereGroup.add(currentMesh);
 
-            // Anillos especiales para Saturno
-            if (currentBody.id === 'saturno') {
-                const ringGeom = new THREE.RingGeometry(1.3, 2.2, 48);
+            // Anillos especiales para Saturno y Urano con mapeo radial
+            if (currentBody.ringsTexture) {
+                const innerR = currentBody.id === 'saturno' ? 1.25 : 1.2;
+                const outerR = currentBody.id === 'saturno' ? 2.25 : 1.8;
+                const ringGeom = new THREE.RingGeometry(innerR, outerR, 64);
+                
+                const pos = ringGeom.attributes.position;
+                const uvs = ringGeom.attributes.uv;
+                for (let i = 0; i < pos.count; i++) {
+                    const vx = pos.getX(i);
+                    const vy = pos.getY(i);
+                    const dist = Math.sqrt(vx * vx + vy * vy);
+                    const u = (dist - innerR) / (outerR - innerR);
+                    uvs.setXY(i, u, 0.5);
+                }
+                ringGeom.uvsNeedUpdate = true;
+
+                const ringTex = getTexture(currentBody.ringsTexture);
                 const ringMat = new THREE.MeshBasicMaterial({
-                    color: 0xd4b26f,
+                    map: ringTex,
                     side: THREE.DoubleSide,
                     transparent: true,
-                    opacity: 0.8
+                    opacity: 0.92
                 });
                 const ring = new THREE.Mesh(ringGeom, ringMat);
-                ring.rotation.x = Math.PI / 2.5;
+                ring.rotation.x = Math.PI / 2.35;
                 sphereGroup.add(ring);
             }
         }
 
-        // --- RENDERIZAR NAVEGADOR DE PLANETAS ---
+        // --- RENDERIZAR NAVEGADOR DE CUERPOS CELESTES ---
         function renderPlanetsNav() {
             const nav = document.getElementById('planets-nav');
+            if (!nav) return;
             nav.innerHTML = '';
-            CELESTIAL_BODIES.forEach(b => {
+
+            const filteredBodies = CELESTIAL_BODIES.filter(b => {
+                if (currentCategoryFilter === 'all') return true;
+                return b.type === currentCategoryFilter;
+            });
+
+            filteredBodies.forEach(b => {
                 const pill = document.createElement('div');
                 pill.className = `planet-pill ${b.id === currentBody.id ? 'active' : ''}`;
                 pill.onclick = () => selectPlanet(b.id);
@@ -1469,6 +1791,7 @@
         // --- DIAGRAMA SVG DE CORTE GEOLÓGICO ---
         function renderCutawaySVG() {
             const svg = document.getElementById('cutaway-svg');
+            if (!svg) return;
             svg.innerHTML = '';
             const cx = 200, cy = 150;
             const maxR = 120;
@@ -1505,6 +1828,7 @@
 
         function renderLayerChips() {
             const container = document.getElementById('layers-chips-container');
+            if (!container) return;
             container.innerHTML = '';
             currentBody.layers.forEach((l, idx) => {
                 const chip = document.createElement('div');
@@ -1524,6 +1848,7 @@
 
         function updateLayerDetails() {
             const layer = currentBody.layers[currentLayerIndex] || currentBody.layers[0];
+            if (!layer) return;
             document.getElementById('layer-name-title').textContent = layer.name;
             document.getElementById('layer-depth-val').textContent = layer.depth;
             document.getElementById('layer-desc-text').textContent = layer.desc;
@@ -1533,14 +1858,24 @@
         function recalcWeight() {
             const earthWeight = parseFloat(document.getElementById('input-weight').value) || 70;
             const container = document.getElementById('weight-results-grid');
+            if (!container) return;
             container.innerHTML = '';
 
             const targets = [
                 { name: 'Sol', mult: 27.9 },
-                { name: 'Luna', mult: 0.166 },
-                { name: 'Marte', mult: 0.38 },
                 { name: 'Júpiter', mult: 2.53 },
+                { name: 'Neptuno', mult: 1.14 },
                 { name: 'Saturno', mult: 1.07 },
+                { name: 'Tierra', mult: 1.0 },
+                { name: 'Venus', mult: 0.91 },
+                { name: 'Urano', mult: 0.89 },
+                { name: 'Marte', mult: 0.38 },
+                { name: 'Mercurio', mult: 0.38 },
+                { name: 'Ío', mult: 0.183 },
+                { name: 'Luna', mult: 0.166 },
+                { name: 'Ganimedes', mult: 0.146 },
+                { name: 'Titán', mult: 0.138 },
+                { name: 'Europa', mult: 0.134 },
                 { name: 'Plutón', mult: 0.063 }
             ];
 
@@ -1559,6 +1894,7 @@
         function recalcAge() {
             const earthAge = parseFloat(document.getElementById('input-age').value) || 20;
             const container = document.getElementById('age-results-grid');
+            if (!container) return;
             container.innerHTML = '';
 
             const targets = [
@@ -1567,7 +1903,9 @@
                 { name: 'Marte', period: 1.8808 },
                 { name: 'Júpiter', period: 11.862 },
                 { name: 'Saturno', period: 29.457 },
-                { name: 'Neptuno', period: 164.79 }
+                { name: 'Urano', period: 84.01 },
+                { name: 'Neptuno', period: 164.79 },
+                { name: 'Plutón', period: 248.0 }
             ];
 
             targets.forEach(t => {
@@ -1589,6 +1927,7 @@
             document.getElementById('trivia-score').textContent = `${triviaScore} / ${TRIVIA_QUESTIONS.length}`;
 
             const box = document.getElementById('trivia-options-box');
+            if (!box) return;
             box.innerHTML = '';
 
             const feedback = document.getElementById('trivia-feedback');
@@ -1637,11 +1976,9 @@
             const qrImg = document.getElementById('qr-code-img');
             const urlText = document.getElementById('qr-url-text');
             
-            // Determinar la URL actual o remota
             const currentUrl = window.location.href;
             urlText.textContent = currentUrl;
 
-            // Generar código QR usando API CDN de alta disponibilidad
             qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(currentUrl)}&bgcolor=ffffff&color=06080f&margin=10`;
             
             modal.classList.add('is-open');
@@ -1650,17 +1987,6 @@
         function closeQrModal(e) {
             if (e && e.target && e.target !== document.getElementById('qr-modal') && !e.target.classList.contains('btn-modal-close')) return;
             document.getElementById('qr-modal').classList.remove('is-open');
-        }
-
-        function scrollToSection(id, tabElement) {
-            const el = document.getElementById(id);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-            if (tabElement) {
-                document.querySelectorAll('.visitor-tab').forEach(t => t.classList.remove('active'));
-                tabElement.classList.add('active');
-            }
         }
 
         // Iniciar todo al cargar
