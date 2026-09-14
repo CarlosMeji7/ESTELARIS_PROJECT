@@ -128,16 +128,16 @@
         </div>
 
         <!-- Toggles para colapsar paneles -->
-        <button id="btn-toggle-left" class="panel-toggle panel-toggle--left" aria-label="Colapsar panel de controles" aria-expanded="true" title="Colapsar / Expandir controles">
-            <i class="fa-solid fa-chevron-left"></i>
+        <button id="btn-toggle-left" class="panel-toggle panel-toggle--left is-collapsed" aria-label="Expandir panel de controles" aria-expanded="false" title="Colapsar / Expandir controles">
+            <i class="fa-solid fa-chevron-right"></i>
         </button>
         <button id="btn-toggle-right" class="panel-toggle panel-toggle--right" aria-label="Colapsar telemetría" aria-expanded="false" title="Colapsar / Expandir telemetría">
             <i class="fa-solid fa-chevron-right"></i>
         </button>
 
         <div class="hud-main-layout">
-            <!-- Panel Izquierdo -->
-            <aside class="hud-sidebar left-panel">
+            <!-- Panel Izquierdo (Inicia colapsado para vista despejada del cosmos) -->
+            <aside class="hud-sidebar left-panel is-collapsed">
                 <!-- Ficha Dinámica: Astro Seleccionado & Acciones -->
                 <section id="left-selected-card" class="panel-card panel-card--accent is-collapsible" style="display:none; border-color:rgba(255,107,107,0.35); background:linear-gradient(180deg, rgba(35,20,30,0.85), rgba(19,23,38,0.8));">
                     <div class="panel-card-header" data-toggle="card">

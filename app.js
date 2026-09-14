@@ -5116,8 +5116,8 @@ function setupUIEventListeners() {
         });
     });
 
-    // Autocolapsar panel izquierdo en móviles y pantallas pequeñas al inicio para vista despejada
-    if (window.innerWidth < 980 && leftPanel) {
+    // Iniciar con panel izquierdo colapsado para vista despejada del cosmos
+    if (leftPanel) {
         leftPanel.classList.add('is-collapsed');
         if (btnToggleLeft) {
             btnToggleLeft.classList.add('is-collapsed');
@@ -5252,6 +5252,8 @@ function setupUIEventListeners() {
             });
         });
     }
+
+    updateMobileBarActiveState();
 }
 
 function openDesktopQrModal() {
