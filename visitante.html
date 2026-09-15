@@ -107,9 +107,7 @@
             gap: 8px;
             text-decoration: none;
             color: inherit;
-            flex: 1 1 auto;
-            min-width: 0;
-            overflow: hidden;
+            flex-shrink: 0;
         }
 
         .brand-icon {
@@ -129,33 +127,28 @@
         .brand-info {
             display: flex;
             flex-direction: column;
-            min-width: 0;
-            overflow: hidden;
+            justify-content: center;
         }
 
         .brand-info h1 {
             font-family: var(--font-display);
-            font-size: 13px;
+            font-size: 14px;
             letter-spacing: 0.12em;
             font-weight: 700;
             line-height: 1.1;
             color: var(--text-1);
             margin: 0;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .brand-info p {
             font-size: 9px;
             color: var(--text-3);
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.1em;
             font-weight: 600;
             margin: 2px 0 0 0;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .header-actions {
@@ -1065,13 +1058,10 @@
                     <div class="brand-icon"><i class="fa-solid fa-circle-nodes"></i></div>
                     <div class="brand-info">
                         <h1>ESTELARIS</h1>
-                        <p>Pasaporte Móvil</p>
+                        <p>PASAPORTE</p>
                     </div>
                 </a>
                 <div class="header-actions">
-                    <a href="visitante-pc.html" class="btn-launch-3d" style="background:linear-gradient(135deg, rgba(142,168,255,0.22), rgba(0,242,254,0.18)); border-color:rgba(142,168,255,0.45); color:var(--accent-blue);" title="Abrir versión para computadoras PC">
-                        <i class="fa-solid fa-desktop"></i> <span>PC</span>
-                    </a>
                     <button class="btn-exit-header" onclick="openQrModal()" title="Mostrar código QR para compartir">
                         <i class="fa-solid fa-qrcode"></i> <span>QR</span>
                     </button>
