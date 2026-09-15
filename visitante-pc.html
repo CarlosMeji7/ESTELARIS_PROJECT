@@ -91,43 +91,44 @@
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--border);
             border-radius: var(--radius-xl);
-            padding: 12px 20px;
+            padding: 10px 18px;
             box-shadow: var(--shadow);
             position: sticky;
-            top: 12px;
+            top: 10px;
             z-index: 100;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .header-brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             text-decoration: none;
             color: inherit;
             flex-shrink: 0;
         }
 
         .brand-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
             display: grid;
             place-items: center;
             background: linear-gradient(135deg, rgba(214, 199, 168, 0.28), rgba(142, 168, 255, 0.18));
             border: 1px solid var(--border-accent);
             color: var(--accent-sand);
-            font-size: 16px;
-            box-shadow: 0 0 16px rgba(214, 199, 168, 0.25);
+            font-size: 15px;
+            box-shadow: 0 0 14px rgba(214, 199, 168, 0.22);
         }
 
         .brand-info h1 {
             font-family: var(--font-display);
-            font-size: 15px;
-            letter-spacing: 0.14em;
+            font-size: 14px;
+            letter-spacing: 0.12em;
             font-weight: 700;
             line-height: 1.1;
             color: var(--text-1);
@@ -137,18 +138,18 @@
         }
 
         .brand-info p {
-            font-size: 10.5px;
+            font-size: 10px;
             color: var(--text-3);
             text-transform: uppercase;
             letter-spacing: 0.08em;
             font-weight: 600;
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         .station-badge {
             font-family: var(--font-mono);
-            font-size: 9.5px;
-            padding: 2px 7px;
+            font-size: 9px;
+            padding: 2px 6px;
             border-radius: var(--radius-pill);
             background: rgba(61, 213, 152, 0.15);
             color: var(--success);
@@ -156,28 +157,29 @@
             font-weight: 700;
         }
 
-        /* Barra de Navegación de Escritorio (Pestañas Integradas en Cabecera) */
+        /* Barra de Navegación de Escritorio */
         .pc-nav-tabs {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             background: rgba(0, 0, 0, 0.35);
-            padding: 4px;
+            padding: 3px;
             border-radius: var(--radius-pill);
             border: 1px solid var(--border);
+            flex-wrap: nowrap;
         }
 
         .pc-tab-btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 7px 14px;
+            gap: 6px;
+            padding: 6px 13px;
             border-radius: var(--radius-pill);
             background: transparent;
             border: 1px solid transparent;
             color: var(--text-2);
             font-family: var(--font-sans);
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -185,19 +187,7 @@
         }
 
         .pc-tab-btn i {
-            font-size: 13px;
-            transition: transform 0.2s ease;
-        }
-
-        .pc-tab-btn .tab-key {
-            font-family: var(--font-mono);
-            font-size: 9.5px;
-            padding: 1px 5px;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            color: var(--text-3);
-            margin-left: 2px;
+            font-size: 12px;
         }
 
         .pc-tab-btn:hover {
@@ -209,39 +199,34 @@
             color: var(--accent-sand);
             background: rgba(214, 199, 168, 0.18);
             border-color: rgba(214, 199, 168, 0.4);
-            box-shadow: 0 0 14px rgba(214, 199, 168, 0.18);
-        }
-
-        .pc-tab-btn.active .tab-key {
-            background: rgba(214, 199, 168, 0.25);
-            border-color: var(--accent-sand);
-            color: var(--accent-sand);
+            box-shadow: 0 0 12px rgba(214, 199, 168, 0.18);
         }
 
         /* Acciones de Cabecera */
         .pc-header-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             flex-shrink: 0;
         }
 
         .btn-pc-action {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 7px 13px;
+            gap: 5px;
+            padding: 6px 11px;
             border-radius: var(--radius-pill);
             background: var(--surface-2);
             border: 1px solid var(--border);
             color: var(--text-1);
             font-family: var(--font-mono);
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 600;
             text-decoration: none;
             cursor: pointer;
             transition: all 0.2s ease;
             line-height: 1;
+            white-space: nowrap;
         }
 
         .btn-pc-action:hover {
@@ -251,7 +236,7 @@
         }
 
         .btn-pc-action.btn-3d {
-            background: linear-gradient(135deg, rgba(61, 213, 152, 0.25), rgba(0, 242, 254, 0.2));
+            background: linear-gradient(135deg, rgba(61, 213, 152, 0.22), rgba(0, 242, 254, 0.18));
             border-color: rgba(61, 213, 152, 0.5);
             color: var(--success);
         }
@@ -260,6 +245,21 @@
             background: rgba(142, 168, 255, 0.15);
             border-color: rgba(142, 168, 255, 0.35);
             color: var(--accent-blue);
+        }
+
+        @media (max-width: 1080px) {
+            .pc-header {
+                padding: 10px 14px;
+            }
+            .header-brand .brand-info p {
+                display: none;
+            }
+            .pc-nav-tabs {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+                margin-top: 4px;
+            }
         }
 
         /* Hero Banner de la Estación PC */
@@ -1580,40 +1580,32 @@
                 <button class="pc-tab-btn active" onclick="switchPcTab('view-planet', this)">
                     <i class="fa-solid fa-globe"></i>
                     <span>Planeta 3D</span>
-                    <span class="tab-key">1</span>
                 </button>
                 <button class="pc-tab-btn" onclick="switchPcTab('view-geology', this)">
                     <i class="fa-solid fa-layer-group"></i>
-                    <span>Geología Interna</span>
-                    <span class="tab-key">2</span>
+                    <span>Geología</span>
                 </button>
                 <button class="pc-tab-btn" onclick="switchPcTab('view-weight', this)">
                     <i class="fa-solid fa-scale-balanced"></i>
-                    <span>Peso Cósmico</span>
-                    <span class="tab-key">3</span>
+                    <span>Peso</span>
                 </button>
                 <button class="pc-tab-btn" onclick="switchPcTab('view-age', this)">
                     <i class="fa-solid fa-hourglass-half"></i>
-                    <span>Edad Cósmica</span>
-                    <span class="tab-key">4</span>
+                    <span>Edad</span>
                 </button>
                 <button class="pc-tab-btn" onclick="switchPcTab('view-trivia', this)">
                     <i class="fa-solid fa-circle-question"></i>
-                    <span>Trivia Científica</span>
-                    <span class="tab-key">5</span>
+                    <span>Trivia</span>
                 </button>
             </nav>
 
             <!-- Acciones Rápidas de Cabecera -->
             <div class="pc-header-actions">
-                <button class="btn-pc-action" onclick="openShortcutsModal()" title="Ver atajos de teclado">
-                    <i class="fa-regular fa-keyboard"></i> <span>Atajos</span>
-                </button>
                 <button class="btn-pc-action" onclick="openQrModal()" title="Mostrar QR para abrir en celular">
                     <i class="fa-solid fa-qrcode"></i> <span>QR Móvil</span>
                 </button>
                 <a href="visitante.html" class="btn-pc-action btn-mobile-switch" title="Ver versión móvil (pasaporte táctil)">
-                    <i class="fa-solid fa-mobile-screen"></i> <span>Versión Móvil</span>
+                    <i class="fa-solid fa-mobile-screen"></i> <span>Móvil</span>
                 </a>
                 <a href="index.html" class="btn-pc-action btn-3d" title="Entrar al Observatorio Orbital N-Body">
                     <i class="fa-solid fa-meteor"></i> <span>Simulador 3D</span>
@@ -1637,10 +1629,6 @@
                 <div class="team-pill">
                     <i class="fa-solid fa-user-astronaut"></i>
                     <span>Carlos &bull; Ximena &bull; Emmanuel</span>
-                </div>
-                <div class="shortcuts-hint-pill">
-                    <i class="fa-solid fa-arrows-left-right"></i>
-                    <span>Usa las flechas [←] [→] para cambiar de planeta</span>
                 </div>
             </div>
         </section>
@@ -2015,29 +2003,7 @@
         </div>
     </div>
 
-    <!-- Modal de Atajos de Teclado -->
-    <div class="qr-modal-backdrop" id="shortcuts-modal" onclick="closeShortcutsModal(event)">
-        <div class="qr-card-pc shortcuts-modal-card" onclick="event.stopPropagation()">
-            <div style="font-family:var(--font-display); font-size:16px; color:var(--accent-sand); font-weight:700; display:flex; align-items:center; gap:8px;">
-                <i class="fa-regular fa-keyboard"></i> ATAJOS DE TECLADO PARA PC
-            </div>
-            <div class="shortcuts-list">
-                <div class="shortcut-item"><span>Cambiar a Vista Planeta 3D</span> <span class="shortcut-key-badge">1</span></div>
-                <div class="shortcut-item"><span>Cambiar a Geología Interna</span> <span class="shortcut-key-badge">2</span></div>
-                <div class="shortcut-item"><span>Cambiar a Peso Cósmico</span> <span class="shortcut-key-badge">3</span></div>
-                <div class="shortcut-item"><span>Cambiar a Edad Cósmica</span> <span class="shortcut-key-badge">4</span></div>
-                <div class="shortcut-item"><span>Cambiar a Trivia Científica</span> <span class="shortcut-key-badge">5</span></div>
-                <div class="shortcut-item"><span>Seleccionar astro anterior / siguiente</span> <span class="shortcut-key-badge">← / →</span></div>
-                <div class="shortcut-item"><span>Opciones en Trivia</span> <span class="shortcut-key-badge">A, B, C, D</span></div>
-                <div class="shortcut-item"><span>Siguiente pregunta en Trivia</span> <span class="shortcut-key-badge">Espacio / Enter</span></div>
-                <div class="shortcut-item"><span>Pausar / Reanudar autorotación 3D</span> <span class="shortcut-key-badge">P</span></div>
-                <div class="shortcut-item"><span>Restablecer orientación 3D</span> <span class="shortcut-key-badge">R</span></div>
-                <div class="shortcut-item"><span>Abrir código QR móvil</span> <span class="shortcut-key-badge">Q</span></div>
-                <div class="shortcut-item"><span>Cerrar modales</span> <span class="shortcut-key-badge">Esc</span></div>
-            </div>
-            <button class="btn-modal-close-pc" onclick="closeShortcutsModal()">Cerrar</button>
-        </div>
-    </div>
+
 
     <!-- Three.js para el visor 3D -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -3161,7 +3127,6 @@
             // Esc para cerrar modales
             else if (e.key === 'Escape') {
                 closeQrModal();
-                closeShortcutsModal();
             }
         });
 
@@ -3191,16 +3156,6 @@
         function closeQrModal(e) {
             if (e && e.target && e.target !== document.getElementById('qr-modal') && !e.target.classList.contains('btn-modal-close-pc')) return;
             document.getElementById('qr-modal').classList.remove('is-open');
-        }
-
-        // --- MODAL DE ATAJOS ---
-        function openShortcutsModal() {
-            document.getElementById('shortcuts-modal').classList.add('is-open');
-        }
-
-        function closeShortcutsModal(e) {
-            if (e && e.target && e.target !== document.getElementById('shortcuts-modal') && !e.target.classList.contains('btn-modal-close-pc')) return;
-            document.getElementById('shortcuts-modal').classList.remove('is-open');
         }
 
         // --- INICIALIZACIÓN ---
