@@ -698,13 +698,70 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            box-sizing: border-box;
+        }
+
+        .trivia-header-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 4px;
+        }
+
+        .trivia-header-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-display);
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-1);
+            letter-spacing: 0.04em;
+        }
+
+        .trivia-header-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 8px;
+            box-sizing: border-box;
+        }
+
+        .trivia-meta-chip {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            box-sizing: border-box;
+            line-height: 1;
+        }
+
+        .trivia-chip--step {
+            background: rgba(214, 199, 168, 0.14);
+            color: var(--accent-sand);
+            border: 1px solid rgba(214, 199, 168, 0.25);
+        }
+
+        .trivia-chip--score {
+            background: rgba(61, 213, 152, 0.12);
+            color: var(--success);
+            border: 1px solid rgba(61, 213, 152, 0.28);
         }
 
         .trivia-question {
             font-size: 13.5px;
             font-weight: 600;
             color: var(--text-1);
-            line-height: 1.4;
+            line-height: 1.45;
+            margin-bottom: 12px;
         }
 
         .trivia-options {
@@ -746,12 +803,50 @@
         }
 
         .trivia-feedback {
-            font-size: 11.5px;
-            padding: 8px 10px;
+            font-size: 12px;
+            padding: 10px 12px;
             border-radius: var(--radius-md);
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.55);
+            border: 1px solid var(--border);
             display: none;
-            line-height: 1.4;
+            line-height: 1.45;
+            margin-top: 12px;
+        }
+
+        .btn-next-question {
+            margin-top: 14px;
+            padding: 12px 16px;
+            font-size: 12.5px;
+            font-weight: 700;
+            width: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, rgba(214, 199, 168, 0.28), rgba(61, 213, 152, 0.22));
+            border: 1px solid var(--accent-sand);
+            color: var(--text-1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        }
+        .btn-next-question:hover {
+            background: linear-gradient(135deg, rgba(214, 199, 168, 0.38), rgba(61, 213, 152, 0.32));
+            transform: translateY(-1px);
+        }
+        .btn-next-question:active {
+            transform: scale(0.98);
+        }
+
+        .trivia-completed-container {
+            display: none;
+            text-align: center;
+            padding: 16px 8px;
+            flex-direction: column;
+            gap: 14px;
+            align-items: center;
+            box-sizing: border-box;
         }
 
         /* Full 3D Launch Banner */
@@ -1107,14 +1202,20 @@
         <div class="visitor-view" id="view-trivia">
             <!-- Desafío Cósmico / Trivia para Asistentes -->
             <section class="trivia-card" id="trivia-section">
-                <!-- Header de Ronda -->
-                <div class="section-header-compact">
-                    <h3 style="font-family:var(--font-display); font-size:13.5px; color:var(--text-1); display:flex; align-items:center; gap:7px;">
+                <!-- Header de Ronda: Estructura en 2 filas limpias para evitar superposiciones en móvil -->
+                <div class="trivia-header-bar" id="trivia-header-bar">
+                    <div class="trivia-header-title-row">
                         <i class="fa-solid fa-circle-question" style="color:var(--accent-purple);"></i>
                         <span>Desafío Cósmico</span>
-                        <span id="trivia-step-badge" style="font-family:var(--font-mono); font-size:10.5px; color:var(--accent-sand); background:rgba(214,199,168,0.14); padding:2px 7px; border-radius:4px; font-weight:600;">1 de 5</span>
-                    </h3>
-                    <span id="trivia-score" style="font-family:var(--font-mono); font-size:11.5px; color:var(--success); font-weight:700;">Aciertos: 0 / 5</span>
+                    </div>
+                    <div class="trivia-header-meta-row">
+                        <span id="trivia-step-badge" class="trivia-meta-chip trivia-chip--step">
+                            <i class="fa-regular fa-compass"></i> Pregunta 1 de 5
+                        </span>
+                        <span id="trivia-score" class="trivia-meta-chip trivia-chip--score">
+                            <i class="fa-solid fa-star"></i> Aciertos: 0 / 5
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Contenedor Activo de Pregunta -->
@@ -1125,35 +1226,35 @@
                     <div class="trivia-options" id="trivia-options-box">
                         <!-- Botones inyectados por JS -->
                     </div>
-                    <div class="trivia-feedback" id="trivia-feedback" style="display:none; margin-top:10px;"></div>
-                    <button id="btn-next-trivia" class="btn-launch-big" style="margin-top:12px; display:none; padding:10px 14px; font-size:12px; width:100%;" onclick="advanceTriviaQuestion()">
+                    <div class="trivia-feedback" id="trivia-feedback"></div>
+                    <button id="btn-next-trivia" class="btn-next-question" onclick="advanceTriviaQuestion()">
                         <span>Siguiente Pregunta</span> <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
 
                 <!-- Pantalla de Conclusión de la Ronda (5 Preguntas) con Confirmación para Jugar Otra -->
-                <div id="trivia-completed-box" style="display:none; text-align:center; padding:16px 8px; flex-direction:column; gap:14px; align-items:center;">
-                    <div style="font-size:40px; line-height:1;">🚀</div>
+                <div id="trivia-completed-box" class="trivia-completed-container">
+                    <div id="trivia-final-icon" style="font-size:44px; line-height:1;">🚀</div>
                     <div>
-                        <h4 style="font-family:var(--font-display); font-size:16px; color:var(--text-1); margin:0 0 6px 0;">
-                            ¡Has completado esta ronda de 5 preguntas!
+                        <h4 id="trivia-final-title" style="font-family:var(--font-display); font-size:16px; color:var(--text-1); margin:0 0 8px 0;">
+                            ¡Ronda de 5 Preguntas Completada!
                         </h4>
-                        <div id="trivia-final-badge" style="display:inline-block; font-family:var(--font-mono); font-size:14px; font-weight:700; color:var(--accent-sand); background:rgba(214,199,168,0.15); padding:5px 14px; border-radius:var(--radius-pill); border:1px solid rgba(214,199,168,0.35);">
-                            Puntaje: 5 / 5
+                        <div id="trivia-final-score" style="display:inline-block; font-family:var(--font-mono); font-size:14px; font-weight:700; color:var(--accent-sand); background:rgba(214,199,168,0.15); padding:6px 16px; border-radius:var(--radius-pill); border:1px solid rgba(214,199,168,0.35);">
+                            Puntaje: 0 / 5
                         </div>
                     </div>
-                    <p id="trivia-final-msg" style="font-size:12px; color:var(--text-2); line-height:1.45; margin:0; max-width:320px;">
+                    <p id="trivia-final-desc" style="font-size:12.5px; color:var(--text-2); line-height:1.5; margin:0; max-width:340px;">
                         ¡Excelente conocimiento astronómico!
                     </p>
-                    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px; width:100%; box-sizing:border-box;">
-                        <p style="font-size:12px; color:var(--text-1); font-weight:600; margin:0 0 6px 0;">
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; width:100%; box-sizing:border-box; margin-top:4px;">
+                        <p style="font-size:13px; color:var(--text-1); font-weight:700; margin:0 0 6px 0;">
                             ¿Deseas responder otras 5 preguntas?
                         </p>
-                        <p style="font-size:11px; color:var(--text-3); margin:0 0 12px 0;">
+                        <p style="font-size:11.5px; color:var(--text-3); margin:0 0 14px 0; line-height:1.4;">
                             Tenemos un banco de 80 preguntas científicas (fáciles y difíciles) que se eligen al azar en cada ronda.
                         </p>
-                        <button class="btn-launch-big" onclick="startTriviaRound()" style="width:100%; padding:11px; font-size:12px; font-weight:700;">
-                            <i class="fa-solid fa-rotate-right"></i> Jugar otra ronda (5 preguntas nuevas)
+                        <button class="btn-launch-big" onclick="startTriviaRound()" style="width:100%; padding:12px; font-size:12.5px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px;">
+                            <i class="fa-solid fa-rotate-right"></i> <span>Jugar otra ronda (5 preguntas nuevas)</span>
                         </button>
                     </div>
                 </div>
@@ -2452,9 +2553,27 @@
 
         // --- TRIVIA INTERACTIVA (BANCO DE 80 PREGUNTAS EN RONDAS DE 5) ---
         function startTriviaRound() {
-            // Seleccionar 5 preguntas al azar sin repetición del banco de 80
-            const shuffled = [...TRIVIA_BANK_80].sort(() => 0.5 - Math.random());
-            currentTriviaRound = shuffled.slice(0, 5);
+            // 1. Barajar el banco completo de 80 preguntas y seleccionar 5 al azar sin repetición
+            const shuffledBank = [...TRIVIA_BANK_80].sort(() => 0.5 - Math.random());
+            
+            // 2. Barajar aleatoriamente las opciones de cada pregunta (Fisher-Yates)
+            // para que la respuesta correcta quede distribuida equitativamente entre A, B, C y D
+            currentTriviaRound = shuffledBank.slice(0, 5).map(item => {
+                const correctText = item.options[item.answer];
+                const randomizedOptions = [...item.options];
+                for (let i = randomizedOptions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [randomizedOptions[i], randomizedOptions[j]] = [randomizedOptions[j], randomizedOptions[i]];
+                }
+                const newAnswerIndex = randomizedOptions.indexOf(correctText);
+                return {
+                    q: item.q,
+                    options: randomizedOptions,
+                    answer: newAnswerIndex,
+                    why: item.why
+                };
+            });
+
             currentTriviaStep = 0;
             currentTriviaScore = 0;
             isTriviaAnswered = false;
@@ -2462,6 +2581,8 @@
             // Restablecer interfaz visual
             const playContainer = document.getElementById('trivia-play-container');
             const completedBox = document.getElementById('trivia-completed-box');
+            const headerBar = document.getElementById('trivia-header-bar');
+            if (headerBar) headerBar.style.display = 'flex';
             if (playContainer) playContainer.style.display = 'block';
             if (completedBox) completedBox.style.display = 'none';
 
@@ -2474,15 +2595,21 @@
                 return;
             }
 
+            // Límite estricto de 5 preguntas por ronda
+            if (currentTriviaStep >= 5) {
+                showTriviaCompletion();
+                return;
+            }
+
             const q = currentTriviaRound[currentTriviaStep];
             isTriviaAnswered = false;
 
-            // Actualizar indicadores
+            // Actualizar indicadores con iconos limpios sin superposición
             const badge = document.getElementById('trivia-step-badge');
-            if (badge) badge.textContent = `Pregunta ${currentTriviaStep + 1} de 5`;
+            if (badge) badge.innerHTML = `<i class="fa-regular fa-compass"></i> Pregunta ${currentTriviaStep + 1} de 5`;
 
             const scoreDisplay = document.getElementById('trivia-score');
-            if (scoreDisplay) scoreDisplay.textContent = `${currentTriviaScore} / 5`;
+            if (scoreDisplay) scoreDisplay.innerHTML = `<i class="fa-solid fa-star"></i> Aciertos: ${currentTriviaScore} / 5`;
 
             const qText = document.getElementById('trivia-question-text');
             if (qText) qText.textContent = q.q;
@@ -2534,16 +2661,16 @@
             }
 
             const scoreDisplay = document.getElementById('trivia-score');
-            if (scoreDisplay) scoreDisplay.textContent = `${currentTriviaScore} / 5`;
+            if (scoreDisplay) scoreDisplay.innerHTML = `<i class="fa-solid fa-star"></i> Aciertos: ${currentTriviaScore} / 5`;
 
-            // Botón explícito para avanzar sin prisas y sin bucles infinitos
+            // Botón explícito para avanzar sin prisas y sin que se pasen solas
             const nextBtn = document.getElementById('btn-next-trivia');
             if (nextBtn) {
                 nextBtn.style.display = 'inline-flex';
                 if (currentTriviaStep < 4) {
-                    nextBtn.innerHTML = `<span>Siguiente Pregunta</span> <i class="fas fa-arrow-right"></i>`;
+                    nextBtn.innerHTML = `<span>Siguiente Pregunta (${currentTriviaStep + 2} de 5)</span> <i class="fa-solid fa-arrow-right"></i>`;
                 } else {
-                    nextBtn.innerHTML = `<span>Ver Resultado Final</span> <i class="fas fa-flag-checkered"></i>`;
+                    nextBtn.innerHTML = `<span>Ver Resultado Final (5 de 5)</span> <i class="fa-solid fa-flag-checkered"></i>`;
                 }
             }
         }
@@ -2560,24 +2687,34 @@
         function showTriviaCompletion() {
             const playContainer = document.getElementById('trivia-play-container');
             const completedBox = document.getElementById('trivia-completed-box');
+            const headerBar = document.getElementById('trivia-header-bar');
+            if (headerBar) headerBar.style.display = 'none';
             if (playContainer) playContainer.style.display = 'none';
-            if (completedBox) completedBox.style.display = 'block';
+            if (completedBox) completedBox.style.display = 'flex';
 
             const finalScore = document.getElementById('trivia-final-score');
-            if (finalScore) finalScore.textContent = `${currentTriviaScore} / 5`;
+            if (finalScore) finalScore.textContent = `Puntuación: ${currentTriviaScore} / 5`;
 
             const finalTitle = document.getElementById('trivia-final-title');
             const finalDesc = document.getElementById('trivia-final-desc');
+            const finalIcon = document.getElementById('trivia-final-icon');
 
             if (currentTriviaScore === 5) {
-                if (finalTitle) finalTitle.textContent = '¡Puntuación Perfecta! 🚀🌠';
+                if (finalIcon) finalIcon.textContent = '🏆';
+                if (finalTitle) finalTitle.textContent = '¡Puntuación Perfecta! 5 de 5';
                 if (finalDesc) finalDesc.textContent = '¡Impresionante! Has respondido correctamente todas las preguntas científicas de esta ronda.';
             } else if (currentTriviaScore >= 3) {
-                if (finalTitle) finalTitle.textContent = '¡Gran Conocimiento Espacial! 🛰️';
+                if (finalIcon) finalIcon.textContent = '🚀';
+                if (finalTitle) finalTitle.textContent = `¡Gran Desempeño! ${currentTriviaScore} de 5`;
                 if (finalDesc) finalDesc.textContent = '¡Muy buen trabajo! Tienes sólidas bases astronómicas y astrofísicas.';
+            } else if (currentTriviaScore >= 1) {
+                if (finalIcon) finalIcon.textContent = '🔭';
+                if (finalTitle) finalTitle.textContent = `Ronda Finalizada: ${currentTriviaScore} de 5`;
+                if (finalDesc) finalDesc.textContent = 'El cosmos es inmenso y complejo. ¡Sigue explorando y desafiando tus conocimientos en la próxima ronda!';
             } else {
-                if (finalTitle) finalTitle.textContent = '¡Buen Intento Astronáutico! 🔭';
-                if (finalDesc) finalDesc.textContent = 'El cosmos es inmenso y complejo. ¡Sigue explorando y desafiando tus conocimientos!';
+                if (finalIcon) finalIcon.textContent = '🌌';
+                if (finalTitle) finalTitle.textContent = 'Ronda Finalizada: 0 de 5';
+                if (finalDesc) finalDesc.textContent = '¡No te desanimes! La ciencia espacial es desafiante. Intenta una nueva ronda con 5 preguntas nuevas.';
             }
         }
 

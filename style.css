@@ -131,13 +131,13 @@ body{
   flex-shrink:0;
 }
 
-/* Mini-Panel Desplegable de Métricas Cósmicas (Debajo de la cabecera, menudito verticalmente) */
+/* Mini-Panel Desplegable de Métricas Cósmicas (Anclado bajo la cabecera sin solapamiento ni desfasajes) */
 .cosmic-metrics-pill {
-  position: absolute;
-  top: 54px;
+  position: fixed;
+  top: 76px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 85;
+  z-index: 100;
   pointer-events: auto;
   display: inline-flex;
   flex-direction: column;
@@ -208,8 +208,8 @@ body{
   top: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
-  width: 310px;
-  max-width: 90vw;
+  width: 320px;
+  max-width: min(320px, calc(100vw - 20px));
   background: rgba(10, 14, 26, 0.98);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -229,8 +229,8 @@ body{
 }
 
 @keyframes fadeInPill {
-  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateX(-50%) translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 }
 
 .pill-metrics-grid {
@@ -268,6 +268,15 @@ body{
   gap: 8px;
   padding-top: 6px;
   border-top: 1px solid var(--border);
+}
+
+.pill-metrics-actions .btn {
+  font-size: 11px;
+  padding: 6px 8px;
+  white-space: nowrap;
+  gap: 5px;
+  justify-content: center;
+  min-width: 0;
 }
 
 /* Main layout */
@@ -1546,11 +1555,11 @@ input[type="range"]::-moz-range-thumb{
     font-size: 12px;
   }
   .cosmic-metrics-pill{
-    position: absolute;
-    top: calc(46px + env(safe-area-inset-top, 4px));
+    position: fixed;
+    top: calc(max(8px, env(safe-area-inset-top, 0px)) + 58px);
     left: 50%;
     transform: translateX(-50%);
-    z-index: 85;
+    z-index: 100;
   }
   .metrics-pill-trigger{
     height: 21px;
@@ -1560,13 +1569,13 @@ input[type="range"]::-moz-range-thumb{
     line-height: 21px;
   }
   .metrics-pill-dropdown{
-    position: fixed;
-    top: calc(72px + env(safe-area-inset-top, 6px));
-    left: 10px;
-    right: 10px;
-    width: auto;
-    max-width: 360px;
-    margin: 0 auto;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(320px, calc(100vw - 20px));
+    max-width: min(320px, calc(100vw - 20px));
+    margin: 0;
   }
 }
 @media (max-width: 640px){
