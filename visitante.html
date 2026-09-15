@@ -336,6 +336,24 @@
             line-height: 1.5;
         }
 
+        .passport-team {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--accent-sand);
+            border-top: 1px dashed rgba(214, 199, 168, 0.22);
+            padding-top: 8px;
+            margin-top: 2px;
+            font-family: var(--font-sans);
+            font-weight: 600;
+        }
+
+        .passport-team i {
+            font-size: 11px;
+            color: var(--accent-sand);
+        }
+
         /* Celestial Horizontal Selector */
         .planets-scroll-nav {
             display: flex;
@@ -1086,6 +1104,10 @@
                 <p class="passport-desc">
                     Explora el cosmos en tiempo real desde tu teléfono. Toca los planetas y lunas para ver sus texturas realistas en 3D, su corte interno y telemetría física.
                 </p>
+                <div class="passport-team">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                    <span>Equipo: Carlos Mejía &bull; Ximena &bull; Emmanuel</span>
+                </div>
             </section>
 
             <!-- Inspector Táctil del Cuerpo Seleccionado -->
@@ -1280,6 +1302,7 @@
         <!-- Créditos del Equipo -->
         <footer style="text-align:center; padding: 14px; font-size:11px; color:var(--text-3); display:flex; flex-direction:column; gap:4px;">
             <div><strong>ESTELARIS</strong> &bull; Observatorio Orbital Interactivo</div>
+            <div style="color:var(--text-2);">Equipo: Carlos Mejía &bull; Ximena &bull; Emmanuel</div>
             <div style="font-size:10px; opacity:0.75;">Desarrollado para la Exposición Científica 2026</div>
         </footer>
 
