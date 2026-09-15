@@ -694,11 +694,12 @@
             background: linear-gradient(180deg, rgba(24, 30, 51, 0.96), rgba(15, 20, 36, 0.98));
             border: 1px solid rgba(142, 168, 255, 0.35);
             border-radius: var(--radius-xl);
-            padding: 18px 16px;
+            padding: 16px 14px;
             display: flex;
             flex-direction: column;
             gap: 12px;
             box-sizing: border-box;
+            overflow: hidden;
         }
 
         .trivia-header-bar {
@@ -708,6 +709,8 @@
             padding-bottom: 10px;
             border-bottom: 1px solid var(--border);
             margin-bottom: 4px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .trivia-header-title-row {
@@ -722,9 +725,8 @@
         }
 
         .trivia-header-meta-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             width: 100%;
             gap: 8px;
             box-sizing: border-box;
@@ -732,16 +734,30 @@
 
         .trivia-meta-chip {
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
-            padding: 4px 10px;
+            padding: 5px 8px;
             border-radius: var(--radius-pill);
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            gap: 5px;
             white-space: nowrap;
             box-sizing: border-box;
             line-height: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .trivia-meta-chip span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .trivia-meta-chip i {
+            flex-shrink: 0;
         }
 
         .trivia-chip--step {
@@ -1210,10 +1226,10 @@
                     </div>
                     <div class="trivia-header-meta-row">
                         <span id="trivia-step-badge" class="trivia-meta-chip trivia-chip--step">
-                            <i class="fa-regular fa-compass"></i> Pregunta 1 de 5
+                            <i class="fa-regular fa-compass"></i> <span>Pregunta 1/5</span>
                         </span>
                         <span id="trivia-score" class="trivia-meta-chip trivia-chip--score">
-                            <i class="fa-solid fa-star"></i> Aciertos: 0 / 5
+                            <i class="fa-solid fa-star"></i> <span>Aciertos: 0/5</span>
                         </span>
                     </div>
                 </div>
@@ -2606,10 +2622,10 @@
 
             // Actualizar indicadores con iconos limpios sin superposición
             const badge = document.getElementById('trivia-step-badge');
-            if (badge) badge.innerHTML = `<i class="fa-regular fa-compass"></i> Pregunta ${currentTriviaStep + 1} de 5`;
+            if (badge) badge.innerHTML = `<i class="fa-regular fa-compass"></i> <span>Pregunta ${currentTriviaStep + 1}/5</span>`;
 
             const scoreDisplay = document.getElementById('trivia-score');
-            if (scoreDisplay) scoreDisplay.innerHTML = `<i class="fa-solid fa-star"></i> Aciertos: ${currentTriviaScore} / 5`;
+            if (scoreDisplay) scoreDisplay.innerHTML = `<i class="fa-solid fa-star"></i> <span>Aciertos: ${currentTriviaScore}/5</span>`;
 
             const qText = document.getElementById('trivia-question-text');
             if (qText) qText.textContent = q.q;
@@ -2661,7 +2677,7 @@
             }
 
             const scoreDisplay = document.getElementById('trivia-score');
-            if (scoreDisplay) scoreDisplay.innerHTML = `<i class="fa-solid fa-star"></i> Aciertos: ${currentTriviaScore} / 5`;
+            if (scoreDisplay) scoreDisplay.innerHTML = `<i class="fa-solid fa-star"></i> <span>Aciertos: ${currentTriviaScore}/5</span>`;
 
             // Botón explícito para avanzar sin prisas y sin que se pasen solas
             const nextBtn = document.getElementById('btn-next-trivia');
