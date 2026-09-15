@@ -3829,6 +3829,32 @@ function updateCelestialDockActiveState(activeBody) {
     }
 }
 
+function updateFloatingFocusHud(activeBody) {
+    const hud = document.getElementById('floating-focus-hud');
+    if (!hud) return;
+
+    if (!activeBody) {
+        hud.classList.add('hidden');
+        return;
+    }
+
+    hud.classList.remove('hidden');
+    const nameEl = document.getElementById('focus-hud-name');
+    const dotEl = document.getElementById('focus-hud-dot');
+
+    if (nameEl) nameEl.textContent = activeBody.name || 'Astro';
+    if (dotEl) {
+        let hexColor = '#00f2fe';
+        if (typeof activeBody.color === 'number') {
+            hexColor = '#' + activeBody.color.toString(16).padStart(6, '0');
+        } else if (typeof activeBody.color === 'string') {
+            hexColor = activeBody.color;
+        }
+        dotEl.style.backgroundColor = hexColor;
+        dotEl.style.boxShadow = `0 0 10px ${hexColor}`;
+    }
+}
+
 function updateMobileBarActiveState() {
     const mobBtnPlanets = document.getElementById('mob-btn-planets');
     const mobBtnControls = document.getElementById('mob-btn-controls');
@@ -3942,6 +3968,7 @@ function selectBody(body, autoFocus = true, openTelemetry = false) {
     }
 
     updateCelestialDockActiveState(body);
+    updateFloatingFocusHud(body);
     updateMobileBarActiveState();
 
     if (autoFocus) {
@@ -3981,6 +4008,7 @@ function deselectBody() {
     if (gravityArrow) gravityArrow.visible = false;
 
     updateCelestialDockActiveState(null);
+    updateFloatingFocusHud(null);
 
     if (hasSavedPreFocus) {
         isTransitioningBack = true;
@@ -5065,6 +5093,38 @@ function setupUIEventListeners() {
             e.stopPropagation();
             deselectBody();
             setDockMenuState(false);
+        });
+    }
+
+    // HUD Flotante de Astro Enfocado (Navegación y deselección rápida)
+    const btnFocusPrev = document.getElementById('btn-focus-prev');
+    if (btnFocusPrev) {
+        btnFocusPrev.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navigateCelestialBody(-1);
+        });
+    }
+    const btnFocusNext = document.getElementById('btn-focus-next');
+    if (btnFocusNext) {
+        btnFocusNext.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navigateCelestialBody(1);
+        });
+    }
+    const btnFocusExit = document.getElementById('btn-focus-exit');
+    if (btnFocusExit) {
+        btnFocusExit.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deselectBody();
+        });
+    }
+    const focusHudPill = document.getElementById('focus-hud-pill');
+    if (focusHudPill) {
+        focusHudPill.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (selectedBody) {
+                selectBody(selectedBody, false, true);
+            }
         });
     }
 

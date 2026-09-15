@@ -55,9 +55,9 @@
                     <i class="fa-solid fa-qrcode"></i>
                     <span>QR Móvil</span>
                 </button>
-                <a href="visitante.html" id="btn-open-passport-header" class="btn btn--ghost btn--compact" style="font-size:11px; padding: 5px 10px; gap:6px; text-decoration:none; display:inline-flex; align-items:center; color:var(--text-1);" title="Abrir Pasaporte Interactivo del Visitante">
-                    <i class="fa-solid fa-mobile-screen" style="color:var(--accent-blue);"></i>
-                    <span>Pasaporte Móvil</span>
+                <a href="visitante-pc.html" id="btn-open-passport-header" class="btn btn--ghost btn--compact" style="font-size:11px; padding: 5px 10px; gap:6px; text-decoration:none; display:inline-flex; align-items:center; color:var(--text-1);" title="Abrir Terminal del Visitante para PC">
+                    <i class="fa-solid fa-desktop" style="color:var(--accent-blue);"></i>
+                    <span>Terminal Visitante PC</span>
                 </a>
             </div>
         </header>
@@ -555,6 +555,25 @@
                 </button>
             </div>
         </nav>
+
+        <!-- HUD FLOTANTE DE ASTRO ENFOCADO (Navegación entre cuerpos y deselección rápida) -->
+        <div id="floating-focus-hud" class="floating-focus-hud hidden" aria-label="Control de astro enfocado">
+            <button id="btn-focus-prev" class="focus-hud-nav-btn" aria-label="Astro anterior" title="Astro anterior (Flecha Izquierda)">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div id="focus-hud-pill" class="focus-hud-pill" role="button" tabindex="0" title="Ver telemetría del astro">
+                <span id="focus-hud-dot" class="focus-hud-dot"></span>
+                <span id="focus-hud-name" class="focus-hud-name">Tierra</span>
+                <span class="focus-hud-badge"><i class="fa-solid fa-crosshairs"></i> Enfocado</span>
+            </div>
+            <button id="btn-focus-next" class="focus-hud-nav-btn" aria-label="Siguiente astro" title="Siguiente astro (Flecha Derecha)">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+            <button id="btn-focus-exit" class="focus-hud-exit-btn" aria-label="Deseleccionar y salir de enfoque" title="Deseleccionar astro y volver a vista general">
+                <i class="fa-solid fa-xmark"></i>
+                <span>Salir</span>
+            </button>
+        </div>
 
         <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
     </div>

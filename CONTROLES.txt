@@ -97,6 +97,14 @@ Clic Izquierdo     Hacer clic sobre cualquier planeta o luna para abrir su
                    cinética/potencial, excentricidad, AU y periodo).
 Barra Inferior     Desplegable con avatares de todos los cuerpos del sistema.
 
+[ ESTACIÓN DEL VISITANTE & PASAPORTE CIENTÍFICO ]
+--------------------------------------------------------------------------------
+visitante-pc.html      Terminal del Visitante para PC (Pantalla completa,
+                       visor 3D ampliado con ratón y zoom de rueda, telemetría
+                       en 2 columnas, corte geológico, calculadoras de peso/edad
+                       y trivia científica con atajos de teclado [1-5, ←/→, A-D]).
+visitante.html         Pasaporte Táctil Móvil optimizado para Smartphone.
+
 [ PORTAL MÓVIL DE EXPOSICIÓN (PARA SMARTPHONE) ]
 --------------------------------------------------------------------------------
 expo/index.html            Hub Central móvil para el equipo y cronómetro de ensayo.
