@@ -1646,6 +1646,7 @@ function createKeplerianOrbitLine(body, colorHex = 0x475569) {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
     geometry.setAttribute('aProgress', new THREE.Float32BufferAttribute(progresses, 1));
+    geometry.computeBoundingSphere();
 
     const color = new THREE.Color(colorHex);
     const material = new THREE.ShaderMaterial({
@@ -1653,7 +1654,7 @@ function createKeplerianOrbitLine(body, colorHex = 0x475569) {
             uDrawProgress: { value: 1.0 },
             uDashPhase: { value: 0.0 },
             uColor: { value: color },
-            uBaseOpacity: { value: body.isMoon ? 0.35 : 0.50 },
+            uBaseOpacity: { value: body.isMoon ? 0.40 : 0.55 },
             uIsTransitioning: { value: 0.0 }
         },
         vertexShader: orbitVertexShader,
@@ -1665,6 +1666,8 @@ function createKeplerianOrbitLine(body, colorHex = 0x475569) {
 
     const line = new THREE.Line(geometry, material);
     line.visible = orbitsVisible;
+    line.frustumCulled = false;
+    line.renderOrder = 2;
     return line;
 }
 
@@ -1687,6 +1690,9 @@ function recalculateAndAnimateOrbit(body, highlightColor = 0x8ea8ff) {
         body.orbitLine.geometry.setAttribute('aProgress', new THREE.Float32BufferAttribute(progresses, 1));
         body.orbitLine.geometry.attributes.position.needsUpdate = true;
         body.orbitLine.geometry.attributes.aProgress.needsUpdate = true;
+        body.orbitLine.geometry.computeBoundingSphere();
+        body.orbitLine.frustumCulled = false;
+        body.orbitLine.renderOrder = 2;
 
         const mat = body.orbitLine.material;
         mat.uniforms.uColor.value = new THREE.Color(highlightColor);
@@ -1806,6 +1812,7 @@ function createGravityFieldMesh() {
     });
     gravityFieldMesh = new THREE.Mesh(ringGeo, ringMat);
     gravityFieldMesh.rotation.x = Math.PI / 2;
+    gravityFieldMesh.frustumCulled = false;
     gravityFieldMesh.visible = false;
     scene.add(gravityFieldMesh);
 }
@@ -1983,6 +1990,7 @@ function createHabitableZoneMesh() {
 
     habitableZoneMesh = new THREE.Mesh(ringGeo, ringMat);
     habitableZoneMesh.rotation.x = Math.PI / 2;
+    habitableZoneMesh.frustumCulled = false;
     habitableZoneMesh.visible = habitableZoneVisible;
     scene.add(habitableZoneMesh);
 }
@@ -3341,7 +3349,8 @@ function updatePhysics(delta) {
     const nowSec = performance.now() * 0.001;
     for (let i = activeOrbitTransitions.length - 1; i >= 0; i--) {
         const t = activeOrbitTransitions[i];
-        t.progress += (delta * timeSpeed) / t.duration;
+        const effectiveSpeed = Math.max(timeSpeed, 0.8);
+        t.progress += (delta * effectiveSpeed) / t.duration;
         if (t.material && t.material.uniforms) {
             t.material.uniforms.uDashPhase.value = nowSec * 2.8;
 
