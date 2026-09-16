@@ -3861,6 +3861,11 @@ function syncBottomHUDVisibility() {
             }
         }
     }
+
+    if (floatingHud) {
+        const isHudVisible = !floatingHud.classList.contains('hidden');
+        document.body.classList.toggle('has-focus-hud', isHudVisible);
+    }
 }
 window.syncEstelarisHUD = syncBottomHUDVisibility;
 
