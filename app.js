@@ -3863,7 +3863,8 @@ function syncBottomHUDVisibility() {
     }
 
     if (floatingHud) {
-        const isHudVisible = !floatingHud.classList.contains('hidden');
+        const isMobile = window.innerWidth <= 768;
+        const isHudVisible = !floatingHud.classList.contains('hidden') && isMobile;
         document.body.classList.toggle('has-focus-hud', isHudVisible);
     }
 }

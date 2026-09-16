@@ -1084,12 +1084,12 @@ input[type="range"]::-moz-range-thumb{
    HUD FLOTANTE DE ENFOQUE DE ASTRO (Navegación y Deselección Rápida)
    ========================================================================== */
 .floating-focus-hud {
+  display: none !important;
   position: fixed;
   bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 170;
-  display: flex;
   align-items: center;
   gap: 6px;
   padding: 5px 8px;
@@ -1868,12 +1868,16 @@ input[type="range"]::-moz-range-thumb{
   .floating-focus-hud:not(.hidden) ~ .toast-stack {
     bottom: calc(118px + env(safe-area-inset-bottom, 8px));
   }
-  /* Floating Focus HUD en móvil */
+  /* Floating Focus HUD en móvil (Navegación táctil de astros) */
   .floating-focus-hud {
+    display: flex !important;
     bottom: calc(66px + env(safe-area-inset-bottom, 8px));
     padding: 4px 6px;
     gap: 5px;
     max-width: calc(100vw - 20px);
+  }
+  .floating-focus-hud.hidden {
+    display: none !important;
   }
   .focus-hud-exit-btn {
     padding: 0 10px;
