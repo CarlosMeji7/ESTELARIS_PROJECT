@@ -5145,6 +5145,21 @@ function setupUIEventListeners() {
         });
     }
 
+    document.addEventListener('click', (e) => {
+        if (isDockMenuOpen) {
+            const dockMenu = document.getElementById('dock-dropdown-menu');
+            const dockTitleBtn = document.getElementById('dock-title-btn');
+            const mobBtnPlanets = document.getElementById('mob-btn-planets');
+            if (
+                (!dockMenu || !dockMenu.contains(e.target)) &&
+                (!dockTitleBtn || !dockTitleBtn.contains(e.target)) &&
+                (!mobBtnPlanets || !mobBtnPlanets.contains(e.target))
+            ) {
+                setDockMenuState(false);
+            }
+        }
+    });
+
     // HUD Flotante de Astro Enfocado (Navegación y deselección rápida)
     const btnFocusPrev = document.getElementById('btn-focus-prev');
     if (btnFocusPrev) {
@@ -5182,14 +5197,12 @@ function setupUIEventListeners() {
     const leftPanel = document.querySelector('.left-panel');
     if (btnToggleLeft && leftPanel) {
         btnToggleLeft.addEventListener('click', () => {
+            setDockMenuState(false);
             const collapsed = leftPanel.classList.toggle('is-collapsed');
             btnToggleLeft.classList.toggle('is-collapsed', collapsed);
             btnToggleLeft.setAttribute('aria-expanded', String(!collapsed));
             const icon = btnToggleLeft.querySelector('i');
             if (icon) icon.className = collapsed ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-left';
-            if (!collapsed) {
-                setDockMenuState(false);
-            }
             updateMobileBarActiveState();
             syncBottomHUDVisibility();
         });
@@ -5257,6 +5270,7 @@ function setupUIEventListeners() {
     if (mobBtnControls && leftPanel) {
         mobBtnControls.addEventListener('click', (e) => {
             e.stopPropagation();
+            setDockMenuState(false);
             const collapsed = leftPanel.classList.toggle('is-collapsed');
             if (btnToggleLeft) {
                 btnToggleLeft.classList.toggle('is-collapsed', collapsed);
@@ -5265,7 +5279,6 @@ function setupUIEventListeners() {
                 if (icon) icon.className = collapsed ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-left';
             }
             if (!collapsed) {
-                setDockMenuState(false);
                 if (infoPanel && !infoPanel.classList.contains('is-collapsed')) {
                     hideTelemetryPanel();
                 }
