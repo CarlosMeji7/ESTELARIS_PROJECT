@@ -995,6 +995,9 @@
         if (layout) layout.scrollTop = 0;
 
         document.body.style.overflow = 'hidden';
+        if (window.syncEstelarisHUD) {
+            window.syncEstelarisHUD();
+        }
     }
 
     function closeModal() {
@@ -1006,6 +1009,9 @@
         isModalOpen = false;
 
         document.body.style.overflow = '';
+        if (window.syncEstelarisHUD) {
+            window.syncEstelarisHUD();
+        }
     }
 
     // --- INICIALIZACIÓN ---

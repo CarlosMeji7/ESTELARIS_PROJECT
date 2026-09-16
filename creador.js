@@ -1498,6 +1498,9 @@
             syncInputsFromState();
             updateUI();
         }
+        if (window.syncEstelarisHUD) {
+            window.syncEstelarisHUD();
+        }
     }
 
     function closePlanetCreator() {
@@ -1506,6 +1509,9 @@
         if (!root) return;
         root.classList.add('hidden');
         root.setAttribute('aria-hidden', 'true');
+        if (window.syncEstelarisHUD) {
+            window.syncEstelarisHUD();
+        }
     }
 
     // Tecla Esc para cerrar

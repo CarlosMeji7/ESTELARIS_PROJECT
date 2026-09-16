@@ -138,23 +138,6 @@
         <div class="hud-main-layout">
             <!-- Panel Izquierdo (Inicia colapsado para vista despejada del cosmos) -->
             <aside class="hud-sidebar left-panel is-collapsed">
-                <!-- Ficha Dinámica: Astro Seleccionado & Acciones -->
-                <section id="left-selected-card" class="panel-card panel-card--accent is-collapsible" style="display:none; border-color:rgba(255,107,107,0.35); background:linear-gradient(180deg, rgba(35,20,30,0.85), rgba(19,23,38,0.8));">
-                    <div class="panel-card-header" data-toggle="card">
-                        <div>
-                            <span class="eyebrow" style="color:var(--danger,#ff6b6b); display:flex; align-items:center; gap:6px;">
-                                <i class="fa-solid fa-crosshairs"></i> Astro Seleccionado
-                            </span>
-                            <h2 id="left-selected-name" style="margin-top:2px;">Tierra</h2>
-                            <p class="eyebrow-sub" id="left-selected-type">Planeta rocoso</p>
-                        </div>
-                    </div>
-                    <div class="panel-card-body" style="padding-top:6px;">
-                        <button id="btn-left-delete-body" class="btn btn--danger btn--full" style="display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;background:linear-gradient(135deg,rgba(239,68,68,0.25),rgba(185,28,28,0.42));border-color:rgba(239,68,68,0.5);" title="Eliminar este cuerpo celeste y simular consecuencias astrofísicas reales">
-                            <i class="fa-solid fa-trash-can"></i> Eliminar cuerpo estelar
-                        </button>
-                    </div>
-                </section>
 
                 <!-- Parámetros -->
                 <section class="panel-card is-collapsible">
@@ -370,12 +353,12 @@
 
                         <div class="sandbox-section-title">Armas Cósmicas & Asteroides</div>
                         <div class="button-grid">
-                            <button id="btn-launch-asteroid" class="btn btn--danger" style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;" title="Disparar proyectil asteroide guiado (Tecla K)">
-                                <span style="display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-meteor"></i> Disparar Asteroide</span>
-                                <span class="key-badge" style="background:rgba(255,255,255,0.22);color:#ffffff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;line-height:1;margin-left:4px;">K</span>
+                            <button id="btn-launch-asteroid" class="btn btn--danger" title="Disparar proyectil asteroide guiado (Tecla K)">
+                                <span class="btn-inner-content"><i class="fa-solid fa-meteor"></i> <span>Disparar Asteroide</span></span>
+                                <span class="key-badge">K</span>
                             </button>
                             <button id="btn-random-event" class="btn btn--secondary" title="Generar un evento cósmico aleatorio e impredecible">
-                                <i class="fa-solid fa-dice-d20"></i> Evento Aleatorio
+                                <span class="btn-inner-content"><i class="fa-solid fa-dice-d20"></i> <span>Evento Aleatorio</span></span>
                             </button>
                             <button id="btn-nbody-toggle" class="btn btn--ghost" style="grid-column: span 2;" title="Alternar física gravitatoria N-Body en tiempo real">
                                 <i class="fa-solid fa-circle-nodes"></i> <span id="nbody-toggle-text">Activar N-Body</span>
@@ -444,8 +427,9 @@
                         </div>
                     </div>
 
-                    <button id="btn-open-investigation-panel" class="btn btn--primary btn--full" style="margin-top:12px; background:linear-gradient(135deg, rgba(142,168,255,0.22), rgba(0,242,254,0.14)); border-color:rgba(142,168,255,0.35);" title="Abrir Corte Geológico y Ficha Teórica (Ctrl + I)">
-                        <i class="fa-solid fa-layer-group" style="color:var(--accent-blue);"></i> Inspección Teórica & Corte de Capas
+                    <button id="btn-open-investigation-panel" class="btn btn--primary btn--full btn--investigation-panel" style="margin-top:12px; background:linear-gradient(135deg, rgba(142,168,255,0.22), rgba(0,242,254,0.14)); border-color:rgba(142,168,255,0.35);" title="Abrir Corte Geológico y Ficha Teórica (Ctrl + I)">
+                        <i class="fa-solid fa-layer-group" style="color:var(--accent-blue);"></i>
+                        <span>Inspección Teórica & Corte de Capas</span>
                     </button>
 
                     <!-- Mutador Cósmico: ¿Qué pasaría si...? -->
@@ -475,15 +459,15 @@
                     </div>
 
                     <div class="button-grid" style="margin-top:8px;">
-                        <button id="btn-target-impact" class="btn btn--danger" title="Disparar asteroide con impacto garantizado a este astro">
-                            <i class="fa-solid fa-bullseye"></i> Impactar este Astro
+                        <button id="btn-target-impact" class="btn btn--danger btn--mutator" title="Disparar asteroide con impacto garantizado a este astro">
+                            <i class="fa-solid fa-bullseye"></i> <span>Impactar este Astro</span>
                         </button>
-                        <button id="btn-reset-body" class="btn btn--ghost" title="Restablecer masa y radio original a este astro">
-                            <i class="fa-solid fa-rotate-left"></i> Restaurar Astro
+                        <button id="btn-reset-body" class="btn btn--ghost btn--mutator" title="Restablecer masa y radio original a este astro">
+                            <i class="fa-solid fa-rotate-left"></i> <span>Restaurar Astro</span>
                         </button>
                     </div>
-                    <button id="btn-delete-selected-body" class="btn btn--danger btn--full" style="margin-top:8px; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, rgba(239,68,68,0.22), rgba(185,28,28,0.38)); border-color:rgba(239,68,68,0.48);" title="Eliminar este cuerpo celeste y simular consecuencias astrofísicas reales">
-                        <i class="fa-solid fa-trash-can"></i> Eliminar cuerpo estelar
+                    <button id="btn-delete-selected-body" class="btn btn--danger btn--full btn--delete-body" style="margin-top:8px; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, rgba(239,68,68,0.22), rgba(185,28,28,0.38)); border-color:rgba(239,68,68,0.48);" title="Eliminar este cuerpo celeste y simular consecuencias astrofísicas reales">
+                        <i class="fa-solid fa-trash-can"></i> <span>Eliminar cuerpo estelar</span>
                     </button>
 
                     <div class="separator" style="margin: 18px 0 12px 0;"></div>

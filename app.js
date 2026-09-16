@@ -3829,16 +3829,51 @@ function updateCelestialDockActiveState(activeBody) {
     }
 }
 
+function syncBottomHUDVisibility() {
+    const leftP = document.querySelector('.left-panel');
+    const isControlesOpen = leftP && !leftP.classList.contains('is-collapsed');
+    const isTelemetryOpen = infoPanel && !infoPanel.classList.contains('is-collapsed') && !infoPanel.classList.contains('hidden');
+    const invRoot = document.getElementById('investigation-root');
+    const isScienceOpen = (invRoot && !invRoot.classList.contains('hidden') && invRoot.getAttribute('aria-hidden') !== 'true') || 
+                          (window.EstelarisInvestigation && typeof window.EstelarisInvestigation.isOpen === 'function' && window.EstelarisInvestigation.isOpen());
+    const creatorRoot = document.getElementById('planet-creator-root');
+    const isCreatorOpen = creatorRoot && !creatorRoot.classList.contains('hidden');
+    const qrModal = document.getElementById('desktop-qr-modal');
+    const isQrOpen = qrModal && qrModal.classList.contains('is-open');
+
+    const shouldHide = isControlesOpen || isTelemetryOpen || isScienceOpen || isCreatorOpen || isQrOpen;
+
+    const floatingHud = document.getElementById('floating-focus-hud');
+    const celestialDock = document.getElementById('celestial-dock');
+
+    if (shouldHide) {
+        document.body.classList.add('hud-panel-active');
+        if (floatingHud) floatingHud.classList.add('hidden');
+        if (celestialDock) celestialDock.classList.add('hidden');
+    } else {
+        document.body.classList.remove('hud-panel-active');
+        if (celestialDock) celestialDock.classList.remove('hidden');
+        if (floatingHud) {
+            if (focusBody || selectedBody) {
+                floatingHud.classList.remove('hidden');
+            } else {
+                floatingHud.classList.add('hidden');
+            }
+        }
+    }
+}
+window.syncEstelarisHUD = syncBottomHUDVisibility;
+
 function updateFloatingFocusHud(activeBody) {
     const hud = document.getElementById('floating-focus-hud');
     if (!hud) return;
 
     if (!activeBody) {
         hud.classList.add('hidden');
+        syncBottomHUDVisibility();
         return;
     }
 
-    hud.classList.remove('hidden');
     const nameEl = document.getElementById('focus-hud-name');
     const dotEl = document.getElementById('focus-hud-dot');
 
@@ -3853,6 +3888,8 @@ function updateFloatingFocusHud(activeBody) {
         dotEl.style.backgroundColor = hexColor;
         dotEl.style.boxShadow = `0 0 10px ${hexColor}`;
     }
+
+    syncBottomHUDVisibility();
 }
 
 function updateMobileBarActiveState() {
@@ -3883,6 +3920,20 @@ function setDockMenuState(isOpen) {
     if (!menu || !dock) return;
     isDockMenuOpen = isOpen;
     if (isDockMenuOpen) {
+        // Al abrir la lista de astros, cerrar paneles de Controles y Telemetría para evitar superposición
+        const leftP = document.querySelector('.left-panel');
+        if (leftP && !leftP.classList.contains('is-collapsed')) {
+            leftP.classList.add('is-collapsed');
+            const btnL = document.getElementById('btn-toggle-left');
+            if (btnL) {
+                btnL.classList.add('is-collapsed');
+                btnL.setAttribute('aria-expanded', 'false');
+                const icon = btnL.querySelector('i');
+                if (icon) icon.className = 'fa-solid fa-chevron-right';
+            }
+        }
+        hideTelemetryPanel();
+
         menu.classList.remove('hidden');
         dock.classList.add('is-open');
     } else {
@@ -3890,6 +3941,7 @@ function setDockMenuState(isOpen) {
         dock.classList.remove('is-open');
     }
     updateMobileBarActiveState();
+    syncBottomHUDVisibility();
 }
 
 function hideTelemetryPanel() {
@@ -3903,6 +3955,7 @@ function hideTelemetryPanel() {
         if (_ic) _ic.className = 'fa-solid fa-chevron-left';
     }
     updateMobileBarActiveState();
+    syncBottomHUDVisibility();
 }
 
 function selectBody(body, autoFocus = true, openTelemetry = false) {
@@ -3970,17 +4023,12 @@ function selectBody(body, autoFocus = true, openTelemetry = false) {
     updateCelestialDockActiveState(body);
     updateFloatingFocusHud(body);
     updateMobileBarActiveState();
+    syncBottomHUDVisibility();
 
     if (autoFocus) {
         focusCameraOnBody(body);
     } else {
         updateFocusButtonState();
-    }
-
-    if (leftSelectedCard) {
-        leftSelectedCard.style.display = 'block';
-        if (leftSelectedName) leftSelectedName.textContent = body.name;
-        if (leftSelectedType) leftSelectedType.textContent = body.type || 'Cuerpo celeste';
     }
 }
 
@@ -3990,10 +4038,6 @@ function deselectBody() {
     focusBody = null;
     isTransitioningToFocus = false;
     if (controls) controls.minDistance = 4;
-
-    if (leftSelectedCard) {
-        leftSelectedCard.style.display = 'none';
-    }
 
     infoPanel.classList.add('is-collapsed');
     const _btnR = document.getElementById('btn-toggle-right');
@@ -4009,6 +4053,7 @@ function deselectBody() {
 
     updateCelestialDockActiveState(null);
     updateFloatingFocusHud(null);
+    syncBottomHUDVisibility();
 
     if (hasSavedPreFocus) {
         isTransitioningBack = true;
@@ -4357,6 +4402,8 @@ async function openInvestigationMode(targetBody) {
     if (window.EstelarisInvestigation) {
         window.EstelarisInvestigation.open(bodyName);
         logToConsole('Laboratorio Astrofísico: Analizando capas internas de ' + bodyName + '.', 'system');
+        setDockMenuState(false);
+        syncBottomHUDVisibility();
     }
 }
 
@@ -4398,6 +4445,8 @@ async function openPlanetCreatorMode() {
     if (window.EstelarisPlanetCreator) {
         window.EstelarisPlanetCreator.open();
         logToConsole('Génesis Planetario: Laboratorio de Astroquímica activo.', 'system');
+        setDockMenuState(false);
+        syncBottomHUDVisibility();
     }
 }
 
@@ -5138,6 +5187,11 @@ function setupUIEventListeners() {
             btnToggleLeft.setAttribute('aria-expanded', String(!collapsed));
             const icon = btnToggleLeft.querySelector('i');
             if (icon) icon.className = collapsed ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-left';
+            if (!collapsed) {
+                setDockMenuState(false);
+            }
+            updateMobileBarActiveState();
+            syncBottomHUDVisibility();
         });
     }
 
@@ -5156,13 +5210,12 @@ function setupUIEventListeners() {
                 btnToggleRight.setAttribute('aria-expanded', 'true');
                 const icon = btnToggleRight.querySelector('i');
                 if (icon) icon.className = 'fa-solid fa-chevron-right';
+                setDockMenuState(false);
             } else {
-                infoPanel.classList.add('is-collapsed');
-                btnToggleRight.classList.add('is-collapsed');
-                btnToggleRight.setAttribute('aria-expanded', 'false');
-                const icon = btnToggleRight.querySelector('i');
-                if (icon) icon.className = 'fa-solid fa-chevron-left';
+                hideTelemetryPanel();
             }
+            updateMobileBarActiveState();
+            syncBottomHUDVisibility();
         });
     }
 
@@ -5207,11 +5260,18 @@ function setupUIEventListeners() {
             const collapsed = leftPanel.classList.toggle('is-collapsed');
             if (btnToggleLeft) {
                 btnToggleLeft.classList.toggle('is-collapsed', collapsed);
+                btnToggleLeft.setAttribute('aria-expanded', String(!collapsed));
+                const icon = btnToggleLeft.querySelector('i');
+                if (icon) icon.className = collapsed ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-left';
             }
-            if (!collapsed && infoPanel && !infoPanel.classList.contains('is-collapsed')) {
-                infoPanel.classList.add('is-collapsed');
+            if (!collapsed) {
+                setDockMenuState(false);
+                if (infoPanel && !infoPanel.classList.contains('is-collapsed')) {
+                    hideTelemetryPanel();
+                }
             }
             updateMobileBarActiveState();
+            syncBottomHUDVisibility();
         });
     }
 
@@ -5221,6 +5281,16 @@ function setupUIEventListeners() {
             e.stopPropagation();
             const isCurrentlyHidden = infoPanel.classList.contains('is-collapsed') || infoPanel.classList.contains('hidden');
             if (isCurrentlyHidden) {
+                setDockMenuState(false);
+                if (leftPanel && !leftPanel.classList.contains('is-collapsed')) {
+                    leftPanel.classList.add('is-collapsed');
+                    if (btnToggleLeft) {
+                        btnToggleLeft.classList.add('is-collapsed');
+                        btnToggleLeft.setAttribute('aria-expanded', 'false');
+                        const icon = btnToggleLeft.querySelector('i');
+                        if (icon) icon.className = 'fa-solid fa-chevron-right';
+                    }
+                }
                 if (!selectedBody) {
                     const defaultBody = bodies.find(b => b.name === 'Tierra') || bodies[1];
                     selectBody(defaultBody, false, true);
@@ -5228,22 +5298,36 @@ function setupUIEventListeners() {
                     infoPanel.classList.remove('hidden');
                     infoPanel.classList.remove('is-collapsed');
                 }
-                if (btnToggleRight) btnToggleRight.classList.remove('is-collapsed');
-                if (leftPanel && !leftPanel.classList.contains('is-collapsed')) {
-                    leftPanel.classList.add('is-collapsed');
+                if (btnToggleRight) {
+                    btnToggleRight.classList.remove('is-collapsed');
+                    btnToggleRight.setAttribute('aria-expanded', 'true');
+                    const icon = btnToggleRight.querySelector('i');
+                    if (icon) icon.className = 'fa-solid fa-chevron-right';
                 }
             } else {
-                infoPanel.classList.add('is-collapsed');
-                if (btnToggleRight) btnToggleRight.classList.add('is-collapsed');
+                hideTelemetryPanel();
             }
             updateMobileBarActiveState();
+            syncBottomHUDVisibility();
         });
     }
 
     const mobBtnInv = document.getElementById('mob-btn-investigation');
     if (mobBtnInv) {
         mobBtnInv.addEventListener('click', () => {
+            setDockMenuState(false);
+            if (leftPanel) {
+                leftPanel.classList.add('is-collapsed');
+                if (btnToggleLeft) {
+                    btnToggleLeft.classList.add('is-collapsed');
+                    btnToggleLeft.setAttribute('aria-expanded', 'false');
+                    const icon = btnToggleLeft.querySelector('i');
+                    if (icon) icon.className = 'fa-solid fa-chevron-right';
+                }
+            }
+            hideTelemetryPanel();
             openInvestigationMode(selectedBody);
+            syncBottomHUDVisibility();
         });
     }
 
