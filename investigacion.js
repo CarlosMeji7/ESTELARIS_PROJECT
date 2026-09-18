@@ -1778,10 +1778,14 @@
 
         updateLayerCardUI(layer);
 
-        // Actualizar Ruler
+        // Actualizar Ruler y asegurar visibilidad
         const rulerBtns = document.querySelectorAll('.inv-ruler-btn');
         rulerBtns.forEach((b, idx) => {
-            b.classList.toggle('is-active', idx === index);
+            const isActive = (idx === index);
+            b.classList.toggle('is-active', isActive);
+            if (isActive) {
+                b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
         });
 
         // Actualizar SVG
@@ -1827,14 +1831,16 @@
             chemContainer.innerHTML = '';
             (bodyData.atmosphere || []).forEach(gas => {
                 const item = document.createElement('div');
-                item.className = 'inv-chem-item';
+                item.className = 'inv-chem-item inv-chem-row';
+                const rawPct = parseFloat(String(gas.pct).replace(/[^0-9.]/g, '')) || 0;
+                const fillWidth = rawPct > 0 ? Math.min(100, Math.max(2.5, rawPct)) : 0;
                 item.innerHTML = `
-                    <div class="inv-chem-head">
+                    <div class="inv-chem-head inv-chem-header">
                         <span class="inv-chem-name">${gas.name} <span class="inv-chem-formula">(${gas.formula})</span></span>
                         <span class="inv-chem-pct">${gas.pct}</span>
                     </div>
                     <div class="inv-chem-track">
-                        <div class="inv-chem-fill" style="width: ${Math.min(parseFloat(gas.pct) || 10, 100)}%; background: ${gas.color || '#38bdf8'};"></div>
+                        <div class="inv-chem-fill inv-chem-bar" style="width: ${fillWidth}%; background: ${gas.color || '#38bdf8'}; color: ${gas.color || '#38bdf8'};"></div>
                     </div>
                 `;
                 chemContainer.appendChild(item);
@@ -2132,6 +2138,27 @@
                 closeModal();
             }
         });
+
+        // Soporte de desplazamiento horizontal con rueda del ratón (Wheel)
+        const ruler = document.getElementById('inv-layer-ruler');
+        if (ruler) {
+            ruler.addEventListener('wheel', (e) => {
+                if (e.deltaY !== 0) {
+                    e.preventDefault();
+                    ruler.scrollLeft += e.deltaY * 1.2;
+                }
+            }, { passive: false });
+        }
+
+        const navBar = document.getElementById('inv-nav-bar');
+        if (navBar) {
+            navBar.addEventListener('wheel', (e) => {
+                if (e.deltaY !== 0) {
+                    e.preventDefault();
+                    navBar.scrollLeft += e.deltaY * 1.2;
+                }
+            }, { passive: false });
+        }
     }
 
     // Exponer API global
