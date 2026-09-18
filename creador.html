@@ -7,49 +7,64 @@
         
         <!-- HEADER -->
         <header class="pc-header">
-            <div class="pc-header-left">
-                <div class="pc-meta-tag">
-                    <i class="fa-solid fa-atom"></i>
-                    <span>LABORATORIO ASTROQUÍMICO &bull; GÉNESIS PLANETARIO</span>
+            <!-- Fila Superior: Título, Nombre, ESI y Botón de Cierre -->
+            <div class="pc-header-top-row">
+                <div class="pc-header-left">
+                    <div class="pc-meta-tag">
+                        <i class="fa-solid fa-atom"></i>
+                        <span>LABORATORIO ASTROQUÍMICO &bull; GÉNESIS PLANETARIO</span>
+                    </div>
+                    <div class="pc-title-row">
+                        <input type="text" id="pc-planet-name" class="pc-name-input" value="Astraea-IV" maxlength="28" spellcheck="false" title="Haz clic para renombrar tu planeta">
+                        <span class="pc-badge" id="pc-planet-class">Súper-Tierra Templada</span>
+                        <span class="pc-esi-badge" id="pc-header-esi" title="Índice de Similitud con la Tierra">ESI: 0.92</span>
+                    </div>
                 </div>
-                <div class="pc-title-row">
-                    <input type="text" id="pc-planet-name" class="pc-name-input" value="Astraea-IV" maxlength="28" spellcheck="false" title="Haz clic para renombrar tu planeta">
-                    <span class="pc-badge" id="pc-planet-class">Súper-Tierra Templada</span>
-                    <span class="pc-esi-badge" id="pc-header-esi" title="Índice de Similitud con la Tierra">ESI: 0.92</span>
-                </div>
+
+                <button class="pc-btn-close" id="btn-close-creator" aria-label="Cerrar taller (Esc)">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
 
             <!-- PRESETS RÁPIDOS & IMPORTACIÓN -->
-            <div class="pc-presets-row">
-                <div class="pc-sys-name-box">
-                    <span class="pc-presets-label">Sistema:</span>
-                    <input type="text" id="pc-system-name" class="pc-sys-name-input" value="Sistema Astraea" maxlength="24" title="Nombre del sistema estelar">
+            <div class="pc-presets-wrapper">
+                <div class="pc-presets-row">
+                    <div class="pc-sys-name-box">
+                        <span class="pc-presets-label">Sistema:</span>
+                        <input type="text" id="pc-system-name" class="pc-sys-name-input" value="Sistema Astraea" maxlength="24" title="Nombre del sistema estelar">
+                    </div>
+                    <span class="pc-presets-label">Arquetipos:</span>
+                    <button class="pc-preset-btn" data-preset="earth">Tierra 2.0</button>
+                    <button class="pc-preset-btn" data-preset="ocean">Mundo Océano</button>
+                    <button class="pc-preset-btn" data-preset="venus">Infierno Invernadero</button>
+                    <button class="pc-preset-btn" data-preset="titan">Titán Criogénico</button>
+                    <button class="pc-preset-btn" data-preset="lava">Mundo de Magma</button>
+                    <button class="pc-preset-btn pc-preset-btn--random" id="btn-pc-random" title="Generar un mundo científicamente coherente al azar">
+                        <i class="fa-solid fa-dice"></i> Azar
+                    </button>
+                    <input type="file" id="pc-import-file-input" accept=".json" style="display:none;">
+                    <button class="pc-preset-btn" id="btn-import-system-file" title="Importar un sistema planetario desde un archivo .json">
+                        <i class="fa-solid fa-file-arrow-up"></i> Importar .JSON
+                    </button>
                 </div>
-                <span class="pc-presets-label">Arquetipos:</span>
-                <button class="pc-preset-btn" data-preset="earth">Tierra 2.0</button>
-                <button class="pc-preset-btn" data-preset="ocean">Mundo Océano</button>
-                <button class="pc-preset-btn" data-preset="venus">Infierno Invernadero</button>
-                <button class="pc-preset-btn" data-preset="titan">Titán Criogénico</button>
-                <button class="pc-preset-btn" data-preset="lava">Mundo de Magma</button>
-                <button class="pc-preset-btn pc-preset-btn--random" id="btn-pc-random" title="Generar un mundo científicamente coherente al azar">
-                    <i class="fa-solid fa-dice"></i> Azar
-                </button>
-                <input type="file" id="pc-import-file-input" accept=".json" style="display:none;">
-                <button class="pc-preset-btn" id="btn-import-system-file" title="Importar un sistema planetario desde un archivo .json">
-                    <i class="fa-solid fa-file-arrow-up"></i> Importar .JSON
-                </button>
             </div>
 
-            <button class="pc-btn-close" id="btn-close-creator" aria-label="Cerrar taller (Esc)">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+            <!-- SELECTOR DE VISTA MÓVIL (Visor 3D vs Laboratorio & Parámetros) -->
+            <div class="pc-mobile-switch" id="pc-mobile-switch" role="tablist" aria-label="Modo de visualización móvil">
+                <button class="pc-mob-switch-btn is-active" id="btn-pc-view-viewport" data-view="viewport" role="tab" aria-selected="true">
+                    <i class="fa-solid fa-globe"></i> <span>1. Visor 3D</span>
+                </button>
+                <button class="pc-mob-switch-btn" id="btn-pc-view-controls" data-view="controls" role="tab" aria-selected="false">
+                    <i class="fa-solid fa-sliders"></i> <span>2. Parámetros</span>
+                </button>
+            </div>
         </header>
 
         <!-- CUERPO PRINCIPAL -->
         <div class="pc-body">
             
             <!-- COLUMNA IZQUIERDA: VISUALIZADOR 3D PROCEDURAL & TELEMETRÍA FLOTANTE -->
-            <section class="pc-col-viewport">
+            <section class="pc-col-viewport is-mobile-visible" id="pc-col-viewport">
                 <div class="pc-canvas-wrapper" id="pc-canvas-container">
                     <canvas id="pc-three-canvas"></canvas>
                     
@@ -76,19 +91,19 @@
                     <!-- Controles Rápidos del Viewport -->
                     <div class="pc-canvas-toolbar">
                         <button class="pc-tool-btn is-active" id="btn-toggle-clouds" title="Mostrar/Ocultar nubes dinámicas">
-                            <i class="fa-solid fa-cloud"></i> Nubes
+                            <i class="fa-solid fa-cloud"></i> <span>Nubes</span>
                         </button>
                         <button class="pc-tool-btn" id="btn-toggle-rings" title="Mostrar/Ocultar anillos">
-                            <i class="fa-solid fa-ring"></i> Anillos
+                            <i class="fa-solid fa-ring"></i> <span>Anillos</span>
                         </button>
                         <button class="pc-tool-btn is-active" id="btn-toggle-atmo-glow" title="Mostrar/Ocultar halo atmosférico">
-                            <i class="fa-solid fa-sun"></i> Dispersión
+                            <i class="fa-solid fa-sun"></i> <span>Dispersión</span>
                         </button>
                         <button class="pc-tool-btn" id="btn-toggle-wireframe" title="Alternar malla estructural 3D">
-                            <i class="fa-solid fa-draw-polygon"></i> Malla
+                            <i class="fa-solid fa-draw-polygon"></i> <span>Malla</span>
                         </button>
                         <button class="pc-tool-btn" id="btn-reset-cam-preview" title="Centrar cámara de inspección">
-                            <i class="fa-solid fa-arrows-to-dot"></i> Centrar
+                            <i class="fa-solid fa-arrows-to-dot"></i> <span>Centrar</span>
                         </button>
                     </div>
                 </div>
@@ -103,10 +118,18 @@
                         <p id="pc-verdict-desc">Estructura barimétrica estable con equilibrio termodinámico y retención atmosférica activa.</p>
                     </div>
                 </div>
+
+                <!-- Botón rápido en móvil para pasar al wizard -->
+                <div class="pc-mobile-next-action">
+                    <button class="pc-btn-go-controls" id="btn-pc-goto-controls">
+                        <span>Configurar Parámetros & Astroquímica</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
             </section>
 
             <!-- COLUMNA DERECHA: WIZARD DE PARÁMETROS & LABORATORIO QUÍMICO -->
-            <section class="pc-col-controls">
+            <section class="pc-col-controls" id="pc-col-controls">
                 
                 <!-- Navegación por Pestañas del Wizard -->
                 <div class="pc-tabs-nav" role="tablist">
@@ -293,74 +316,147 @@
                             </div>
                             
                             <div class="pc-gas-row" data-gas="N2">
-                                <span class="pc-gas-name">Nitrógeno</span>
-                                <span class="pc-gas-formula">N₂</span>
-                                <input type="range" class="pc-gas-slider" min="0" max="100" value="78" data-gas="N2">
-                                <span class="pc-gas-pct">78%</span>
-                                <span class="pc-jeans-pill is-kept" id="jeans-N2">Retenido</span>
+                                <div class="pc-gas-meta">
+                                    <div class="pc-gas-title-group">
+                                        <span class="pc-gas-name">Nitrógeno</span>
+                                        <span class="pc-gas-formula">N₂</span>
+                                    </div>
+                                    <div class="pc-gas-status-group">
+                                        <span class="pc-gas-pct">78%</span>
+                                        <span class="pc-jeans-pill is-kept" id="jeans-N2">Retenido</span>
+                                    </div>
+                                </div>
+                                <div class="pc-gas-slider-wrap">
+                                    <input type="range" class="pc-gas-slider" min="0" max="100" value="78" data-gas="N2">
+                                </div>
                             </div>
 
                             <div class="pc-gas-row" data-gas="O2">
-                                <span class="pc-gas-name">Oxígeno Molecular</span>
-                                <span class="pc-gas-formula">O₂</span>
-                                <input type="range" class="pc-gas-slider" min="0" max="100" value="21" data-gas="O2">
-                                <span class="pc-gas-pct">21%</span>
-                                <span class="pc-jeans-pill is-kept" id="jeans-O2">Retenido</span>
+                                <div class="pc-gas-meta">
+                                    <div class="pc-gas-title-group">
+                                        <span class="pc-gas-name">Oxígeno Molecular</span>
+                                        <span class="pc-gas-formula">O₂</span>
+                                    </div>
+                                    <div class="pc-gas-status-group">
+                                        <span class="pc-gas-pct">21%</span>
+                                        <span class="pc-jeans-pill is-kept" id="jeans-O2">Retenido</span>
+                                    </div>
+                                </div>
+                                <div class="pc-gas-slider-wrap">
+                                    <input type="range" class="pc-gas-slider" min="0" max="100" value="21" data-gas="O2">
+                                </div>
                             </div>
 
                             <div class="pc-gas-row" data-gas="CO2">
-                                <span class="pc-gas-name">Dióxido de Carbono</span>
-                                <span class="pc-gas-formula">CO₂</span>
-                                <input type="range" class="pc-gas-slider" min="0" max="100" value="1" data-gas="CO2">
-                                <span class="pc-gas-pct">1%</span>
-                                <span class="pc-jeans-pill is-kept" id="jeans-CO2">Retenido</span>
+                                <div class="pc-gas-meta">
+                                    <div class="pc-gas-title-group">
+                                        <span class="pc-gas-name">Dióxido de Carbono</span>
+                                        <span class="pc-gas-formula">CO₂</span>
+                                    </div>
+                                    <div class="pc-gas-status-group">
+                                        <span class="pc-gas-pct">1%</span>
+                                        <span class="pc-jeans-pill is-kept" id="jeans-CO2">Retenido</span>
+                                    </div>
+                                </div>
+                                <div class="pc-gas-slider-wrap">
+                                    <input type="range" class="pc-gas-slider" min="0" max="100" value="1" data-gas="CO2">
+                                </div>
                             </div>
 
                             <div class="pc-gas-row" data-gas="CH4">
-                                <span class="pc-gas-name">Metano (Invernadero)</span>
-                                <span class="pc-gas-formula">CH₄</span>
-                                <input type="range" class="pc-gas-slider" min="0" max="100" value="0" data-gas="CH4">
-                                <span class="pc-gas-pct">0%</span>
-                                <span class="pc-jeans-pill is-kept" id="jeans-CH4">Retenido</span>
+                                <div class="pc-gas-meta">
+                                    <div class="pc-gas-title-group">
+                                        <span class="pc-gas-name">Metano (Invernadero)</span>
+                                        <span class="pc-gas-formula">CH₄</span>
+                                    </div>
+                                    <div class="pc-gas-status-group">
+                                        <span class="pc-gas-pct">0%</span>
+                                        <span class="pc-jeans-pill is-kept" id="jeans-CH4">Retenido</span>
+                                    </div>
+                                </div>
+                                <div class="pc-gas-slider-wrap">
+                                    <input type="range" class="pc-gas-slider" min="0" max="100" value="0" data-gas="CH4">
+                                </div>
                             </div>
 
                             <div class="pc-gas-row" data-gas="H2O">
-                                <span class="pc-gas-name">Vapor de Agua</span>
-                                <span class="pc-gas-formula">H₂O</span>
-                                <input type="range" class="pc-gas-slider" min="0" max="100" value="1" data-gas="H2O">
-                                <span class="pc-gas-pct">1%</span>
-                                <span class="pc-jeans-pill is-kept" id="jeans-H2O">Retenido</span>
+                                <div class="pc-gas-meta">
+                                    <div class="pc-gas-title-group">
+                                        <span class="pc-gas-name">Vapor de Agua</span>
+                                        <span class="pc-gas-formula">H₂O</span>
+                                    </div>
+                                    <div class="pc-gas-status-group">
+                                        <span class="pc-gas-pct">1%</span>
+                                        <span class="pc-jeans-pill is-kept" id="jeans-H2O">Retenido</span>
+                                    </div>
+                                </div>
+                                <div class="pc-gas-slider-wrap">
+                                    <input type="range" class="pc-gas-slider" min="0" max="100" value="1" data-gas="H2O">
+                                </div>
                             </div>
 
                             <div class="pc-gas-row" data-gas="SO2">
-                                <span class="pc-gas-name">Dióxido de Azufre</span>
-                                <span class="pc-gas-formula">SO₂</span>
-                                <input type="range" class="pc-gas-slider" min="0" max="100" value="0" data-gas="SO2">
-                                <span class="pc-gas-pct">0%</span>
-                                <span class="pc-jeans-pill is-kept" id="jeans-SO2">Retenido</span>
+                                <div class="pc-gas-meta">
+                                    <div class="pc-gas-title-group">
+                                        <span class="pc-gas-name">Dióxido de Azufre</span>
+                                        <span class="pc-gas-formula">SO₂</span>
+                                    </div>
+                                    <div class="pc-gas-status-group">
+                                        <span class="pc-gas-pct">0%</span>
+                                        <span class="pc-jeans-pill is-kept" id="jeans-SO2">Retenido</span>
+                                    </div>
+                                </div>
+                                <div class="pc-gas-slider-wrap">
+                                    <input type="range" class="pc-gas-slider" min="0" max="100" value="0" data-gas="SO2">
+                                </div>
                             </div>
 
                             <div class="pc-gas-row" data-gas="NH3">
-                                <span class="pc-gas-name">Amoníaco</span>
-                                <span class="pc-gas-formula">NH₃</span>
-                                <input type="range" class="pc-gas-slider" min="0" max="100" value="0" data-gas="NH3">
-                                <span class="pc-jeans-pill is-kept" id="jeans-NH3">Retenido</span>
+                                <div class="pc-gas-meta">
+                                    <div class="pc-gas-title-group">
+                                        <span class="pc-gas-name">Amoníaco</span>
+                                        <span class="pc-gas-formula">NH₃</span>
+                                    </div>
+                                    <div class="pc-gas-status-group">
+                                        <span class="pc-gas-pct">0%</span>
+                                        <span class="pc-jeans-pill is-kept" id="jeans-NH3">Retenido</span>
+                                    </div>
+                                </div>
+                                <div class="pc-gas-slider-wrap">
+                                    <input type="range" class="pc-gas-slider" min="0" max="100" value="0" data-gas="NH3">
+                                </div>
                             </div>
 
                             <div class="pc-gas-row" data-gas="H2">
-                                <span class="pc-gas-name">Hidrógeno Primordial</span>
-                                <span class="pc-gas-formula">H₂</span>
-                                <input type="range" class="pc-gas-slider" min="0" max="100" value="0" data-gas="H2">
-                                <span class="pc-gas-pct">0%</span>
-                                <span class="pc-jeans-pill is-escaped" id="jeans-H2">Fuga Térmica</span>
+                                <div class="pc-gas-meta">
+                                    <div class="pc-gas-title-group">
+                                        <span class="pc-gas-name">Hidrógeno Primordial</span>
+                                        <span class="pc-gas-formula">H₂</span>
+                                    </div>
+                                    <div class="pc-gas-status-group">
+                                        <span class="pc-gas-pct">0%</span>
+                                        <span class="pc-jeans-pill is-escaped" id="jeans-H2">Fuga Térmica</span>
+                                    </div>
+                                </div>
+                                <div class="pc-gas-slider-wrap">
+                                    <input type="range" class="pc-gas-slider" min="0" max="100" value="0" data-gas="H2">
+                                </div>
                             </div>
 
                             <div class="pc-gas-row" data-gas="Ar">
-                                <span class="pc-gas-name">Argón</span>
-                                <span class="pc-gas-formula">Ar</span>
-                                <input type="range" class="pc-gas-slider" min="0" max="100" value="1" data-gas="Ar">
-                                <span class="pc-gas-pct">1%</span>
-                                <span class="pc-jeans-pill is-kept" id="jeans-Ar">Retenido</span>
+                                <div class="pc-gas-meta">
+                                    <div class="pc-gas-title-group">
+                                        <span class="pc-gas-name">Argón</span>
+                                        <span class="pc-gas-formula">Ar</span>
+                                    </div>
+                                    <div class="pc-gas-status-group">
+                                        <span class="pc-gas-pct">1%</span>
+                                        <span class="pc-jeans-pill is-kept" id="jeans-Ar">Retenido</span>
+                                    </div>
+                                </div>
+                                <div class="pc-gas-slider-wrap">
+                                    <input type="range" class="pc-gas-slider" min="0" max="100" value="1" data-gas="Ar">
+                                </div>
                             </div>
                         </div>
 
@@ -513,3 +609,36 @@
 
     </div>
 </div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="creador.css">
+<script>
+    (function () {
+        if (!window.scene && (!window.EstelarisPlanetCreator || !window.isPlanetCreatorOpen)) {
+            function loadCreator() {
+                if (!window.EstelarisPlanetCreator) {
+                    const s = document.createElement('script');
+                    s.src = 'creador.js';
+                    s.onload = () => {
+                        if (window.EstelarisPlanetCreator) {
+                            window.EstelarisPlanetCreator.init();
+                            window.EstelarisPlanetCreator.open();
+                        }
+                    };
+                    document.body.appendChild(s);
+                } else {
+                    window.EstelarisPlanetCreator.open();
+                }
+            }
+
+            if (!window.THREE) {
+                const sThree = document.createElement('script');
+                sThree.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+                sThree.onload = loadCreator;
+                document.body.appendChild(sThree);
+            } else {
+                loadCreator();
+            }
+        }
+    })();
+</script>

@@ -978,8 +978,72 @@
         resizeObs.observe(container);
     }
 
+    // --- SETUP DE SWITCHER MÓVIL (VISOR 3D vs PARÁMETROS / WIZARD) ---
+    let currentMobileView = 'viewport';
+
+    function setMobileView(view) {
+        currentMobileView = view;
+        const btnViewport = document.getElementById('btn-pc-view-viewport');
+        const btnControls = document.getElementById('btn-pc-view-controls');
+        const colViewport = document.getElementById('pc-col-viewport');
+        const colControls = document.getElementById('pc-col-controls');
+
+        if (!btnViewport || !btnControls || !colViewport || !colControls) return;
+
+        if (view === 'viewport') {
+            btnViewport.classList.add('is-active');
+            btnViewport.setAttribute('aria-selected', 'true');
+            btnControls.classList.remove('is-active');
+            btnControls.setAttribute('aria-selected', 'false');
+
+            colViewport.classList.add('is-mobile-visible');
+            colControls.classList.remove('is-mobile-visible');
+
+            // Recalcular tamaño de Three.js al hacerse visible el canvas
+            requestAnimationFrame(() => {
+                const container = document.getElementById('pc-canvas-container');
+                if (container && previewRenderer && previewCamera) {
+                    const nw = container.clientWidth;
+                    const nh = container.clientHeight;
+                    if (nw > 0 && nh > 0) {
+                        previewCamera.aspect = nw / nh;
+                        previewCamera.updateProjectionMatrix();
+                        previewRenderer.setSize(nw, nh);
+                    }
+                }
+            });
+        } else {
+            btnControls.classList.add('is-active');
+            btnControls.setAttribute('aria-selected', 'true');
+            btnViewport.classList.remove('is-active');
+            btnViewport.setAttribute('aria-selected', 'false');
+
+            colControls.classList.add('is-mobile-visible');
+            colViewport.classList.remove('is-mobile-visible');
+        }
+    }
+
+    function setupMobileViewSwitch() {
+        const btnViewport = document.getElementById('btn-pc-view-viewport');
+        const btnControls = document.getElementById('btn-pc-view-controls');
+        const btnGotoControls = document.getElementById('btn-pc-goto-controls');
+
+        if (btnViewport) {
+            btnViewport.addEventListener('click', () => setMobileView('viewport'));
+        }
+        if (btnControls) {
+            btnControls.addEventListener('click', () => setMobileView('controls'));
+        }
+        if (btnGotoControls) {
+            btnGotoControls.addEventListener('click', () => setMobileView('controls'));
+        }
+    }
+
     // --- SETUP DE EVENT LISTENERS DEL PANEL ---
     function setupEventListeners() {
+        // Switcher móvil
+        setupMobileViewSwitch();
+
         // Cierre del modal
         const btnClose = document.getElementById('btn-close-creator');
         if (btnClose) btnClose.addEventListener('click', closePlanetCreator);
@@ -1515,10 +1579,16 @@
                 initThreePreview();
                 syncInputsFromState();
                 updateUI();
+                if (window.innerWidth <= 768) {
+                    setMobileView('viewport');
+                }
             }, 50);
         } else {
             syncInputsFromState();
             updateUI();
+            if (window.innerWidth <= 768) {
+                setMobileView('viewport');
+            }
         }
         if (window.syncEstelarisHUD) {
             window.syncEstelarisHUD();
@@ -1528,9 +1598,12 @@
     function closePlanetCreator() {
         window.isPlanetCreatorOpen = false;
         const root = document.getElementById('planet-creator-root');
-        if (!root) return;
-        root.classList.add('hidden');
-        root.setAttribute('aria-hidden', 'true');
+        if (root) {
+            root.classList.add('hidden');
+            root.setAttribute('aria-hidden', 'true');
+        } else if (window.location.pathname.endsWith('creador.html')) {
+            window.location.href = 'index.html';
+        }
         if (window.syncEstelarisHUD) {
             window.syncEstelarisHUD();
         }
