@@ -1,4 +1,4 @@
-﻿# Blender source files
+# Blender source files
 *.blend
 *.blend1
 
@@ -9,4 +9,9 @@
 # OS files
 Thumbs.db
 .DS_Store
+
+# Exposiciones locales
+EXPOSICIONES FINAL/
+exposiciones final/
+
 

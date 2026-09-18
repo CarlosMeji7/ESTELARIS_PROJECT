@@ -8,12 +8,13 @@ K                  Disparar Asteroide Cataclísmico hacia el astro enfocado.
 H                  Mostrar / Ocultar Zona de Habitabilidad 3D (Goldilocks).
 Sliders Mutador    Modificar en vivo la Escala de Radio (0.2x-30x) y Masa (0.05x-80x)
                     de cualquier astro para observar Límite de Roche, ignición o calor.
+Supr / Delete      Eliminar / Explosionar el astro seleccionado (o el Sol al hacer clic sobre él).
 Eliminar Cuerpo    Botón "Eliminar cuerpo estelar" en el panel izquierdo (y panel de telemetría):
-                    • Propagación Relativista a Velocidad c (Einstein):
+                    • Propagación Relativista a Velocidad c (Einstein) con Límite Realista:
                       Al eliminar el Sol o cualquier estrella, el apagón y la pérdida de
-                      gravedad NO son instantáneos. Viajan en una onda esférica 3D visible
-                      a la velocidad de la luz c. Los mundos conservan su órbita y su luz
-                      hasta que el frente los alcanza:
+                      gravedad viajan en una onda esférica 3D a la velocidad de la luz c,
+                      abarcando todo el sistema planetario (hasta Plutón a ~4150 u) y disipándose
+                      suavemente al completar la órbita del último mundo:
                         - Mercurio: ~3.8s simulación (3.2 min luz reales).
                         - Venus: ~5.8s simulación (6.0 min luz reales).
                         - Tierra y Luna: 8.0s simulación (8.3 min luz reales).
@@ -25,8 +26,10 @@ Eliminar Cuerpo    Botón "Eliminar cuerpo estelar" en el panel izquierdo (y pan
                       Al ser alcanzado, el astro entra en noche perpetua y escapa en
                       trayectoria tangencial inercial recta al frío cósmico (1ª Ley de Newton).
                     • Si eliminas un planeta con lunas (Tierra, Júpiter, Saturno):
-                      Una onda local relativista a velocidad c viaja hacia las lunas, liberándolas
-                      en cascada hacia órbitas heliocéntricas independientes como planetas enanos.
+                      La onda gravitatoria NO viaja por todo el universo; se expande ÚNICAMENTE
+                      hasta su esfera de influencia local (Esfera de Hill / órbita de sus satélites),
+                      liberando a las lunas en cascada hacia órbitas heliocéntricas independientes
+                      y disipándose limpiamente en su vecindario orbital.
                     • Si eliminas Júpiter: Se desestabilizan las resonancias orbitales y
                       los asteroides Troyanos pierden su barrera de confinamiento.
 Escenarios 1 Clic  Detonar eventos preconfigurados:

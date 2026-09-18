@@ -911,7 +911,7 @@
         ringMesh.visible = false;
         planetMesh.add(ringMesh);
 
-        // Control Manual de Órbita con el Ratón
+        // Control Manual de Órbita con Ratón y Pantallas Táctiles (Móvil)
         canvas.addEventListener('mousedown', (e) => {
             isDragging = true;
             prevMousePos = { x: e.clientX, y: e.clientY };
@@ -929,6 +929,28 @@
             planetMesh.rotation.x += deltaY * 0.008;
             prevMousePos = { x: e.clientX, y: e.clientY };
         });
+
+        // Eventos táctiles para dispositivos móviles
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                prevMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (!isDragging || e.touches.length !== 1) return;
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - prevMousePos.x;
+            const deltaY = touch.clientY - prevMousePos.y;
+            planetMesh.rotation.y += deltaX * 0.008;
+            planetMesh.rotation.x += deltaY * 0.008;
+            prevMousePos = { x: touch.clientX, y: touch.clientY };
+        }, { passive: true });
 
         // Loop de Renderizado
         function animate() {

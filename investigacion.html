@@ -21,8 +21,36 @@
                 </button>
             </div>
 
-            <!-- SELECTOR MINIMALISTA DE CUERPOS (Carrusel horizontal táctil) -->
-            <nav class="inv-nav-pills" id="inv-nav-bar" aria-label="Selector de astro"></nav>
+            <!-- FILTROS POR CATEGORÍA & CONTROLES DE NAVEGACIÓN (Estrellas, Planetas, Lunas) -->
+            <div class="inv-cat-control-bar">
+                <div class="inv-cat-chips" id="inv-cat-chips" role="tablist" aria-label="Filtrar cuerpos por categoría">
+                    <button class="inv-cat-chip is-active" data-category="all" role="tab" aria-selected="true">
+                        <i class="fa-solid fa-border-all"></i> <span>Todos (19)</span>
+                    </button>
+                    <button class="inv-cat-chip" data-category="estrella" role="tab" aria-selected="false">
+                        <i class="fa-solid fa-sun"></i> <span>Estrella (1)</span>
+                    </button>
+                    <button class="inv-cat-chip" data-category="planeta" role="tab" aria-selected="false">
+                        <i class="fa-solid fa-globe"></i> <span>Planetas (9)</span>
+                    </button>
+                    <button class="inv-cat-chip" data-category="luna" role="tab" aria-selected="false">
+                        <i class="fa-solid fa-moon"></i> <span>Lunas (9)</span>
+                    </button>
+                </div>
+                <div class="inv-nav-arrows">
+                    <button class="inv-arrow-btn" id="btn-inv-prev" title="Desplazar lista a la izquierda" aria-label="Anterior">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="inv-arrow-btn" id="btn-inv-next" title="Desplazar lista a la derecha" aria-label="Siguiente">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SELECTOR DE CUERPOS (Carrusel horizontal táctil con desplazamiento fluido) -->
+            <div class="inv-nav-pills-wrapper">
+                <nav class="inv-nav-pills" id="inv-nav-bar" aria-label="Selector de astro"></nav>
+            </div>
 
             <!-- SELECTOR DE VISTA MÓVIL (Estructura y Capas vs Datos Científicos) -->
             <div class="inv-mobile-switch" id="inv-mobile-switch" role="tablist" aria-label="Modo de visualización móvil">
@@ -136,3 +164,29 @@
         </div>
     </div>
 </div>
+
+<!-- Soporte de Ejecución Autónoma si se abre directamente investigacion.html -->
+<link rel="stylesheet" href="investigacion.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+    (function () {
+        if (!window.scene && (!window.EstelarisInvestigation || !window.EstelarisInvestigation.isOpen())) {
+            const root = document.getElementById('investigation-root') || document.body;
+            const container = document.getElementById('investigation-container');
+            if (container) {
+                container.style.boxShadow = '0 0 50px rgba(0,0,0,0.8)';
+            }
+            if (!window.EstelarisInvestigation) {
+                const s = document.createElement('script');
+                s.src = 'investigacion.js';
+                s.onload = () => {
+                    if (window.EstelarisInvestigation) {
+                        window.EstelarisInvestigation.init();
+                        window.EstelarisInvestigation.open('Tierra');
+                    }
+                };
+                document.body.appendChild(s);
+            }
+        }
+    })();
+</script>

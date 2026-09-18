@@ -272,50 +272,6 @@
     }
 }
 
-@media (max-width: 768px) {
-    .pc-backdrop {
-        padding: env(safe-area-inset-top, 6px) env(safe-area-inset-right, 6px) env(safe-area-inset-bottom, 6px) env(safe-area-inset-left, 6px);
-    }
-    .pc-modal {
-        height: 100dvh;
-        max-height: 100dvh;
-        border-radius: 12px;
-    }
-    .pc-header {
-        padding: 10px 14px;
-        flex-wrap: wrap;
-    }
-    .pc-title-row {
-        gap: 6px;
-    }
-    .pc-name-input {
-        font-size: 16px;
-        max-width: 140px;
-    }
-    .pc-body {
-        display: flex;
-        flex-direction: column;
-        height: calc(100% - 60px);
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    .pc-col-viewport {
-        border-right: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        height: 220px;
-        min-height: 220px;
-        flex-shrink: 0;
-        padding: 10px;
-    }
-    .pc-canvas-wrapper {
-        min-height: 160px;
-    }
-    .pc-col-controls {
-        flex: 1;
-        overflow-y: visible;
-        padding: 12px;
-    }
-}
 
 /* COLUMNA IZQUIERDA: VISOR 3D */
 .pc-col-viewport {
@@ -1182,4 +1138,604 @@
     transform: translateY(-1px);
     box-shadow: 0 6px 20px rgba(0, 242, 254, 0.5);
     filter: brightness(1.08);
+}
+
+/* ============================================================================
+   ESTELARIS — REDISEÑO DE GÉNESIS PLANETARIO EXCLUSIVO PARA MÓVIL (<= 768px)
+   Experiencia táctil fluida, viewport optimizado, cards y navegación nativa
+   ============================================================================ */
+@media (max-width: 768px) {
+    .pc-backdrop {
+        padding: 0;
+        background: #06080f;
+    }
+
+    .pc-modal {
+        width: 100vw;
+        height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        animation: none;
+    }
+
+    /* HEADER NATIVO MÓVIL */
+    .pc-header {
+        padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        background: rgba(8, 12, 22, 0.96);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        flex-shrink: 0;
+    }
+
+    .pc-header-left {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .pc-meta-tag {
+        display: none;
+    }
+
+    .pc-title-row {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .pc-name-input {
+        font-size: 15px;
+        font-weight: 700;
+        padding: 4px 8px;
+        max-width: 130px;
+        min-width: 80px;
+        flex-shrink: 1;
+        border-radius: 6px;
+    }
+
+    .pc-badge {
+        font-size: 10px;
+        padding: 2px 7px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100px;
+    }
+
+    .pc-esi-badge {
+        font-size: 10px;
+        padding: 2px 6px;
+        flex-shrink: 0;
+    }
+
+    .pc-btn-close {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* CARRUSEL HORIZONTAL DE ARQUETIPOS / PRESETS */
+    .pc-presets-row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 6px;
+        padding: 2px 0 4px;
+        margin: 0 -4px;
+        width: calc(100% + 8px);
+    }
+
+    .pc-presets-row::-webkit-scrollbar {
+        display: none;
+    }
+
+    .pc-presets-label {
+        display: none;
+    }
+
+    .pc-sys-name-box {
+        flex-shrink: 0;
+        padding: 4px 8px;
+        margin-right: 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .pc-sys-name-input {
+        width: 85px;
+        font-size: 11px;
+    }
+
+    .pc-preset-btn {
+        flex-shrink: 0;
+        padding: 5px 11px;
+        font-size: 11px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        white-space: nowrap;
+    }
+
+    .pc-preset-btn:active {
+        background: rgba(142, 168, 255, 0.2);
+        border-color: #8ea8ff;
+    }
+
+    /* CUERPO PRINCIPAL */
+    .pc-body {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        height: auto;
+        overflow: hidden;
+    }
+
+    /* COLUMNA VIEWPORT 3D SUPERIOR */
+    .pc-col-viewport {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        height: 220px;
+        min-height: 200px;
+        max-height: 28vh;
+        flex-shrink: 0;
+        padding: 8px 10px;
+        gap: 6px;
+        background: radial-gradient(circle at center, #0d1326 0%, #04060e 90%);
+        position: relative;
+    }
+
+    .pc-canvas-wrapper {
+        flex: 1;
+        min-height: 0;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        position: relative;
+        overflow: hidden;
+    }
+
+    #pc-three-canvas {
+        touch-action: none;
+    }
+
+    /* HUD DE TELEMETRÍA ULTRA-COMPACTO (4 COLUMNAS SIN TAPAR EL PLANETA) */
+    .pc-canvas-hud {
+        top: 6px;
+        left: 6px;
+        right: 6px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+        pointer-events: none;
+    }
+
+    .pc-hud-pill {
+        background: rgba(6, 9, 18, 0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 6px;
+        padding: 3px 4px;
+        text-align: center;
+        gap: 1px;
+    }
+
+    .pc-hud-label {
+        font-size: 7.5px;
+        letter-spacing: 0.04em;
+        color: #8d97b5;
+    }
+
+    .pc-hud-val {
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* TOOLBAR FLOTANTE INFERIOR DEL VIEWPORT */
+    .pc-canvas-toolbar {
+        bottom: 6px;
+        left: 50%;
+        transform: translateX(-50%);
+        gap: 3px;
+        padding: 3px 6px;
+        background: rgba(6, 9, 18, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 999px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+        width: max-content;
+        max-width: calc(100% - 16px);
+    }
+
+    .pc-tool-btn {
+        font-size: 9.5px;
+        padding: 4px 7px;
+        border-radius: 999px;
+        gap: 3px;
+        background: transparent;
+        border: none;
+        white-space: nowrap;
+    }
+
+    .pc-tool-btn.is-active {
+        background: rgba(142, 168, 255, 0.22);
+        color: #8ea8ff;
+    }
+
+    /* DICTAMEN DE ESTADO COMPACTO */
+    .pc-verdict-summary {
+        padding: 5px 10px;
+        border-radius: 7px;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .pc-verdict-icon {
+        font-size: 13px;
+    }
+
+    .pc-verdict-text strong {
+        font-size: 11px;
+        line-height: 1.2;
+    }
+
+    .pc-verdict-text p {
+        font-size: 9.5px;
+        line-height: 1.25;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 270px;
+    }
+
+    /* CONTENEDOR DE CONTROLES INFERIOR */
+    .pc-col-controls {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: #080c18;
+    }
+
+    /* NAVEGACIÓN POR PESTAÑAS HORIZONTAL FLUIDA */
+    .pc-tabs-nav {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        background: rgba(10, 14, 26, 0.95);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0 8px;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    .pc-tabs-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .pc-tab-btn {
+        flex-shrink: 0;
+        padding: 10px 10px;
+        font-size: 11.5px;
+        gap: 5px;
+        white-space: nowrap;
+        border-bottom: 2px solid transparent;
+        min-height: 40px;
+    }
+
+    .pc-tab-btn.is-active {
+        border-bottom-color: #8ea8ff;
+        background: rgba(142, 168, 255, 0.08);
+        color: #8ea8ff;
+    }
+
+    .pc-tab-num {
+        width: 16px;
+        height: 16px;
+        font-size: 9px;
+    }
+
+    /* PANEL SCROLLABLE DE PARÁMETROS */
+    .pc-tabs-scroll {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 12px 14px 20px;
+        gap: 12px;
+    }
+
+    .pc-tab-pane {
+        gap: 12px;
+    }
+
+    .pc-section-header {
+        margin-bottom: 2px;
+    }
+
+    .pc-section-header h3 {
+        font-size: 13px;
+        margin-bottom: 2px;
+    }
+
+    .pc-section-header p {
+        font-size: 11px;
+        line-height: 1.35;
+    }
+
+    .pc-field-label {
+        font-size: 11px;
+    }
+
+    /* TARJETAS SLIDERS TÁCTILES */
+    .pc-slider-card {
+        padding: 10px 12px;
+        border-radius: 10px;
+        gap: 7px;
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .pc-slider-title {
+        font-size: 11.5px;
+    }
+
+    .pc-slider-val {
+        font-size: 12px;
+    }
+
+    .pc-range {
+        height: 8px;
+        border-radius: 4px;
+    }
+
+    .pc-range::-webkit-slider-thumb {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+    }
+
+    .pc-slider-subinfo {
+        font-size: 9.5px;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    /* SELECTOR DE ESTRELLAS: 2 COLUMNAS CÓMODAS */
+    .pc-star-selector {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+
+    .pc-star-pill {
+        padding: 8px 6px;
+        font-size: 10.5px;
+        border-radius: 8px;
+    }
+
+    .pc-star-pill small {
+        font-size: 8.5px;
+    }
+
+    /* TARJETAS DE OPCIONES EN 1 O 2 COLUMNAS AMPLIAS */
+    .pc-options-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .pc-options-grid--4 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+
+    .pc-option-card {
+        padding: 10px 12px;
+        border-radius: 8px;
+        gap: 4px;
+    }
+
+    .pc-option-card strong {
+        font-size: 11.5px;
+    }
+
+    .pc-option-card p,
+    .pc-option-card small {
+        font-size: 10px;
+        line-height: 1.35;
+    }
+
+    .pc-diagnostic-box {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .pc-diag-icon {
+        font-size: 20px;
+    }
+
+    .pc-diag-content strong {
+        font-size: 11.5px;
+    }
+
+    .pc-diag-content p {
+        font-size: 10.5px;
+    }
+
+    /* TABLA DE QUÍMICA REORGANIZADA EN CARDS TÁCTILES */
+    .pc-chem-control-panel {
+        padding: 8px;
+        gap: 6px;
+        border-radius: 10px;
+    }
+
+    .pc-chem-grid-head {
+        display: none;
+    }
+
+    .pc-gas-row {
+        display: grid;
+        grid-template-columns: auto auto 1fr auto auto;
+        grid-template-areas:
+            "name formula . pct pill"
+            "slider slider slider slider slider";
+        row-gap: 6px;
+        column-gap: 6px;
+        align-items: center;
+        padding: 8px 10px;
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+    }
+
+    .pc-gas-name {
+        grid-area: name;
+        font-size: 11.5px;
+        font-weight: 600;
+        color: #eef2ff;
+    }
+
+    .pc-gas-formula {
+        grid-area: formula;
+        font-size: 11px;
+    }
+
+    .pc-gas-pct {
+        grid-area: pct;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-align: right;
+    }
+
+    .pc-jeans-pill {
+        grid-area: pill;
+        font-size: 9px;
+        padding: 2px 5px;
+    }
+
+    .pc-gas-slider {
+        grid-area: slider;
+        width: 100%;
+        height: 6px;
+        margin: 2px 0 0;
+    }
+
+    .pc-gas-slider::-webkit-slider-thumb {
+        width: 20px;
+        height: 20px;
+    }
+
+    .pc-chem-summary-cards {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .pc-summary-mini-card {
+        padding: 8px 10px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .pc-sm-label {
+        font-size: 10px;
+    }
+
+    .pc-sm-val {
+        font-size: 11px;
+    }
+
+    /* PESTAÑA 5: PERITAJE & AUDITORÍA ESI */
+    .pc-audit-top {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .pc-esi-display {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 10px 16px;
+    }
+
+    .pc-esi-big {
+        font-size: 26px;
+    }
+
+    .pc-esi-metric {
+        grid-template-columns: 120px 1fr;
+        font-size: 10px;
+    }
+
+    .pc-audit-item {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+
+    .pc-audit-content strong {
+        font-size: 11px;
+    }
+
+    .pc-audit-content p {
+        font-size: 10px;
+    }
+
+    /* FOOTER DE ACCIONES FIJO EN BASE CON SAFE-AREA */
+    .pc-footer {
+        padding: 8px 12px max(10px, env(safe-area-inset-bottom));
+        gap: 8px;
+        flex-wrap: nowrap;
+        background: rgba(8, 12, 22, 0.98);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        flex-shrink: 0;
+    }
+
+    .pc-btn-primary {
+        flex: 2;
+        padding: 10px 14px;
+        font-size: 12px;
+        justify-content: center;
+        border-radius: 9px;
+        height: 42px;
+    }
+
+    .pc-btn-secondary {
+        flex: 1;
+        padding: 8px 8px;
+        font-size: 11px;
+        justify-content: center;
+        border-radius: 9px;
+        height: 42px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }

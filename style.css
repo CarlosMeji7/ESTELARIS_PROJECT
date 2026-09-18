@@ -142,6 +142,7 @@ body{
   display: inline-flex;
   flex-direction: column;
   align-items: center;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .metrics-pill-trigger {
@@ -317,11 +318,6 @@ body{
   pointer-events:none !important;
 }
 .right-panel{flex:0 0 348px}
-.right-panel.is-collapsed{
-  transform: translateX(calc(100% + 14px));
-  opacity:0;
-  pointer-events:none !important;
-}
 
 /* Toggles paneles desplegables */
 .panel-toggle{
@@ -340,7 +336,7 @@ body{
   z-index:6;
   pointer-events:auto;
   box-shadow: 0 8px 24px rgba(0,0,0,0.38);
-  transition: all 0.32s cubic-bezier(0.2,0.8,0.2,1);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   font-size:11px;
 }
 .panel-toggle:hover{
@@ -352,11 +348,22 @@ body{
 .panel-toggle:active{transform: translateY(-50%) scale(0.96)}
 .panel-toggle--left{left: 372px}
 .panel-toggle--left.is-collapsed{left: 14px}
-.panel-toggle--left.is-collapsed i{transform: rotate(180deg)}
 .panel-toggle--right{right: 376px}
 .panel-toggle--right.is-collapsed{right: 14px}
-.panel-toggle--right.is-collapsed i{transform: rotate(180deg)}
-.panel-toggle i{transition: transform 0.32s ease}
+.panel-toggle--right.hidden{
+  display:grid !important;
+  opacity:0 !important;
+  transform: translateY(-50%) scale(0.5) translateX(24px) !important;
+  pointer-events:none !important;
+  visibility:hidden !important;
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease, right 0.38s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.38s !important;
+}
+.panel-toggle--right:not(.hidden){
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease, right 0.38s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease, visibility 0s !important;
+}
 
 /* Cards desplegables */
 .panel-card-header[data-toggle]{
@@ -626,29 +633,46 @@ input[type="range"]::-moz-range-thumb{
   width:348px;
   flex:0 0 348px;
   max-width:348px;
-  height:auto;
+  height:100%;
   max-height:100%;
   overflow-y:auto;
   overflow-x:hidden;
-  transition: transform 0.42s cubic-bezier(0.2,0.8,0.2,1), opacity 0.32s ease;
-  transform:translateX(0);opacity:1;
   align-self:stretch;
   scrollbar-width:thin;
   scrollbar-color: rgba(255,255,255,0.14) transparent;
   padding-bottom:20px;
+  transform:translateX(0);
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transition: transform 0.44s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.32s ease, filter 0.32s ease, visibility 0s !important;
 }
-.right-panel.hidden{
-  transform: translateX(18px) scale(0.98);
-  opacity:0;pointer-events:none !important;
-}
+.right-panel.hidden,
 .right-panel.is-collapsed{
-  transform: translateX(calc(100% + 14px)) !important;
+  display:flex !important; /* Anula display:none de .hidden para permitir animación fluida al aparecer y desaparecer */
+  transform: translateX(calc(100% + 32px)) !important;
   opacity:0 !important;
+  filter: blur(4px) !important;
   pointer-events:none !important;
-  flex:0 0 0 !important;
-  width:0 !important;
-  max-width:0 !important;
-  overflow:hidden !important;
+  visibility:hidden !important;
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease, filter 0.28s ease, visibility 0.38s !important;
+}
+.right-panel:not(.hidden):not(.is-collapsed){
+  display:flex !important;
+  transform: translateX(0) !important;
+  opacity:1 !important;
+  filter: blur(0) !important;
+  pointer-events:auto !important;
+  visibility:visible !important;
+  transition: transform 0.44s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.32s ease, filter 0.32s ease, visibility 0s !important;
+}
+
+@keyframes telemetryCardPulse {
+  0% { transform: translateY(6px) scale(0.98); opacity: 0.7; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.telemetry-pulse {
+  animation: telemetryCardPulse 0.32s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .telemetry-head{
   display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;position:relative;
@@ -1212,7 +1236,10 @@ input[type="range"]::-moz-range-thumb{
 .hud-hidden .hud-sidebar,
 .hud-hidden .panel-toggle,
 .hud-hidden .celestial-dock,
-.hud-hidden .floating-focus-hud {
+.hud-hidden .floating-focus-hud,
+.hud-hidden .cosmic-metrics-pill,
+.hud-hidden .grav-wave-banner,
+.hud-hidden .mobile-bottom-bar {
   opacity: 0 !important;
   pointer-events: none !important;
   transition: opacity 0.3s ease, transform 0.3s ease !important;
@@ -1220,11 +1247,20 @@ input[type="range"]::-moz-range-thumb{
 .hud-hidden .hud-header {
   transform: translateY(-24px) scale(0.98) !important;
 }
+.hud-hidden .cosmic-metrics-pill {
+  transform: translate(-50%, -24px) scale(0.96) !important;
+}
+.hud-hidden .grav-wave-banner {
+  transform: translate(-50%, -24px) !important;
+}
 .hud-hidden .hud-sidebar {
   transform: translateY(24px) scale(0.96) !important;
 }
 .hud-hidden .celestial-dock {
   transform: translate(-50%, 24px) scale(0.96) !important;
+}
+.hud-hidden .mobile-bottom-bar {
+  transform: translateY(100%) !important;
 }
 .hud-hidden .panel-toggle {
   transform: scale(0) !important;
@@ -1715,12 +1751,23 @@ input[type="range"]::-moz-range-thumb{
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-xl);
     box-shadow: 0 16px 42px rgba(0,0,0,0.88);
-    transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s ease;
+    transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
   }
   .right-panel.is-collapsed, .right-panel.hidden{
-    transform: translateY(calc(100% + 40px));
-    opacity: 0;
+    display: flex !important;
+    transform: translateY(calc(100% + 40px)) !important;
+    opacity: 0 !important;
     pointer-events: none !important;
+    visibility: hidden !important;
+    transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, visibility 0.36s !important;
+  }
+  .right-panel:not(.hidden):not(.is-collapsed){
+    display: flex !important;
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+    transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease, visibility 0s !important;
   }
   /* Centrado simétrico de subcajones internos */
   .left-panel .panel-card,
@@ -1942,7 +1989,7 @@ input[type="range"]::-moz-range-thumb{
 /* Banner de Propagación Relativista (Velocidad c) */
 .grav-wave-banner {
   position: absolute;
-  top: 90px;
+  top: 114px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 95;
@@ -2059,7 +2106,7 @@ input[type="range"]::-moz-range-thumb{
 
 @media (max-width: 680px) {
   .grav-wave-banner {
-    top: 76px;
+    top: 104px;
     padding: 6px 12px;
     gap: 10px;
     width: 95vw;

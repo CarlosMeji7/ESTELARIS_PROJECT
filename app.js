@@ -11,6 +11,7 @@ let orbitsVisible = true;
 let vectorsVisible = false;
 let moonsVisible = true;
 let kuiperVisible = true;
+let asteroidBeltVisible = true;
 let milkyWayVisible = true;
 let gridHelper;
 let isPaused = false;
@@ -73,8 +74,12 @@ let milkyWayPoints = null;
 let cosmicNebulaMeshes = [];
 let asteroidBeltParticles = null;
 const asteroidBeltCount = 1800;
+let asteroidBeltVelocities = null;
 let kuiperBeltParticles = null;
 const kuiperBeltCount = 2800;
+let areBeltsDispersing = false;
+let isAsteroidBeltDispersing = false;
+let isKuiperBeltDispersing = false;
 
 // Vectores 3D de Estado (Velocidad y Gravedad)
 let velocityArrow = null;
@@ -97,6 +102,7 @@ const chkOrbits = document.getElementById('chk-orbits');
 const chkVectors = document.getElementById('chk-vectors');
 const chkGravityField = document.getElementById('chk-gravity-field');
 const chkMoons = document.getElementById('chk-moons');
+const chkAsteroidBelt = document.getElementById('chk-asteroid-belt');
 const chkKuiper = document.getElementById('chk-kuiper');
 const chkMilkyway = document.getElementById('chk-milkyway');
 const chkGrid = document.getElementById('chk-grid');
@@ -125,7 +131,7 @@ const btnFocusText = document.getElementById('btn-focus-text');
 
 // --- SISTEMA DE EVENTOS, SANDBOX & FÍSICA DINÁMICA ---
 let isNBodyMode = false;
-let habitableZoneVisible = true;
+let habitableZoneVisible = false;
 let habitableZoneMesh = null;
 let projectiles = [];
 let dynamicParticles = [];
@@ -209,7 +215,7 @@ function getAstronomicalLightDelayInfo(bodyName, distUnits) {
     return { realSec, realDesc, realDistAU: au };
 }
 
-function createGravitationalWave(origin, sourceName = 'Sol', isSunExtinction = true, customSpeed = null) {
+function createGravitationalWave(origin, sourceName = 'Sol', isSunExtinction = true, customSpeed = null, explicitMaxRadius = null) {
     const waveGroup = new THREE.Group();
     waveGroup.position.copy(origin);
 
@@ -258,13 +264,33 @@ function createGravitationalWave(origin, sourceName = 'Sol', isSunExtinction = t
 
     const speed = customSpeed || SPEED_OF_LIGHT_SIM;
 
+    // Calcular límite físico realista del alcance de la onda:
+    // • Para el Sol: abarca hasta el último planeta del sistema (Plutón a ~4150 u) y sus anillos + margen de salida.
+    // • Para planetas con lunas (Tierra, Júpiter): se circunscribe a su esfera de dominancia gravitacional local.
+    let computedMaxRadius = explicitMaxRadius;
+    if (!computedMaxRadius) {
+        if (isSunExtinction) {
+            let maxPlanetaryDistance = 4150.0;
+            bodies.forEach(b => {
+                if (!b.isStatic && b.name !== 'Sol' && b.mesh) {
+                    const d = b.mesh.position.length();
+                    if (d > maxPlanetaryDistance) maxPlanetaryDistance = d;
+                }
+            });
+            // Abarca todos los planetas y la totalidad del Cinturón de Kuiper (hasta 5800 u) con margen
+            computedMaxRadius = Math.max(6200.0, maxPlanetaryDistance + 600.0);
+        } else {
+            computedMaxRadius = 55.0;
+        }
+    }
+
     const waveObj = {
         id: 'wave_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
         origin: origin.clone(),
         meshGroup: waveGroup,
         radius: 2.0,
         speed: speed,
-        maxRadius: 7500.0,
+        maxRadius: computedMaxRadius,
         sourceName: sourceName,
         isSunExtinction: isSunExtinction,
         elapsedSeconds: 0,
@@ -316,6 +342,14 @@ function liberateMoonToHeliocentric(moon, parentName, parentPos, parentVelocity 
 
     if (moon.velocity && parentVelocity) {
         moon.velocity.add(parentVelocity);
+    }
+
+    const sun = bodies.find(b => b.isStatic || b.name === 'Sol' || b.isStar);
+    const sunReach = (sun && !sun.destroyed && typeof getBodyGravitationalReach === 'function') ? getBodyGravitationalReach(sun) : 6500;
+    if (distFromStar > sunReach || !sun || sun.destroyed) {
+        moon.isEscapingInertial = true;
+        if (moon.orbitLine) moon.orbitLine.visible = false;
+        moon.velocity = (parentVelocity ? parentVelocity.clone() : new THREE.Vector3(25, 0, 25));
     }
 
     createShockwave(moonWorldPos, Math.max(15, (moon.radius || 3) * 4), 0x38bdf8);
@@ -1337,6 +1371,7 @@ function createAsteroidBelt() {
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(asteroidBeltCount * 3);
     const colors = new Float32Array(asteroidBeltCount * 3);
+    asteroidBeltVelocities = new Float32Array(asteroidBeltCount * 3);
 
     const rMin = 680;
     const rMax = 1020;
@@ -1367,6 +1402,7 @@ function createAsteroidBelt() {
     });
 
     asteroidBeltParticles = new THREE.Points(geometry, material);
+    asteroidBeltParticles.visible = asteroidBeltVisible;
     scene.add(asteroidBeltParticles);
 }
 
@@ -1374,6 +1410,7 @@ function createKuiperBelt() {
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(kuiperBeltCount * 3);
     const colors = new Float32Array(kuiperBeltCount * 3);
+    kuiperBeltVelocities = new Float32Array(kuiperBeltCount * 3);
 
     const rMin = 3900;
     const rMax = 5800;
@@ -1381,28 +1418,32 @@ function createKuiperBelt() {
     for (let i = 0; i < kuiperBeltCount; i++) {
         const r = rMin + Math.random() * (rMax - rMin);
         const angle = Math.random() * Math.PI * 2;
+        const x = Math.cos(angle) * r;
+        const z = Math.sin(angle) * r;
         const y = (Math.random() - 0.5) * 45;
 
-        positions[i * 3] = Math.cos(angle) * r;
+        positions[i * 3] = x;
         positions[i * 3 + 1] = y;
-        positions[i * 3 + 2] = Math.sin(angle) * r;
+        positions[i * 3 + 2] = z;
 
-        colors[i * 3] = 0.7 + Math.random() * 0.25;
-        colors[i * 3 + 1] = 0.8 + Math.random() * 0.2;
-        colors[i * 3 + 2] = 0.95;
+        const colorVar = 0.65 + Math.random() * 0.35;
+        colors[i * 3] = 0.55 * colorVar;
+        colors[i * 3 + 1] = 0.70 * colorVar;
+        colors[i * 3 + 2] = 0.95 * colorVar;
     }
 
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const material = new THREE.PointsMaterial({
-        size: 2.1,
+        size: 2.2,
         vertexColors: true,
         transparent: true,
         opacity: 0.75
     });
 
     kuiperBeltParticles = new THREE.Points(geometry, material);
+    kuiperBeltParticles.visible = kuiperVisible;
     scene.add(kuiperBeltParticles);
 }
 
@@ -1712,6 +1753,172 @@ function recalculateAndAnimateOrbit(body, highlightColor = 0x8ea8ff) {
     }
 }
 
+// --- ACTUALIZACIÓN DINÁMICA DE ÓRBITAS OSCULATRICES EN TIEMPO REAL (N-BODY) ---
+const _dynR = new THREE.Vector3();
+const _dynV = new THREE.Vector3();
+const _dynH = new THREE.Vector3();
+const _dynE = new THREE.Vector3();
+const _dynP = new THREE.Vector3();
+const _dynQ = new THREE.Vector3();
+const _dynW = new THREE.Vector3();
+const _dynC = new THREE.Vector3();
+const _dynVxH = new THREE.Vector3();
+
+function updateDynamicOsculatingOrbit(body, parent) {
+    if (!body || !body.orbitLine || body.destroyed) return;
+    if (!parent || !parent.mesh || parent.destroyed) {
+        body.orbitLine.visible = false;
+        return;
+    }
+
+    try {
+        const posAttr = body.orbitLine.geometry && body.orbitLine.geometry.attributes.position;
+        if (!posAttr || !posAttr.array) return;
+
+        // Vector de posición y velocidad relativa respecto al centro atractor (padre)
+        _dynR.subVectors(body.mesh.position, parent.mesh.position);
+        _dynV.subVectors(body.velocity || new THREE.Vector3(), parent.velocity || new THREE.Vector3());
+
+        const r = _dynR.length();
+        if (r < 0.1 || isNaN(r)) return;
+
+        // Parámetro gravitacional estándar mu = G * M_parent * 1200.0 (física dinámica N-Body)
+        const parentMass = (parent.mass || 1.0) * (parent.massScale || 1.0);
+        const mu = G * parentMass * 1200.0;
+        if (mu <= 1e-4 || isNaN(mu)) return;
+
+        const vSq = _dynV.lengthSq();
+        
+        // Momento angular específico h = r x v
+        _dynH.crossVectors(_dynR, _dynV);
+        const h = _dynH.length();
+
+        // Vector de excentricidad (Laplace-Runge-Lenz): e = (v x h)/mu - r/|r|
+        _dynVxH.crossVectors(_dynV, _dynH);
+        _dynE.copy(_dynVxH).divideScalar(mu).addScaledVector(_dynR, -1.0 / r);
+        const e = _dynE.length();
+        if (isNaN(e) || !isFinite(e)) return;
+
+        // Energía orbital específica eps = v^2 / 2 - mu / r
+        const eps = (vSq * 0.5) - (mu / r);
+        if (isNaN(eps) || !isFinite(eps)) return;
+
+        // Vectores ortonormales en el plano orbital:
+        // P apunta en la dirección del periapsis
+        if (e > 1e-4) {
+            _dynP.copy(_dynE).normalize();
+        } else {
+            _dynP.copy(_dynR).normalize();
+        }
+
+        // W es la normal al plano orbital (dirección del momento angular)
+        if (h > 1e-4) {
+            _dynW.copy(_dynH).normalize();
+        } else {
+            // En caso de caída puramente radial, construir normal ortogonal a P
+            _dynW.set(0, 1, 0);
+            if (Math.abs(_dynP.dot(_dynW)) > 0.9) _dynW.set(0, 0, 1);
+            _dynW.crossVectors(_dynW, _dynP).normalize();
+        }
+
+        // Q es ortogonal a P en el plano orbital en dirección del movimiento
+        _dynQ.crossVectors(_dynW, _dynP).normalize();
+
+        // Inclinación orbital respecto al plano X-Z
+        const inc = Math.acos(Math.max(-1.0, Math.min(1.0, Math.abs(_dynW.y))));
+        if (!isNaN(inc)) body.inclination = inc;
+        body.eccentricity = e;
+
+        // Umbral físico de colisión contra el planeta/cuerpo anfitrión
+        const parentRadius = (parent.baseRadius || parent.radius || 10) * (parent.radiusScale || 1.0);
+        const bodyRadius = (body.baseRadius || body.radius || 1) * (body.radiusScale || 1.0);
+        const collisionThreshold = parentRadius * 1.15 + bodyRadius;
+
+        const positions = posAttr.array;
+        const segments = 220;
+
+        if (e < 0.999 && eps < -1e-4) {
+            // --- CASO 1: ÓRBITA ELÍPTICA OSCULATRIZ LIGADA ---
+            const a = -mu / (2.0 * eps);
+            if (isNaN(a) || !isFinite(a) || a <= 0 || a > 80000) return;
+
+            body.orbitRadius = a;
+            const b = a * Math.sqrt(Math.max(0.0001, 1.0 - e * e));
+            const periapsisDist = a * (1.0 - e);
+
+            // Centro geométrico de la elipse respecto al foco (padre en 0,0,0)
+            _dynC.copy(_dynP).multiplyScalar(-a * e);
+
+            for (let i = 0; i <= segments; i++) {
+                const E_ang = (i / segments) * Math.PI * 2;
+                const cosE = Math.cos(E_ang);
+                const sinE = Math.sin(E_ang);
+
+                const px = _dynC.x + a * cosE * _dynP.x + b * sinE * _dynQ.x;
+                const py = _dynC.y + a * cosE * _dynP.y + b * sinE * _dynQ.y;
+                const pz = _dynC.z + a * cosE * _dynP.z + b * sinE * _dynQ.z;
+
+                positions[i * 3 + 0] = px;
+                positions[i * 3 + 1] = py;
+                positions[i * 3 + 2] = pz;
+            }
+
+            // Si el periapsis se encuentra dentro del radio del planeta, la órbita intersecta físicamente el cuerpo
+            const isImpactCourse = (periapsisDist <= collisionThreshold);
+            if (body.orbitLine.material && body.orbitLine.material.uniforms && body.orbitLine.material.uniforms.uColor) {
+                if (isImpactCourse) {
+                    // Alerta de colisión inminente: resplandor carmesí pulsante y mayor opacidad
+                    body.orbitLine.material.uniforms.uColor.value.setHex(0xff3344);
+                    body.orbitLine.material.uniforms.uBaseOpacity.value = 0.90;
+                } else {
+                    body.orbitLine.material.uniforms.uColor.value.setHex(body.isMoon ? 0x64748b : 0x475569);
+                    body.orbitLine.material.uniforms.uBaseOpacity.value = body.isMoon ? 0.40 : 0.55;
+                }
+            }
+        } else {
+            // --- CASO 2: TRAYECTORIA HIPERBÓLICA DE ESCAPE / EYECCIÓN (e >= 1) ---
+            const periapsisDist = Math.max(0.1, (h * h) / (mu * (1.0 + e)));
+            const aHyp = Math.max(0.1, periapsisDist / Math.max(0.001, e - 1.0));
+            body.orbitRadius = aHyp;
+            const bHyp = aHyp * Math.sqrt(Math.max(0.001, e * e - 1.0));
+            _dynC.copy(_dynP).multiplyScalar(aHyp * e);
+
+            const maxSpan = Math.max(120, (body.baseOrbitRadius || body.orbitRadius || 80) * 3.5);
+            const ratio = 1.0 + maxSpan / aHyp;
+            const maxH = Math.min(2.5, Math.acosh(Math.max(1.0001, ratio)));
+
+            for (let i = 0; i <= segments; i++) {
+                const t = (i / segments) * 2.0 - 1.0;
+                const H_ang = t * maxH;
+                const coshH = Math.cosh(H_ang);
+                const sinhH = Math.sinh(H_ang);
+
+                const px = _dynC.x - aHyp * coshH * _dynP.x + bHyp * sinhH * _dynQ.x;
+                const py = _dynC.y - aHyp * coshH * _dynP.y + bHyp * sinhH * _dynQ.y;
+                const pz = _dynC.z - aHyp * coshH * _dynP.z + bHyp * sinhH * _dynQ.z;
+
+                positions[i * 3 + 0] = px;
+                positions[i * 3 + 1] = py;
+                positions[i * 3 + 2] = pz;
+            }
+
+            if (body.orbitLine.material && body.orbitLine.material.uniforms && body.orbitLine.material.uniforms.uColor) {
+                body.orbitLine.material.uniforms.uColor.value.setHex(0x38bdf8); // Tono cian brillante para trayectoria de escape
+                body.orbitLine.material.uniforms.uBaseOpacity.value = 0.75;
+            }
+        }
+
+        posAttr.needsUpdate = true;
+        body.orbitLine.geometry.computeBoundingSphere();
+        body.orbitLine.position.copy(parent.mesh.position);
+    } catch (e) {
+        // En caso de cualquier singularidad numérica extrema, conservar la posición sin quebrar la animación
+        if (body.orbitLine && parent.mesh) {
+            body.orbitLine.position.copy(parent.mesh.position);
+        }
+    }
+}
+
 // --- VECTORES DE ESTADO 3D ---
 function createStateVectorArrows() {
     const dirV = new THREE.Vector3(1, 0, 0);
@@ -1722,6 +1929,15 @@ function createStateVectorArrows() {
     
     velocityArrow.visible = false;
     gravityArrow.visible = false;
+
+    // Colores vibrantes y prioridad visual sin atenuación de tono
+    if (velocityArrow.line && velocityArrow.line.material) velocityArrow.line.material.toneMapped = false;
+    if (velocityArrow.cone && velocityArrow.cone.material) velocityArrow.cone.material.toneMapped = false;
+    if (gravityArrow.line && gravityArrow.line.material) gravityArrow.line.material.toneMapped = false;
+    if (gravityArrow.cone && gravityArrow.cone.material) gravityArrow.cone.material.toneMapped = false;
+    
+    velocityArrow.renderOrder = 999;
+    gravityArrow.renderOrder = 999;
     
     scene.add(velocityArrow);
     scene.add(gravityArrow);
@@ -1737,28 +1953,56 @@ function updateStateVectors(body, state) {
     const worldPos = new THREE.Vector3();
     body.mesh.getWorldPosition(worldPos);
 
-    const vel = state.vel.clone();
+    // Radio visual efectivo del astro (considera su radio base, factor de escala del slider y anillos externos si tiene)
+    const baseR = (body.radius || 4.0) * (body.radiusScale || 1.0);
+    const ringR = (body.ringOuter || 0) * (body.radiusScale || 1.0);
+    const effectiveRadius = Math.max(1.5, Math.max(baseR, ringR));
+
+    // 1. VECTOR DE VELOCIDAD (Cyan Neón #00f2fe)
+    const vel = state.vel ? state.vel.clone() : new THREE.Vector3();
     const speed = vel.length();
     if (speed > 0.0001) {
         velocityArrow.position.copy(worldPos);
         velocityArrow.setDirection(vel.normalize());
-        velocityArrow.setLength(Math.min(120, Math.max(18, speed * 2.2)), 6, 3);
+
+        // Longitud visible adaptativa proporcional al cuerpo:
+        // En planetas grandes (Júpiter, Saturno) se extiende con holgura más allá de la atmósfera y anillos
+        const baseVisibleV = effectiveRadius * 1.5;
+        const speedFactor = Math.min(effectiveRadius * 2.2, Math.max(8, speed * 1.6 * Math.sqrt(effectiveRadius / 5.0)));
+        const visibleLengthV = Math.max(18, baseVisibleV + speedFactor);
+        const totalLengthV = effectiveRadius + visibleLengthV;
+
+        // Punta de flecha escalada proporcionalmente al tamaño del astro
+        const headLengthV = Math.max(5.0, Math.min(50, visibleLengthV * 0.28));
+        const headWidthV = Math.max(2.8, headLengthV * 0.52);
+
+        velocityArrow.setLength(totalLengthV, headLengthV, headWidthV);
         velocityArrow.visible = true;
     } else {
         velocityArrow.visible = false;
     }
 
+    // 2. VECTOR GRAVITATORIO (Rosa / Magenta Neón #ec4899)
     let centerPos = new THREE.Vector3(0, 0, 0);
-    if (body.isMoon && body.parentBody) {
+    if (body.isMoon && body.parentBody && body.parentBody.mesh) {
         body.parentBody.mesh.getWorldPosition(centerPos);
     }
     const gravDir = new THREE.Vector3().subVectors(centerPos, worldPos);
-    const distSq = Math.max(10, gravDir.lengthSq());
-    if (distSq > 1) {
+    const dist = gravDir.length();
+    if (dist > 1) {
         gravityArrow.position.copy(worldPos);
         gravityArrow.setDirection(gravDir.normalize());
-        const gMag = Math.min(110, Math.max(16, (G * 80000) / distSq));
-        gravityArrow.setLength(gMag, 6, 3);
+
+        // Longitud gravitatoria adaptativa proporcional al cuerpo
+        const baseVisibleG = effectiveRadius * 1.4;
+        const massFactor = Math.min(effectiveRadius * 1.8, Math.max(6, (body.mass || 1.0) * 4.5));
+        const visibleLengthG = Math.max(16, baseVisibleG + massFactor);
+        const totalLengthG = effectiveRadius + visibleLengthG;
+
+        const headLengthG = Math.max(5.0, Math.min(48, visibleLengthG * 0.28));
+        const headWidthG = Math.max(2.8, headLengthG * 0.52);
+
+        gravityArrow.setLength(totalLengthG, headLengthG, headWidthG);
         gravityArrow.visible = true;
     } else {
         gravityArrow.visible = false;
@@ -1801,6 +2045,12 @@ function createSelectionReticle() {
 }
 
 function createGravityFieldMesh() {
+    if (gravityFieldMesh) {
+        scene.remove(gravityFieldMesh);
+        if (gravityFieldMesh.geometry) gravityFieldMesh.geometry.dispose();
+        if (gravityFieldMesh.material) gravityFieldMesh.material.dispose();
+        gravityFieldMesh = null;
+    }
     const ringGeo = new THREE.RingGeometry(0.92, 1.0, 96);
     const ringMat = new THREE.MeshBasicMaterial({
         color: 0x8ea8ff,
@@ -1817,6 +2067,27 @@ function createGravityFieldMesh() {
     scene.add(gravityFieldMesh);
 }
 
+function getBodyGravitationalReach(body) {
+    if (!body || !body.mesh) return 0;
+    if (body.isStatic || body.name === 'Sol' || body.isStar || body.type === 'Estrella') {
+        return 6500.0 * (body.radiusScale || 1.0) * Math.cbrt(body.massScale || 1.0);
+    }
+
+    // Buscar la luna más lejana que orbita a este planeta/cuerpo
+    const moons = bodies.filter(m => m.isMoon && m.parentBody === body && !m.destroyed);
+    let maxMoonDist = 0;
+    moons.forEach(m => {
+        const oR = m.baseOrbitRadius || m.orbitRadius || 20;
+        if (oR > maxMoonDist) maxMoonDist = oR;
+    });
+
+    // La esfera de dominancia gravitacional (Esfera de Hill) debe abarcar con total autoridad
+    // a todas sus lunas naturales en equilibrio orbital (al menos 1.45x de la luna exterior)
+    const baseMin = (body.radius || 10) * 5.8;
+    const baseWithMoons = maxMoonDist > 0 ? Math.max(baseMin, maxMoonDist * 1.45) : baseMin;
+    return baseWithMoons * Math.cbrt(body.massScale || 1.0);
+}
+
 function updateGravityFieldVisualizer(body) {
     if (!gravityFieldMesh) return;
     if (!gravityFieldVisible || !body || !body.mesh || body.destroyed || !body.mesh.visible) {
@@ -1828,17 +2099,14 @@ function updateGravityFieldVisualizer(body) {
     body.mesh.getWorldPosition(worldPos);
     gravityFieldMesh.position.copy(worldPos);
 
-    let reachRadius = 30.0;
-    if (body.isStatic || body.name === 'Sol') {
-        reachRadius = 6500.0 * (body.radiusScale || 1.0) * Math.cbrt(body.massScale || 1.0);
+    const reachRadius = getBodyGravitationalReach(body);
+
+    if (body.isStatic || body.name === 'Sol' || body.isStar || body.type === 'Estrella') {
         if (gravityFieldMesh.material) {
             gravityFieldMesh.material.color.setHex(0xffaa22);
             gravityFieldMesh.material.opacity = 0.40;
         }
     } else {
-        const baseReach = (body.radius || 10) * 3.8;
-        const massFactor = Math.cbrt(body.massScale || 1.0);
-        reachRadius = baseReach * massFactor;
         if (gravityFieldMesh.material) {
             gravityFieldMesh.material.color.setHex(0x8ea8ff);
             gravityFieldMesh.material.opacity = 0.55;
@@ -1849,16 +2117,16 @@ function updateGravityFieldVisualizer(body) {
     gravityFieldMesh.visible = true;
 
     if (infoGravityReach) {
-        if (body.isStatic || body.name === 'Sol') {
-            const lightYears = (2.0 * Math.cbrt(body.massScale || 1.0)).toFixed(2);
-            const auReach = Math.round(125000 * Math.cbrt(body.massScale || 1.0)).toLocaleString();
-            infoGravityReach.textContent = `${lightYears} Años Luz (${auReach} AU — Heliósfera / Nube de Oort)`;
+        if (body.isStatic || body.name === 'Sol' || body.isStar || body.type === 'Estrella') {
+            const lightYears = (2.0 * (body.radiusScale || 1.0) * Math.cbrt(body.massScale || 1.0)).toFixed(2);
+            const auReach = Math.round(125000 * (body.radiusScale || 1.0) * Math.cbrt(body.massScale || 1.0)).toLocaleString();
+            infoGravityReach.textContent = `${lightYears} Años Luz (${auReach} AU — Heliósfera / Límite de Hill)`;
         } else {
-            const baseKm = (body.name === 'Júpiter' ? 53.0 : (body.name === 'Saturno' ? 65.0 : 1.5));
+            const baseKm = (body.name === 'Júpiter' ? 53.0 : (body.name === 'Saturno' ? 65.0 : (body.name === 'Plutón' ? 7.5 : 1.5)));
             const scaledKm = baseKm * Math.cbrt(body.massScale || 1.0);
             const deltaPercent = ((Math.cbrt(body.massScale || 1.0) - 1.0) * 100).toFixed(0);
             const sign = deltaPercent >= 0 ? '+' : '';
-            infoGravityReach.textContent = `${scaledKm.toFixed(2)} M km (${(body.massScale || 1.0).toFixed(1)}× gravedad, ${sign}${deltaPercent}% alcance)`;
+            infoGravityReach.textContent = `${scaledKm.toFixed(2)} M km (${(body.massScale || 1.0).toFixed(1)}× masa, ${sign}${deltaPercent}% alcance Esfera de Hill)`;
         }
     }
 }
@@ -2018,6 +2286,18 @@ function setNBodyMode(enabled) {
                 }
             }
         });
+    } else {
+        // Restaurar geometrías keplerianas canónicas
+        bodies.forEach(b => {
+            if (b.orbitLine) {
+                recalculateAndAnimateOrbit(b, b.isMoon ? 0x334155 : 0x475569);
+                if (b.isMoon && b.parentBody && b.parentBody.mesh) {
+                    b.orbitLine.position.copy(b.parentBody.mesh.position);
+                } else {
+                    b.orbitLine.position.set(0, 0, 0);
+                }
+            }
+        });
     }
 
     if (simModeBadge) {
@@ -2035,6 +2315,69 @@ function setNBodyMode(enabled) {
     logToConsole(isNBodyMode ? 'Física dinámica N-Body ACTIVADA. Fuerzas gravitatorias reactivas en tiempo real.' : 'Modo Kepleriano restablecido.', isNBodyMode ? 'warning' : 'system');
 }
 
+// --- CHEQUEO DINÁMICO DE LÍMITES DE ALCANCE GRAVITACIONAL (DESPRENDIMIENTO Y ESCAPE) ---
+function checkGravitationalReachBounds() {
+    const sun = bodies.find(b => b.isStatic || b.name === 'Sol' || b.isStar || b.type === 'Estrella');
+    if (sun && !sun.destroyed && sun.mesh) {
+        const sunReach = getBodyGravitationalReach(sun);
+        const gravitySpeedMultiplier = Math.sqrt(Math.max(0.01, G / 0.05));
+
+        // 1. Comprobar planetas respecto al Sol
+        bodies.forEach(b => {
+            if (b.isPlanet && !b.destroyed && b.mesh) {
+                const distToSun = b.mesh.position.length();
+                if (distToSun > sunReach && !b.isEscapingInertial) {
+                    // El planeta queda fuera del alcance gravitatorio del Sol y se desprende a vagar por el universo
+                    b.isEscapingInertial = true;
+                    if (b.orbitLine) b.orbitLine.visible = false;
+                    const state = getKeplerianState(b, b.currentM || 0);
+                    const orbitalSpeed = Math.max(60.0, (b.orbitRadius || 200) * (b.orbitalSpeed || 0.005) * 42.0 * gravitySpeedMultiplier);
+                    b.velocity = (state.vel ? state.vel.clone() : new THREE.Vector3(1, 0, 0)).normalize().multiplyScalar(orbitalSpeed);
+
+                    logToConsole(`¡DESPRENDIMIENTO GRAVITATORIO! El alcance gravitacional del Sol (${(sunReach / 395).toFixed(1)} AU) no alcanza a ${b.name} (${(distToSun / 395).toFixed(1)} AU). ¡${b.name} se ha desprendido y ahora vaga como planeta errante por el cosmos!`, 'warning');
+                }
+            }
+        });
+
+        // 2. Comprobar Cinturón Principal de Asteroides (ubicado entre Marte y Júpiter: radio 680 a 1020 u)
+        // Solo se dispersa si el alcance del Sol cae por debajo de su distancia física (1020 u)
+        if (sunReach < 1020) {
+            if (!isAsteroidBeltDispersing) {
+                isAsteroidBeltDispersing = true;
+                logToConsole('¡DESPRENDIMIENTO DE ASTEROIDES! El alcance gravitatorio del Sol cayó por debajo de 1020 u. Los asteroides entre Marte y Júpiter se dispersan al espacio.', 'warning');
+            }
+        } else {
+            isAsteroidBeltDispersing = false;
+        }
+
+        // 3. Comprobar Cinturón de Kuiper (ubicado más allá de Neptuno/Plutón: radio 3900 a 5800 u)
+        if (sunReach < 5800) {
+            if (!isKuiperBeltDispersing) {
+                isKuiperBeltDispersing = true;
+                logToConsole('¡DESPRENDIMIENTO DE KUIPER! El alcance gravitacional del Sol cayó por debajo de 5800 u. El Cinturón de Kuiper se desestabiliza.', 'warning');
+            }
+        } else {
+            isKuiperBeltDispersing = false;
+        }
+    }
+
+    // 4. Comprobar lunas respecto a sus planetas anfitriones
+    bodies.forEach(m => {
+        if (m.isMoon && !m.destroyed && m.parentBody && m.parentBody.mesh && !m.parentBody.destroyed) {
+            const planet = m.parentBody;
+            const planetReach = getBodyGravitationalReach(planet);
+            const distToPlanet = m.mesh.position.distanceTo(planet.mesh.position);
+
+            if (distToPlanet > planetReach && !m.isLiberated) {
+                // La luna escapa del planeta
+                logToConsole(`¡LUNA LIBERADA! El alcance gravitatorio de ${planet.name} (${planetReach.toFixed(1)} u) ya no retiene a ${m.name} (${distToPlanet.toFixed(1)} u). La luna se ha desprendido de su planeta.`, 'warning');
+                const parentVel = planet.velocity ? planet.velocity.clone() : null;
+                liberateMoonToHeliocentric(m, planet.name, planet.mesh.position, parentVel);
+            }
+        }
+    });
+}
+
 // --- MUTADOR DE CUERPOS CELESTES (¿QUÉ PASARÍA SI...?) ---
 function setBodyRadiusScale(body, scale) {
     if (!body || !body.mesh) return;
@@ -2043,8 +2386,12 @@ function setBodyRadiusScale(body, scale) {
     body.mesh.scale.set(body.radiusScale, body.radiusScale, body.radiusScale);
 
     if (body.name === 'Sol') {
+        if (body.coronaMesh) {
+            body.coronaMesh.scale.set(body.radiusScale * 1.25, body.radiusScale * 1.25, body.radiusScale * 1.25);
+        }
         createHabitableZoneMesh();
         checkSolarDevourment();
+        checkGravitationalReachBounds();
     }
 
     // Actualizar radio de las lunas para evitar colisiones si el planeta crece
@@ -2056,6 +2403,7 @@ function setBodyRadiusScale(body, scale) {
     });
 
     checkAllRocheLimits();
+    checkGravitationalReachBounds();
     updateGravityFieldVisualizer(body);
 
     if (selectedBody === body && valBodyRadius) {
@@ -2070,13 +2418,17 @@ function setBodyMassScale(body, scale) {
 
     if (body.name === 'Sol') {
         createHabitableZoneMesh();
-        // Si la masa del Sol cambia, recalcular y animar las órbitas de todos los planetas según Kepler
+        // Si la masa del Sol cambia, recalcular y resincronizar exactamente las órbitas de todos los planetas según Kepler
         bodies.forEach(b => {
-            if (b.isPlanet && !b.destroyed) {
+            if (b.isPlanet && !b.destroyed && !b.isEscapingInertial) {
                 b.orbitRadius = (b.baseOrbitRadius || b.orbitRadius) * Math.pow(Math.max(0.1, body.massScale), 0.25);
+                if (b.baseOrbitalSpeed && b.baseOrbitRadius) {
+                    b.orbitalSpeed = b.baseOrbitalSpeed * Math.sqrt(body.massScale) / Math.pow(b.orbitRadius / b.baseOrbitRadius, 1.5);
+                }
                 recalculateAndAnimateOrbit(b, 0x3dd598);
             }
         });
+        checkGravitationalReachBounds();
     } else if (body.isPlanet) {
         // Si el planeta cambia de masa, perturbar sus lunas y su propia órbita
         bodies.forEach(m => {
@@ -2087,6 +2439,7 @@ function setBodyMassScale(body, scale) {
         });
         body.orbitRadius = (body.baseOrbitRadius || body.orbitRadius) * Math.pow(Math.max(0.1, body.massScale), 0.08);
         recalculateAndAnimateOrbit(body, 0x8ea8ff);
+        checkGravitationalReachBounds();
     }
 
     if (body.name === 'Júpiter' && body.massScale >= 20.0) {
@@ -2190,10 +2543,151 @@ function vaporizeBodyInSun(body, sun) {
     body.destroyed = true;
     body.mesh.visible = false;
     if (body.orbitLine) body.orbitLine.visible = false;
+    if (body.atmoMesh) body.atmoMesh.visible = false;
+    if (body.ringMesh) body.ringMesh.visible = false;
+
+    // Si el planeta devorado tiene lunas, vaporizarlas también
+    bodies.forEach(m => {
+        if (m.isMoon && m.parentBody === body && !m.destroyed) {
+            m.destroyed = true;
+            if (m.mesh) m.mesh.visible = false;
+            if (m.orbitLine) m.orbitLine.visible = false;
+        }
+    });
+
+    if (selectedBody === body) {
+        deselectBody();
+    }
 
     createExplosion(body.mesh.position, 4.0, 0xff3300);
     createShockwave(body.mesh.position, 140, 0xff8800);
     logToConsole(`¡ABSORCIÓN ESTELAR! ${body.name} ha sido devorado por la fotosfera del Sol.`, 'warning');
+}
+
+// --- SISTEMA UNIVERSAL DE COLISIÓN ENTRE CUERPOS CELESTES (LUNA-LUNA, PLANETA-LUNA, PLANETA-PLANETA) ---
+function checkCelestialCollisions() {
+    const active = bodies.filter(b => !b.destroyed && b.mesh && b.mesh.visible);
+    const count = active.length;
+
+    for (let i = 0; i < count; i++) {
+        const b1 = active[i];
+        if (b1.destroyed) continue;
+
+        for (let j = i + 1; j < count; j++) {
+            const b2 = active[j];
+            if (b2.destroyed) continue;
+
+            // El Sol con planetas/lunas ya se gestiona en checkSolarDevourment
+            if (b1.isStatic || b1.name === 'Sol' || b2.isStatic || b2.name === 'Sol') continue;
+
+            // Planeta con su propia luna ya se gestiona en checkAllRocheLimits
+            if ((b1.isMoon && b1.parentBody === b2) || (b2.isMoon && b2.parentBody === b1)) continue;
+
+            const pos1 = b1.mesh.position;
+            const pos2 = b2.mesh.position;
+            const dist = pos1.distanceTo(pos2);
+
+            const r1 = (b1.baseRadius || b1.radius || 5) * (b1.radiusScale || 1.0);
+            const r2 = (b2.baseRadius || b2.radius || 5) * (b2.radiusScale || 1.0);
+            const hitThreshold = (r1 + r2) * 1.08;
+
+            if (dist < hitThreshold && dist > 0.001) {
+                resolveCelestialImpact(b1, b2, pos1, pos2, dist, r1, r2);
+            }
+        }
+    }
+}
+
+function resolveCelestialImpact(b1, b2, pos1, pos2, dist, r1, r2) {
+    const impactPos = new THREE.Vector3().addVectors(pos1, pos2).multiplyScalar(0.5);
+    const vel1 = b1.velocity || new THREE.Vector3();
+    const vel2 = b2.velocity || new THREE.Vector3();
+    const relVel = new THREE.Vector3().subVectors(vel1, vel2);
+    const speedKms = Math.max(8.0, relVel.length() * 1.15);
+
+    const explScale = Math.max(2.0, Math.min(8.0, (r1 + r2) * 0.35));
+    createExplosion(impactPos, explScale, 0xff5511);
+    createShockwave(impactPos, (r1 + r2) * 4.0, 0xffaa44);
+
+    const m1 = Math.max(0.01, (b1.mass || 1.0) * (b1.massScale || 1.0));
+    const m2 = Math.max(0.01, (b2.mass || 1.0) * (b2.massScale || 1.0));
+
+    // CASO 1: Invasor Cósmico (Nemesis) devorando un cuerpo
+    if (b1.isRogue || b1.name.includes('Nemesis') || b2.isRogue || b2.name.includes('Nemesis')) {
+        const nemesis = (b1.isRogue || b1.name.includes('Nemesis')) ? b1 : b2;
+        const victim = (nemesis === b1) ? b2 : b1;
+        destroyCelestialBody(victim);
+        createExplosion(impactPos, 5.5, 0x8ea8ff);
+        createShockwave(impactPos, 200, 0x5588ff);
+        logToConsole(`¡COLISIÓN CATACLÍSMICA! ${victim.name} chocó contra el Invasor Cósmico (${nemesis.name}) y fue aniquilado.`, 'danger');
+        return;
+    }
+
+    // CASO 2: Luna contra Luna (ej. Ío con Europa, Calisto con Ganimedes)
+    if (b1.isMoon && b2.isMoon) {
+        const parent = b1.parentBody || b2.parentBody;
+        if (parent) {
+            createDebrisRingAroundBody(parent, (b1.orbitRadius || b2.orbitRadius || 45) * 0.95, b1.colorHex || 0xd6c7a8);
+        }
+
+        // Si la colisión es frontal y de alta energía, ambas lunas se pulverizan en un campo de escombros
+        const massRatio = Math.max(m1, m2) / Math.min(m1, m2);
+        if (massRatio < 3.0 && speedKms > 20.0) {
+            destroyCelestialBody(b1);
+            destroyCelestialBody(b2);
+            logToConsole(`¡COLISIÓN LUNAR MUTUA! ${b1.name} y ${b2.name} colisionaron a ${speedKms.toFixed(1)} km/s y se pulverizaron mutuamente en un nuevo anillo de escombros.`, 'danger');
+        } else {
+            const survivor = m1 >= m2 ? b1 : b2;
+            const victim = m1 >= m2 ? b2 : b1;
+            destroyCelestialBody(victim);
+            if (survivor.velocity) survivor.velocity.addScaledVector(relVel, -0.35);
+            logToConsole(`¡IMPACTO LUNAR CATASTRÓFICO! ${victim.name} impactó contra ${survivor.name} a ${speedKms.toFixed(1)} km/s y fue destruida.`, 'danger');
+        }
+        return;
+    }
+
+    // CASO 3: Luna contra Planeta ajeno (o planeta sin ligadura)
+    if (b1.isMoon || b2.isMoon) {
+        const planet = b1.isMoon ? b2 : b1;
+        const moon = b1.isMoon ? b1 : b2;
+        destroyCelestialBody(moon);
+        createDebrisRingAroundBody(planet, (planet.baseRadius || planet.radius || 20) * 1.7, moon.colorHex || 0xccaa88);
+        if (!planet.isStatic && planet.velocity) {
+            planet.velocity.addScaledVector(moon.velocity || new THREE.Vector3(), 0.08);
+        }
+        logToConsole(`¡IMPACTO PLANETARIO! La luna ${moon.name} colisionó a ${speedKms.toFixed(1)} km/s contra ${planet.name} desintegrándose en su superficie.`, 'danger');
+        return;
+    }
+
+    // CASO 4: Planeta contra Planeta
+    const survivor = m1 >= m2 ? b1 : b2;
+    const victim = m1 >= m2 ? b2 : b1;
+    destroyCelestialBody(victim);
+    createDebrisRingAroundBody(survivor, (survivor.baseRadius || survivor.radius || 30) * 2.2, 0xff7733);
+    logToConsole(`¡COLISIÓN PLANETARIA GIGANTESCA! ${victim.name} colisionó a ${speedKms.toFixed(1)} km/s contra ${survivor.name}. Masa y momento transferidos.`, 'danger');
+}
+
+function destroyCelestialBody(body) {
+    if (!body || body.destroyed) return;
+    body.destroyed = true;
+    if (body.mesh) body.mesh.visible = false;
+    if (body.orbitLine) body.orbitLine.visible = false;
+    if (body.atmoMesh) body.atmoMesh.visible = false;
+    if (body.ringMesh) body.ringMesh.visible = false;
+    if (body.glowMesh) body.glowMesh.visible = false;
+
+    // Si tiene lunas y es un planeta destruido, desintegrar o liberar lunas
+    bodies.forEach(m => {
+        if (m.isMoon && m.parentBody === body && !m.destroyed) {
+            m.destroyed = true;
+            if (m.mesh) m.mesh.visible = false;
+            if (m.orbitLine) m.orbitLine.visible = false;
+        }
+    });
+
+    if (selectedBody === body) {
+        deselectBody();
+    }
 }
 
 // --- EFECTOS VISUALES DE EXPLOSIÓN, ONDAS DE CHOQUE & ANILLOS ---
@@ -2352,19 +2846,59 @@ function triggerRedGiantScenario() {
     const sun = bodies.find(b => b.name === 'Sol');
     if (!sun) return;
     
-    setNBodyMode(true);
-    setBodyRadiusScale(sun, 28.0);
-    setBodyMassScale(sun, 2.5);
-    
-    if (sun.coronaMesh && sun.coronaMesh.material) {
-        sun.coronaMesh.material.color = new THREE.Color(0xff2200);
-        sun.coronaMesh.material.opacity = 0.55;
+    // Mantener la simulación en modo Kepleriano para que las órbitas y los planetas estén 100% sincronizados
+    setNBodyMode(false);
+    const btnNBody = document.getElementById('btn-nbody');
+    if (btnNBody) btnNBody.classList.remove('active');
+
+    // 1. Expansión estelar realista a Gigante Roja (engulle Mercurio a 180 AU, Venus a 280 AU y alcanza la Tierra a 400 AU)
+    const redGiantRadiusScale = 6.6; // Radio = ~410 unidades (62 * 6.6)
+    setBodyRadiusScale(sun, redGiantRadiusScale);
+
+    // 2. Pérdida gradual de masa por vientos estelares (en fase de gigante roja el Sol pierde ~15-20% de su masa, M = 0.85 M☉)
+    sun.massScale = 0.85;
+    sun.mass = (sun.baseMass !== undefined ? sun.baseMass : 1.0) * sun.massScale;
+    sun.type = 'Gigante Roja (Fase Avanzada)';
+
+    // 3. Recalcular y sincronizar con exactitud matemática las órbitas y velocidades de los planetas supervivientes (Marte, Júpiter, Saturno, etc.)
+    bodies.forEach(b => {
+        if (b.isPlanet && !b.destroyed) {
+            // Por conservación de momento con masa estelar reducida: r_nueva = r_base * 1.18
+            b.orbitRadius = (b.baseOrbitRadius || b.orbitRadius) * 1.18;
+            if (b.baseOrbitalSpeed && b.baseOrbitRadius) {
+                b.orbitalSpeed = b.baseOrbitalSpeed * Math.sqrt(sun.massScale) / Math.pow(b.orbitRadius / b.baseOrbitRadius, 1.5);
+            }
+            recalculateAndAnimateOrbit(b, 0xff7733);
+        }
+    });
+
+    // 4. Transformación visual incandescente de Gigante Roja
+    if (sun.mesh && sun.mesh.material) {
+        if (sun.mesh.material.color) sun.mesh.material.color = new THREE.Color(0xff3300);
     }
-    
-    createShockwave(sun.mesh.position, 400, 0xff4400);
+    if (sun.coronaMesh) {
+        sun.coronaMesh.scale.set(redGiantRadiusScale * 1.25, redGiantRadiusScale * 1.25, redGiantRadiusScale * 1.25);
+        if (sun.coronaMesh.material) {
+            sun.coronaMesh.material.color = new THREE.Color(0xff2200);
+            sun.coronaMesh.material.opacity = 0.65;
+        }
+    }
+    if (sunLight) {
+        sunLight.color.setHex(0xff4411);
+        sunLight.intensity = 2.6;
+    }
+
+    createShockwave(sun.mesh.position, 450, 0xff4400);
+
+    // 5. Absorción de mundos interiores alcanzados por la fotosfera solar
+    checkSolarDevourment();
+
+    // 6. Recalcular Zona Habitable (se desplaza hacia Júpiter y Saturno)
+    createHabitableZoneMesh();
+
     selectBody(sun, true);
-    
-    logToConsole('¡ESCENARIO GIGANTE ROJA! El Sol se ha expandido 28x, absorbiendo planetas interiores y desplazando la zona habitable.', 'warning');
+
+    logToConsole('¡ESCENARIO GIGANTE ROJA! El Sol se ha expandido en una Gigante Roja incandescente. Mercurio, Venus y la Tierra han sido engullidos por la fotosfera. Las órbitas de los mundos exteriores se han resincronizado con precisión matemática.', 'warning');
 }
 
 function triggerDeleteSunScenario() {
@@ -2531,9 +3065,21 @@ function deleteSelectedBody(targetBody = null) {
     // CASO 2: ELIMINACIÓN DE UN PLANETA QUE POSEE LUNAS (Propagación relativista local a velocidad c)
     const childMoons = bodies.filter(b => b.isMoon && b.parentBody === body && !b.destroyed);
     if (childMoons.length > 0) {
-        // Disparar onda gravitacional local en expansión desde la posición del planeta
-        // Velocidad calibrada para que las lunas se liberen en cascada según su distancia luz real
-        createGravitationalWave(bodyPos, bodyName, false, 28.0);
+        // Calcular el límite real del pozo gravitacional del planeta (su esfera de influencia / lunas)
+        let maxMoonDist = 0;
+        childMoons.forEach(moon => {
+            const moonWorldPos = new THREE.Vector3();
+            if (moon.mesh) moon.mesh.getWorldPosition(moonWorldPos);
+            const dist = moonWorldPos.distanceTo(bodyPos) || moon.orbitRadius || 25.0;
+            if (dist > maxMoonDist) maxMoonDist = dist;
+        });
+
+        // La onda local solo se expande hasta el límite de dominancia gravitacional del planeta (no viaja por todo el universo)
+        // Para la Tierra (~24 a la Luna): límite de ~48 unidades (se disipa tras cruzar la Luna)
+        // Para Saturno (~95 a Titán): límite de ~145 unidades
+        const planetGravitationalLimit = Math.max(35.0, maxMoonDist * 1.35 + 15.0);
+
+        createGravitationalWave(bodyPos, bodyName, false, 28.0, planetGravitationalLimit);
 
         childMoons.forEach(moon => {
             const moonWorldPos = new THREE.Vector3();
@@ -2546,7 +3092,7 @@ function deleteSelectedBody(targetBody = null) {
         });
 
         const moonList = childMoons.map(m => m.name).join(', ');
-        logToConsole(`¡COLAPSO GRAVITATORIO LOCAL! Al desaparecer ${bodyName}, una onda de propagación a velocidad c viaja hacia sus satélites (${moonList}), liberándolos progresivamente en cascada relativista.`, 'warning');
+        logToConsole(`¡COLAPSO GRAVITATORIO LOCAL! Al desaparecer ${bodyName}, una onda de perturbación se expande hasta su límite de influencia (${planetGravitationalLimit.toFixed(0)} u) liberando a sus satélites (${moonList}).`, 'warning');
     } else if (body.isMoon) {
         // CASO 3: ELIMINACIÓN DE UNA LUNA INDIVIDUAL
         const parentName = body.parentBody ? body.parentBody.name : 'su planeta matriz';
@@ -2646,6 +3192,18 @@ function triggerRandomCosmicEvent() {
 }
 
 function restoreInitialUniverse() {
+    // 0. Deseleccionar cualquier cuerpo activo y detener seguimiento
+    if (selectedBody) {
+        deselectBody();
+    }
+    focusBody = null;
+    hasSavedPreFocus = false;
+    isTransitioningBack = false;
+    isTransitioningToFocus = false;
+    if (selectionReticle) selectionReticle.visible = false;
+    if (velocityArrow) velocityArrow.visible = false;
+    if (gravityArrow) gravityArrow.visible = false;
+
     // 1. Limpiar proyectiles activos
     projectiles.forEach(p => {
         if (p.mesh) scene.remove(p.mesh);
@@ -2679,8 +3237,6 @@ function restoreInitialUniverse() {
     // 5. Eliminar estrellas invasoras
     rogueStars.forEach(rs => {
         if (rs.mesh) scene.remove(rs.mesh);
-        const idx = bodies.indexOf(rs);
-        if (idx !== -1) bodies.splice(idx, 1);
     });
     rogueStars = [];
 
@@ -2700,102 +3256,89 @@ function restoreInitialUniverse() {
     activeGravitationalWaves = [];
     if (hudGravWaveCard) hudGravWaveCard.style.display = 'none';
 
+    // 6.2. Limpiar decoraciones y estado de Modo Sistema Planetario Custom si estaba activo
+    if (customDecorationsGroup) {
+        scene.remove(customDecorationsGroup);
+        customDecorationsGroup = null;
+    }
+    if (currentSystemMode === 'custom') {
+        currentSystemMode = 'solar';
+        customHostStarBody = null;
+        const btnReturn = document.getElementById('btn-return-solar-system');
+        if (btnReturn) btnReturn.classList.add('hidden');
+        const customBanner = document.getElementById('custom-mode-banner');
+        if (customBanner) customBanner.style.display = 'none';
+    }
+    cachedSolarBodies = null;
+
     // 6.5. Restaurar posiciones originales de los cinturones de Asteroides y Kuiper
-    if (asteroidBeltParticles && asteroidBeltParticles.geometry) {
-        const pos = asteroidBeltParticles.geometry.attributes.position.array;
-        const rMin = 680, rMax = 1020;
-        for (let i = 0; i < asteroidBeltCount; i++) {
-            const r = rMin + Math.random() * (rMax - rMin);
-            const angle = Math.random() * Math.PI * 2;
-            pos[i * 3] = Math.cos(angle) * r;
-            pos[i * 3 + 1] = (Math.random() - 0.5) * 14;
-            pos[i * 3 + 2] = Math.sin(angle) * r;
+    areBeltsDispersing = false;
+    isAsteroidBeltDispersing = false;
+    isKuiperBeltDispersing = false;
+    if (asteroidBeltVelocities) asteroidBeltVelocities.fill(0);
+    if (kuiperBeltVelocities) kuiperBeltVelocities.fill(0);
+    if (asteroidBeltParticles) {
+        asteroidBeltParticles.visible = asteroidBeltVisible;
+        asteroidBeltParticles.rotation.set(0, 0, 0);
+        if (asteroidBeltParticles.geometry) {
+            const pos = asteroidBeltParticles.geometry.attributes.position.array;
+            const rMin = 680, rMax = 1020;
+            for (let i = 0; i < asteroidBeltCount; i++) {
+                const r = rMin + Math.random() * (rMax - rMin);
+                const angle = Math.random() * Math.PI * 2;
+                pos[i * 3] = Math.cos(angle) * r;
+                pos[i * 3 + 1] = (Math.random() - 0.5) * 14;
+                pos[i * 3 + 2] = Math.sin(angle) * r;
+            }
+            asteroidBeltParticles.geometry.attributes.position.needsUpdate = true;
         }
-        asteroidBeltParticles.geometry.attributes.position.needsUpdate = true;
     }
-    if (kuiperBeltParticles && kuiperBeltParticles.geometry) {
-        const pos = kuiperBeltParticles.geometry.attributes.position.array;
-        const rMin = 3900, rMax = 5800;
-        for (let i = 0; i < kuiperBeltCount; i++) {
-            const r = rMin + Math.random() * (rMax - rMin);
-            const angle = Math.random() * Math.PI * 2;
-            pos[i * 3] = Math.cos(angle) * r;
-            pos[i * 3 + 1] = (Math.random() - 0.5) * 45;
-            pos[i * 3 + 2] = Math.sin(angle) * r;
+    if (kuiperBeltParticles) {
+        kuiperBeltParticles.visible = kuiperVisible;
+        kuiperBeltParticles.rotation.set(0, 0, 0);
+        if (kuiperBeltParticles.geometry) {
+            const pos = kuiperBeltParticles.geometry.attributes.position.array;
+            const rMin = 3900, rMax = 5800;
+            for (let i = 0; i < kuiperBeltCount; i++) {
+                const r = rMin + Math.random() * (rMax - rMin);
+                const angle = Math.random() * Math.PI * 2;
+                pos[i * 3] = Math.cos(angle) * r;
+                pos[i * 3 + 1] = (Math.random() - 0.5) * 45;
+                pos[i * 3 + 2] = Math.sin(angle) * r;
+            }
+            kuiperBeltParticles.geometry.attributes.position.needsUpdate = true;
         }
-        kuiperBeltParticles.geometry.attributes.position.needsUpdate = true;
     }
 
-    // 7. Restaurar TODOS los parámetros base (radios, masas, excentricidad, semiejes, velocidades)
+    // 7. Limpiar completamente los cuerpos y reconstruir el Sistema Solar desde sus datos canónicos
     bodies.forEach(b => {
-        b.radiusScale = 1.0;
-        b.massScale = 1.0;
-        b.radius = b.baseRadius || 10;
-        b.mass = b.baseMass || 1.0;
-
-        if (b.baseOrbitRadius !== undefined) b.orbitRadius = b.baseOrbitRadius;
-        if (b.baseEccentricity !== undefined) b.eccentricity = b.baseEccentricity;
-        if (b.baseInclination !== undefined) b.inclination = b.baseInclination;
-        if (b.baseArgPeriapsis !== undefined) b.argPeriapsis = b.baseArgPeriapsis;
-        if (b.baseAscendingNode !== undefined) b.ascendingNode = b.baseAscendingNode;
-        if (b.baseOrbitalSpeed !== undefined) b.orbitalSpeed = b.baseOrbitalSpeed;
-
-        b.destroyed = false;
-        b.isNBody = false;
-        b.waveHit = false;
-        b.isEscapingInertial = false;
-        b.isWaitingMoonLiberation = false;
-        b.parentPosFixed = null;
-        b.parentVelocityFixed = null;
-        if (b.isMoon && b.mesh && b.mesh.material && b.mesh.material.color && b.colorHex) {
-            b.mesh.material.color.set(b.colorHex);
-        }
-        b.currentM = b.meanAnomaly || 0;
-        b.velocity.set(0, 0, 0);
-
-        if (b.mesh) {
-            b.mesh.visible = !b.isMoon || moonsVisible;
-            b.mesh.scale.set(1, 1, 1);
-        }
-
-        if (b.starGlow) {
-            b.mesh.remove(b.starGlow);
-            b.starGlow = null;
-            b.isIgnited = false;
-        }
-
-        if (b.name === 'Júpiter') {
-            b.type = 'Gigante gaseoso';
-            if (b.mesh && b.mesh.material && b.mesh.material.color) {
-                b.mesh.material.color = new THREE.Color(0xffffff);
-            }
-        }
-
-        // Reconstruir la geometría original de la órbita kepleriana
-        if (b.orbitLine) {
-            recalculateAndAnimateOrbit(b, b.isMoon ? 0x334155 : 0x475569);
-            b.orbitLine.visible = orbitsVisible && (!b.isMoon || moonsVisible);
-            if (b.orbitLine.material && b.orbitLine.material.uniforms) {
-                b.orbitLine.material.uniforms.uDrawProgress.value = 1.0;
-                b.orbitLine.material.uniforms.uIsTransitioning.value = 0.0;
-                b.orbitLine.material.uniforms.uColor.value = new THREE.Color(b.isMoon ? 0x334155 : 0x475569);
-            }
-        }
+        if (b.mesh) scene.remove(b.mesh);
+        if (b.orbitLine) scene.remove(b.orbitLine);
+        if (b.atmoMesh) scene.remove(b.atmoMesh);
+        if (b.ringMesh) scene.remove(b.ringMesh);
+        if (b.glowMesh) scene.remove(b.glowMesh);
+        if (b.starGlow) scene.remove(b.starGlow);
+        if (b.coronaMesh) scene.remove(b.coronaMesh);
+        if (b.gravityFieldMesh) scene.remove(b.gravityFieldMesh);
     });
+    bodies = [];
 
-    // 8. Reubicar posiciones instantáneas en T=0
+    // Reconstrucción pura de todos los 19 cuerpos originales (Sol, 8 planetas, 10 lunas)
+    buildKeplerianSolarSystem();
+
+    // 8. Reubicar posiciones instantáneas iniciales en T=0
     bodies.forEach(b => {
         if (b.isPlanet) {
-            const state = getKeplerianState(b, b.currentM);
+            const state = getKeplerianState(b, b.currentM || 0);
             b.mesh.position.copy(state.pos);
-            if (b.ringMesh && b.ringMesh.material.uniforms) {
+            if (b.ringMesh && b.ringMesh.material && b.ringMesh.material.uniforms && b.ringMesh.material.uniforms.uPlanetWorldPos) {
                 b.ringMesh.material.uniforms.uPlanetWorldPos.value.copy(b.mesh.position);
             }
         }
     });
     bodies.forEach(b => {
-        if (b.isMoon && b.parentBody) {
-            const state = getKeplerianState(b, b.currentM);
+        if (b.isMoon && b.parentBody && b.parentBody.mesh) {
+            const state = getKeplerianState(b, b.currentM || 0);
             const parentPos = b.parentBody.mesh.position;
             b.mesh.position.set(
                 parentPos.x + state.pos.x,
@@ -2804,56 +3347,76 @@ function restoreInitialUniverse() {
             );
             if (b.orbitLine) {
                 b.orbitLine.position.copy(parentPos);
-                b.orbitLine.visible = orbitsVisible && moonsVisible;
             }
         }
     });
 
-    const sun = bodies.find(b => b.name === 'Sol');
-    if (sun) {
-        sun.radiusScale = 1.0;
-        sun.massScale = 1.0;
-        sun.radius = sun.baseRadius || 62;
-        sun.mass = sun.baseMass || 50.0;
-        if (sun.mesh) {
-            sun.mesh.scale.set(1, 1, 1);
-            sun.mesh.visible = true;
-        }
-        if (sun.coronaMesh && sun.coronaMesh.material) {
-            sun.coronaMesh.visible = true;
-            sun.coronaMesh.material.color = new THREE.Color(0xffaa33);
-            sun.coronaMesh.material.opacity = 0.18;
-        }
-    }
-
-    // Restaurar iluminación solar y ambiental
-    if (sunLight) sunLight.intensity = 2.4;
-    if (ambientLight) ambientLight.intensity = 0.9;
-
-    // Restaurar uSunIntensity en todos los materiales
+    // 9. Sincronizar visibilidad de mallas y órbitas según los toggles actuales
     bodies.forEach(b => {
-        if (b.mesh && b.mesh.material && b.mesh.material.uniforms && b.mesh.material.uniforms.uSunIntensity) {
-            b.mesh.material.uniforms.uSunIntensity.value = 1.0;
+        if (b.mesh) {
+            b.mesh.visible = !b.isMoon || moonsVisible;
         }
-        if (b.atmoMesh && b.atmoMesh.material && b.atmoMesh.material.uniforms && b.atmoMesh.material.uniforms.uSunIntensity) {
-            b.atmoMesh.material.uniforms.uSunIntensity.value = 1.0;
-        }
-        if (b.ringMesh && b.ringMesh.material && b.ringMesh.material.uniforms && b.ringMesh.material.uniforms.uSunIntensity) {
-            b.ringMesh.material.uniforms.uSunIntensity.value = 1.0;
+        if (b.orbitLine) {
+            b.orbitLine.visible = orbitsVisible && (!b.isMoon || moonsVisible);
         }
     });
 
+    // 10. Restaurar iluminación solar y ambiental
+    if (sunLight) {
+        sunLight.color.setHex(0xfffaed);
+        sunLight.intensity = 2.4;
+        sunLight.position.set(0, 0, 0);
+    }
+    if (ambientLight) {
+        ambientLight.intensity = 0.9;
+    }
+
+    // 11. Restablecer física N-Body y variables temporales
     setNBodyMode(false);
-    createHabitableZoneMesh();
+    const btnNBody = document.getElementById('btn-nbody');
+    if (btnNBody) btnNBody.classList.remove('active');
+
     simulatedTime = 0;
     if (statTime) statTime.textContent = '0.00 años';
-    resetCamera();
+    const initialSimDate = '01 ENE 2025';
+    if (statDate) statDate.textContent = initialSimDate;
+    const pillSummaryDate = document.getElementById('pill-summary-date');
+    if (pillSummaryDate) pillSummaryDate.textContent = initialSimDate;
+
+    // Despausar simulación si estaba pausada
+    isPaused = false;
+    if (btnPause) {
+        btnPause.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        btnPause.setAttribute('aria-label', 'Pausar simulación');
+    }
+
+    // Restablecer multiplicadores y sliders
+    timeSpeed = 1.0;
+    gravitySpeedMultiplier = 1.0;
+    G = 0.0001;
+
+    const sliderTime = document.getElementById('slider-time');
+    const valTime = document.getElementById('val-time');
+    if (sliderTime) sliderTime.value = '1';
+    if (valTime) valTime.textContent = '1.0×';
+
+    const sliderGravity = document.getElementById('slider-gravity');
+    const valGravity = document.getElementById('val-gravity');
+    if (sliderGravity) sliderGravity.value = '1';
+    if (valGravity) valGravity.textContent = '1.0×';
 
     if (sliderBodyRadius) sliderBodyRadius.value = '1';
     if (valBodyRadius) valBodyRadius.textContent = '1.0×';
     if (sliderBodyMass) sliderBodyMass.value = '1';
     if (valBodyMass) valBodyMass.textContent = '1.0×';
 
+    if (chkHabitableZone) chkHabitableZone.checked = false;
+    habitableZoneVisible = false;
+    if (habitableZoneMesh) habitableZoneMesh.visible = false;
+
+    // 12. Restablecer cámara cenital y actualizar UI
+    resetCamera();
+    updateBodyCount();
     renderCelestialDock();
     logToConsole('¡Universo restablecido al estado primigenio completo!', 'action');
 }
@@ -2879,6 +3442,7 @@ function updatePhysics(delta) {
 
     const sun = bodies.find(b => b.name === 'Sol');
     const isSunGone = !sun || sun.destroyed;
+    const gravitySpeedMultiplier = Math.sqrt(Math.max(0.01, G / 0.05));
 
     // --- ACTUALIZACIÓN DE ONDAS GRAVITACIONALES RELATIVISTAS (VELOCIDAD C) ---
     if (activeGravitationalWaves.length > 0) {
@@ -2891,12 +3455,16 @@ function updatePhysics(delta) {
             if (wave.meshGroup) {
                 const s = Math.max(0.1, wave.radius);
                 wave.meshGroup.scale.set(s, s, s);
-                const fade = Math.max(0.0, 1.0 - (wave.radius / wave.maxRadius));
+                const progress = Math.min(1.0, wave.radius / wave.maxRadius);
+                const fade = Math.max(0.0, 1.0 - Math.pow(progress, 1.5));
                 if (wave.meshGroup.children[0] && wave.meshGroup.children[0].material) {
                     wave.meshGroup.children[0].material.opacity = 0.85 * fade;
                 }
                 if (wave.meshGroup.children[1] && wave.meshGroup.children[1].material) {
                     wave.meshGroup.children[1].material.opacity = 0.45 * fade;
+                }
+                if (wave.meshGroup.children[2] && wave.meshGroup.children[2].material) {
+                    wave.meshGroup.children[2].material.opacity = 0.05 * fade;
                 }
             }
 
@@ -2932,11 +3500,11 @@ function updatePhysics(delta) {
                             // 2. Ruptura de la órbita kepleriana cerrada
                             if (b.orbitLine) b.orbitLine.visible = false;
 
-                            // 3. Escape inercial tangencial (1ª Ley de Newton)
+                            // 3. Escape inercial tangencial (1ª Ley de Newton) a velocidad orbital completa
                             if (b.isPlanet) {
                                 const state = getKeplerianState(b, b.currentM || 0);
-                                const speedMag = Math.max(24.0, (state.trueSpeed || 29.0) * 1.5);
-                                b.velocity = state.vel.clone().normalize().multiplyScalar(speedMag);
+                                const orbitalSpeed = Math.max(70.0, (b.orbitRadius || 200) * (b.orbitalSpeed || 0.005) * 42.0 * gravitySpeedMultiplier);
+                                b.velocity = state.vel.clone().normalize().multiplyScalar(orbitalSpeed);
                                 b.isEscapingInertial = true;
 
                                 // Las lunas del planeta viajan junto con él en su pozo local
@@ -2966,44 +3534,6 @@ function updatePhysics(delta) {
                         liberateMoonToHeliocentric(moon, moon.originalParentName || 'su planeta', moon.parentPosFixed, moon.parentVelocityFixed);
                     }
                 });
-            }
-
-            // Dispersión secuencial del Cinturón de Asteroides al ser atravesado por la onda
-            if (wave.isSunExtinction && asteroidBeltParticles && asteroidBeltParticles.geometry) {
-                const pos = asteroidBeltParticles.geometry.attributes.position.array;
-                let updated = false;
-                for (let k = 0; k < asteroidBeltCount; k++) {
-                    const idx = k * 3;
-                    const px = pos[idx], pz = pos[idx + 2];
-                    const distP = Math.sqrt(px * px + pz * pz) || 1;
-                    if (distP <= wave.radius) {
-                        const vx = (-pz / distP) * 1.6 + (px / distP) * 2.8;
-                        const vz = (px / distP) * 1.6 + (pz / distP) * 2.8;
-                        pos[idx] += vx * delta * 45.0 * timeSpeed;
-                        pos[idx + 2] += vz * delta * 45.0 * timeSpeed;
-                        updated = true;
-                    }
-                }
-                if (updated) asteroidBeltParticles.geometry.attributes.position.needsUpdate = true;
-            }
-
-            // Dispersión secuencial del Cinturón de Kuiper
-            if (wave.isSunExtinction && kuiperBeltParticles && kuiperBeltParticles.geometry) {
-                const pos = kuiperBeltParticles.geometry.attributes.position.array;
-                let updated = false;
-                for (let k = 0; k < kuiperBeltCount; k++) {
-                    const idx = k * 3;
-                    const px = pos[idx], pz = pos[idx + 2];
-                    const distP = Math.sqrt(px * px + pz * pz) || 1;
-                    if (distP <= wave.radius) {
-                        const vx = (-pz / distP) * 0.9 + (px / distP) * 1.8;
-                        const vz = (px / distP) * 0.9 + (pz / distP) * 1.8;
-                        pos[idx] += vx * delta * 35.0 * timeSpeed;
-                        pos[idx + 2] += vz * delta * 35.0 * timeSpeed;
-                        updated = true;
-                    }
-                }
-                if (updated) kuiperBeltParticles.geometry.attributes.position.needsUpdate = true;
             }
 
             // Actualizar telemetría del HUD
@@ -3041,13 +3571,129 @@ function updatePhysics(delta) {
                 if (activeGravitationalWaves.length === 0 && hudGravWaveCard) {
                     hudGravWaveCard.style.display = 'none';
                 }
+                if (wave.isSunExtinction) {
+                    // Asegurarse de que TODOS los planetas pasen a escape inercial sin detenerse jamás
+                    bodies.forEach(b => {
+                        if (b.isPlanet && !b.destroyed && !b.isEscapingInertial) {
+                            b.waveHit = true;
+                            if (b.orbitLine) b.orbitLine.visible = false;
+                            const state = getKeplerianState(b, b.currentM || 0);
+                            const orbitalSpeed = Math.max(70.0, (b.orbitRadius || 200) * (b.orbitalSpeed || 0.005) * 42.0 * gravitySpeedMultiplier);
+                            b.velocity = state.vel.clone().normalize().multiplyScalar(orbitalSpeed);
+                            b.isEscapingInertial = true;
+
+                            bodies.filter(m => m.isMoon && m.parentBody === b).forEach(m => {
+                                m.waveHit = true;
+                                if (m.orbitLine) m.orbitLine.visible = false;
+                                if (m.mesh && m.mesh.material && m.mesh.material.uniforms && m.mesh.material.uniforms.uSunIntensity) {
+                                    m.mesh.material.uniforms.uSunIntensity.value = 0.0;
+                                }
+                                if (m.mesh && m.mesh.material && m.mesh.material.color) {
+                                    m.mesh.material.color.multiplyScalar(0.08);
+                                }
+                            });
+                        }
+                    });
+                    logToConsole(`Propagación relativista completada tras abarcar todos los planetas y cinturones del sistema (${(wave.maxRadius / 395.0).toFixed(1)} AU). Onda disipada.`, 'system');
+                } else {
+                    logToConsole(`Disipación gravitatoria local de ${wave.sourceName} completada en su límite de influencia (${wave.maxRadius.toFixed(0)} u).`, 'system');
+                }
             }
         }
     }
 
-    // Rotación normal de los cinturones
-    if (asteroidBeltParticles) asteroidBeltParticles.rotation.y += 0.0008 * timeSpeed;
-    if (kuiperBeltParticles) kuiperBeltParticles.rotation.y += 0.00025 * timeSpeed;
+    // --- DISPERSIÓN CAÓTICA Y ROTACIÓN DE CINTURONES DE ASTEROIDES & KUIPER ---
+    const activeExtinctionWave = activeGravitationalWaves.find(w => w.isSunExtinction);
+    const currentWaveRadius = activeExtinctionWave ? activeExtinctionWave.radius : 999999;
+    const sunReachCurrent = (sun && !sun.destroyed) ? getBodyGravitationalReach(sun) : 0;
+
+    // 1. Cinturón Principal de Asteroides (entre Marte y Júpiter: r = 680 a 1020 u)
+    // Solo se dispersa si el Sol desaparece o si el alcance del Sol cae por debajo de 1020 u
+    if (isSunGone || isAsteroidBeltDispersing || sunReachCurrent < 1020) {
+        if (asteroidBeltParticles && asteroidBeltParticles.geometry && asteroidBeltVelocities) {
+            const pos = asteroidBeltParticles.geometry.attributes.position.array;
+            const vel = asteroidBeltVelocities;
+            let updated = false;
+
+            for (let k = 0; k < asteroidBeltCount; k++) {
+                const idx = k * 3;
+                if (vel[idx] === 0 && vel[idx + 1] === 0 && vel[idx + 2] === 0) {
+                    const px = pos[idx], py = pos[idx + 1], pz = pos[idx + 2];
+                    const distP = Math.sqrt(px * px + pz * pz) || 1;
+                    if (isSunGone || distP > sunReachCurrent || distP <= currentWaveRadius) {
+                        const tangX = -pz / distP;
+                        const tangZ = px / distP;
+                        const radX = px / distP;
+                        const radZ = pz / distP;
+
+                        const baseSpeed = Math.sqrt(35000.0 / distP) * 16.0;
+                        const scatterAngle = (Math.random() - 0.5) * 0.95;
+                        const scatterRad = (Math.random() - 0.2) * 0.7;
+                        const cosS = Math.cos(scatterAngle), sinS = Math.sin(scatterAngle);
+
+                        vel[idx] = (tangX * cosS + radX * scatterRad) * baseSpeed;
+                        vel[idx + 1] = (Math.random() - 0.5) * 26.0; // dispersión vertical fuera de la eclíptica
+                        vel[idx + 2] = (tangZ * cosS + radZ * scatterRad) * baseSpeed;
+                    }
+                }
+
+                if (vel[idx] !== 0 || vel[idx + 1] !== 0 || vel[idx + 2] !== 0) {
+                    pos[idx] += vel[idx] * delta * timeSpeed;
+                    pos[idx + 1] += vel[idx + 1] * delta * timeSpeed;
+                    pos[idx + 2] += vel[idx + 2] * delta * timeSpeed;
+                    updated = true;
+                }
+            }
+            if (updated) asteroidBeltParticles.geometry.attributes.position.needsUpdate = true;
+        }
+    } else {
+        // El cinturón de asteroides permanece intacto y en órbita estable si está dentro del campo gravitatorio del Sol
+        if (asteroidBeltParticles) asteroidBeltParticles.rotation.y += 0.0008 * timeSpeed;
+    }
+
+    // 2. Cinturón de Kuiper (más allá de Neptuno/Plutón: r = 3900 a 5800 u)
+    if (isSunGone || isKuiperBeltDispersing || sunReachCurrent < 5800) {
+        if (kuiperBeltParticles && kuiperBeltParticles.geometry && kuiperBeltVelocities) {
+            const pos = kuiperBeltParticles.geometry.attributes.position.array;
+            const vel = kuiperBeltVelocities;
+            let updated = false;
+
+            for (let k = 0; k < kuiperBeltCount; k++) {
+                const idx = k * 3;
+                if (vel[idx] === 0 && vel[idx + 1] === 0 && vel[idx + 2] === 0) {
+                    const px = pos[idx], py = pos[idx + 1], pz = pos[idx + 2];
+                    const distP = Math.sqrt(px * px + pz * pz) || 1;
+                    if (isSunGone || distP > sunReachCurrent || distP <= currentWaveRadius) {
+                        const tangX = -pz / distP;
+                        const tangZ = px / distP;
+                        const radX = px / distP;
+                        const radZ = pz / distP;
+
+                        const baseSpeed = Math.sqrt(35000.0 / distP) * 14.0;
+                        const scatterAngle = (Math.random() - 0.5) * 1.1;
+                        const scatterRad = (Math.random() - 0.15) * 0.8;
+                        const cosS = Math.cos(scatterAngle), sinS = Math.sin(scatterAngle);
+
+                        vel[idx] = (tangX * cosS + radX * scatterRad) * baseSpeed;
+                        vel[idx + 1] = (Math.random() - 0.5) * 36.0;
+                        vel[idx + 2] = (tangZ * cosS + radZ * scatterRad) * baseSpeed;
+                    }
+                }
+
+                if (vel[idx] !== 0 || vel[idx + 1] !== 0 || vel[idx + 2] !== 0) {
+                    pos[idx] += vel[idx] * delta * timeSpeed;
+                    pos[idx + 1] += vel[idx + 1] * delta * timeSpeed;
+                    pos[idx + 2] += vel[idx + 2] * delta * timeSpeed;
+                    updated = true;
+                }
+            }
+            if (updated) kuiperBeltParticles.geometry.attributes.position.needsUpdate = true;
+        }
+    } else {
+        // El cinturón de Kuiper permanece intacto y en órbita estable si está dentro del campo gravitatorio del Sol
+        if (kuiperBeltParticles) kuiperBeltParticles.rotation.y += 0.00025 * timeSpeed;
+    }
+
     if (customDecorationsGroup && customDecorationsGroup.visible && !isSunGone) {
         customDecorationsGroup.children.forEach(child => {
             if (child.userData && child.userData.rotSpeed) {
@@ -3056,17 +3702,14 @@ function updatePhysics(delta) {
         });
     }
 
-    // Multiplicador de velocidad angular orbital según la constante gravitatoria G (3ª Ley de Kepler: ω ∝ √G)
-    const gravitySpeedMultiplier = Math.sqrt(Math.max(0.01, G / 0.05));
-
     // 1. MODO KEPLERIANO ESTABLE / ESCAPE INERCIAL RELATIVISTA
     if (!isNBodyMode) {
         // Planetas
         bodies.forEach(b => {
             if (b.isPlanet && !b.destroyed) {
                 if (b.isEscapingInertial && b.velocity) {
-                    // Movimiento inercial rectilíneo tangencial (1ª Ley de Newton)
-                    b.mesh.position.addScaledVector(b.velocity, delta * timeSpeed * 0.45);
+                    // Movimiento inercial rectilíneo tangencial continuo a velocidad orbital completa (1ª Ley de Newton)
+                    b.mesh.position.addScaledVector(b.velocity, delta * timeSpeed);
                     b.mesh.rotation.y += 0.004 * timeSpeed;
                     if (b.ringMesh && b.ringMesh.material && b.ringMesh.material.uniforms) {
                         b.ringMesh.material.uniforms.uPlanetWorldPos.value.copy(b.mesh.position);
@@ -3191,6 +3834,38 @@ function updatePhysics(delta) {
                 };
                 updateTelemetryUI(b, state);
                 updateStateVectors(b, state);
+            }
+        });
+
+        const sun = bodies.find(s => s.name === 'Sol' || s.isStatic || s.isStar);
+
+        // Actualizar órbitas osculatrices en tiempo real para todos los cuerpos en modo N-Body (Astrofísica dinámica)
+        bodies.forEach(b => {
+            if (b.destroyed || !b.orbitLine) return;
+
+            if (b.isMoon) {
+                b.mesh.visible = moonsVisible && !b.destroyed;
+                if (b.parentBody && b.parentBody.mesh && !b.parentBody.destroyed) {
+                    const distToParent = b.mesh.position.distanceTo(b.parentBody.mesh.position);
+                    const isEjected = distToParent > (b.baseOrbitRadius || b.orbitRadius || 50) * 4.5;
+                    if (isEjected) {
+                        b.orbitLine.visible = false;
+                    } else {
+                        b.orbitLine.visible = orbitsVisible && moonsVisible;
+                        updateDynamicOsculatingOrbit(b, b.parentBody);
+                    }
+                } else {
+                    b.orbitLine.visible = false;
+                }
+            } else if (b.isPlanet && sun && !sun.destroyed && b !== sun) {
+                const distToSun = b.mesh.position.distanceTo(sun.mesh.position);
+                const isEjectedPlanet = distToSun > 15000;
+                if (isEjectedPlanet) {
+                    b.orbitLine.visible = false;
+                } else {
+                    b.orbitLine.visible = orbitsVisible;
+                    updateDynamicOsculatingOrbit(b, sun);
+                }
             }
         });
     }
@@ -3372,9 +4047,11 @@ function updatePhysics(delta) {
         dr.rotation.y += 0.008 * timeSpeed;
     });
 
-    // 8. Verificación de absorción solar & Límite de Roche
+    // 8. Verificación de absorción solar, Límite de Roche, Colisiones Celestes Mutuas y Alcance Gravitatorio
     checkSolarDevourment();
     checkAllRocheLimits();
+    checkCelestialCollisions();
+    checkGravitationalReachBounds();
 
     // 9. Sol Rotación
     if (sun && sun.mesh && !sun.destroyed) {
@@ -3478,17 +4155,89 @@ function updateTelemetryUI(b, state) {
         } else if (sun && b !== sun) {
             const sunScale = (sun.radiusScale || 1.0) * (sun.massScale || 1.0);
             const lum = Math.sqrt(Math.max(0.1, sunScale));
-            const distAU = (state.r || b.mesh.position.distanceTo(sun.mesh.position)) / 395.0;
 
-            if (distAU < 0.65 * lum) {
-                infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#ff4444;box-shadow:0 0 8px #ff4444;"></span> Hiper-Calcinado';
-                infoStatus.className = 'telemetry-value status-danger';
-            } else if (distAU >= 0.82 * lum && distAU <= 1.58 * lum) {
-                infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#3dd598;box-shadow:0 0 8px #3dd598;"></span> Zona Habitable (Agua Líquida)';
-                infoStatus.className = 'telemetry-value status-good';
+            // CORRECCIÓN: Usar posición absoluta en el mundo (World Space) para medir
+            // la distancia real al Sol. Para las lunas, state.r mide la distancia
+            // al planeta padre, no al Sol — esto causaba que todas las lunas
+            // aparecieran como "Hiper-Calcinadas" al estar a 0.04 AU aparentes.
+            const worldPos = new THREE.Vector3();
+            b.mesh.getWorldPosition(worldPos);
+            const sunPos = new THREE.Vector3();
+            sun.mesh.getWorldPosition(sunPos);
+            const distAU = worldPos.distanceTo(sunPos) / 395.0;
+
+            if (b.isMoon) {
+                // Etiquetas astrofísicas por nombre de luna (datos reales de NASA/ESA)
+                if (b.name === 'Ío') {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#f59e0b;box-shadow:0 0 8px #f59e0b;"></span> Vulcanismo Activo (Mareas de Júpiter) | −130°C media superficial';
+                    infoStatus.className = 'telemetry-value status-warning';
+                } else if (b.name === 'Europa') {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#00f2fe;box-shadow:0 0 8px #00f2fe;"></span> Corteza de Hielo | Océano Subsuperficial | −160°C a −220°C';
+                    infoStatus.className = 'telemetry-value status-good';
+                } else if (b.name === 'Ganimedes' || b.name === 'Ganímedes') {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#8ea8ff;box-shadow:0 0 8px #8ea8ff;"></span> Criogénico (−110°C a −180°C) | Subcapas de Hielo y Roca';
+                    infoStatus.className = 'telemetry-value';
+                } else if (b.name === 'Calisto') {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#8ea8ff;box-shadow:0 0 8px #8ea8ff;"></span> Criogénico (−139°C) | Cráterizado / Sin Actividad Interna';
+                    infoStatus.className = 'telemetry-value';
+                } else if (b.name === 'Titán') {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#f59e0b;box-shadow:0 0 8px #f59e0b;"></span> −179°C | Ríos y Lagos de Metano (Cassini-Huygens)';
+                    infoStatus.className = 'telemetry-value status-warning';
+                } else if (b.name === 'Encélado' || b.name === 'Enceladus') {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#00f2fe;box-shadow:0 0 8px #00f2fe;"></span> −201°C | Géiseres de Agua | Océano Subsuperficial (Cassini)';
+                    infoStatus.className = 'telemetry-value status-good';
+                } else if (b.name === 'Tritón' || b.name === 'Triton') {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#64748b;box-shadow:0 0 8px #64748b;"></span> −235°C (38 K) | Géiseres de Nitrógeno | Uno de los más fríos';
+                    infoStatus.className = 'telemetry-value';
+                } else if (b.name === 'Luna' || b.name === 'Moon') {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#ffe066;box-shadow:0 0 8px #ffe066;"></span> +120°C (día) / −170°C (noche) | Sin Atmósfera (LRO)';
+                    infoStatus.className = 'telemetry-value';
+                } else if (b.name === 'Mimas') {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#8ea8ff;box-shadow:0 0 8px #8ea8ff;"></span> −209°C | Superficie Helada | "Estrella de la Muerte"';
+                    infoStatus.className = 'telemetry-value';
+                } else if (b.name === 'Dione') {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#8ea8ff;box-shadow:0 0 8px #8ea8ff;"></span> −186°C | Hielo y Roca | Actividad Interna Posible';
+                    infoStatus.className = 'telemetry-value';
+                } else if (b.name === 'Rea' || b.name === 'Rhea') {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#8ea8ff;box-shadow:0 0 8px #8ea8ff;"></span> −220°C | Hielo Denso | Sin Núcleo Rocoso Significativo';
+                    infoStatus.className = 'telemetry-value';
+                } else {
+                    // Luna genérica: calcular zona térmica por distancia real al Sol
+                    if (distAU < 0.65 * lum) {
+                        infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#ff4444;box-shadow:0 0 8px #ff4444;"></span> Hiper-Calcinada (Órbita muy interna al Sol)';
+                        infoStatus.className = 'telemetry-value status-danger';
+                    } else if (distAU >= 0.82 * lum && distAU <= 1.58 * lum) {
+                        infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#ffe066;box-shadow:0 0 8px #ffe066;"></span> Zona Habitable | +100°C / −170°C (Sin atmósfera)';
+                        infoStatus.className = 'telemetry-value';
+                    } else if (distAU < 3.5 * lum) {
+                        infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#8ea8ff;box-shadow:0 0 8px #8ea8ff;"></span> Congelada / Criogénica (Cinturón de Asteroides / Júpiter)';
+                        infoStatus.className = 'telemetry-value';
+                    } else {
+                        infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#64748b;box-shadow:0 0 8px #64748b;"></span> Criogénica Profunda (< −200°C) | Sistema Exterior';
+                        infoStatus.className = 'telemetry-value';
+                    }
+                }
             } else {
-                infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#8ea8ff;box-shadow:0 0 8px #8ea8ff;"></span> Congelado / Criogénico';
-                infoStatus.className = 'telemetry-value';
+                // Planetas: estado térmico por distancia real al Sol
+                if (distAU < 0.65 * lum) {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#ff4444;box-shadow:0 0 8px #ff4444;"></span> Hiper-Calcinado (< 0.65 AU)';
+                    infoStatus.className = 'telemetry-value status-danger';
+                } else if (distAU >= 0.65 * lum && distAU < 0.82 * lum) {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#f59e0b;box-shadow:0 0 8px #f59e0b;"></span> Muy Caliente / Límite Interior Zona Habitable';
+                    infoStatus.className = 'telemetry-value status-warning';
+                } else if (distAU >= 0.82 * lum && distAU <= 1.58 * lum) {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#3dd598;box-shadow:0 0 8px #3dd598;"></span> Zona Habitable (Agua Líquida Posible)';
+                    infoStatus.className = 'telemetry-value status-good';
+                } else if (distAU > 1.58 * lum && distAU < 3.5 * lum) {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#8ea8ff;box-shadow:0 0 8px #8ea8ff;"></span> Zona Fría / Cinturón de Asteroides';
+                    infoStatus.className = 'telemetry-value';
+                } else if (distAU >= 3.5 * lum && distAU < 10 * lum) {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#8ea8ff;box-shadow:0 0 8px #8ea8ff;"></span> Congelado / Criogénico (Sistema Exterior)';
+                    infoStatus.className = 'telemetry-value';
+                } else {
+                    infoStatus.innerHTML = '<span class="status-dot-inline" style="background:#64748b;box-shadow:0 0 8px #64748b;"></span> Criogénico Profundo (> −200°C) | Límite Heliosfera';
+                    infoStatus.className = 'telemetry-value';
+                }
             }
         }
     }
@@ -3621,13 +4370,15 @@ function toggleCinematicMode(forceState, requestedStyle) {
         focusBody = null;
         isTransitioningToFocus = false;
         isTransitioningBack = false;
-        if (infoPanel) infoPanel.classList.add('is-collapsed');
+        if (infoPanel) {
+            infoPanel.classList.add('is-collapsed');
+            infoPanel.classList.add('hidden');
+        }
         const _btnR = document.getElementById('btn-toggle-right');
         if (_btnR) {
+            _btnR.classList.add('hidden');
             _btnR.classList.add('is-collapsed');
             _btnR.setAttribute('aria-expanded', 'false');
-            const _ic = _btnR.querySelector('i');
-            if (_ic) _ic.className = 'fa-solid fa-chevron-left';
         }
         if (velocityArrow) velocityArrow.visible = false;
         if (gravityArrow) gravityArrow.visible = false;
@@ -3643,10 +4394,24 @@ function toggleCinematicMode(forceState, requestedStyle) {
     } else {
         controls.enabled = !isCameraLocked;
         controls.minDistance = 4;
-        controls.update();
         camera.fov = baseCameraFov;
         camera.updateProjectionMatrix();
-        logToConsole('Modo Cinemático desactivado.', 'system');
+
+        // Restablecer suavemente la cámara a la posición y orientación por defecto
+        if (initialCameraPos && initialControlsTarget) {
+            savedPreFocusCameraPos.copy(initialCameraPos);
+            savedPreFocusControlsTarget.copy(initialControlsTarget);
+            hasSavedPreFocus = true;
+            isTransitioningBack = true;
+        } else {
+            camera.position.set(0, 700, 1600);
+            controls.target.set(0, 0, 0);
+            controls.update();
+        }
+
+        focusBody = null;
+        selectedBody = null;
+        logToConsole('Modo Cinemático desactivado — cámara restablecida a la posición por defecto.', 'system');
     }
 }
 
@@ -3962,24 +4727,45 @@ function setDockMenuState(isOpen) {
 function hideTelemetryPanel() {
     if (!infoPanel) return;
     infoPanel.classList.add('is-collapsed');
+    infoPanel.classList.add('hidden');
     const _btnR = document.getElementById('btn-toggle-right');
     if (_btnR) {
-        _btnR.classList.add('is-collapsed');
-        _btnR.setAttribute('aria-expanded', 'false');
-        const _ic = _btnR.querySelector('i');
-        if (_ic) _ic.className = 'fa-solid fa-chevron-left';
+        if (!selectedBody) {
+            _btnR.classList.add('hidden');
+        } else {
+            _btnR.classList.remove('hidden');
+            _btnR.classList.add('is-collapsed');
+            _btnR.setAttribute('aria-expanded', 'false');
+            _btnR.setAttribute('aria-label', 'Expandir telemetría');
+            const _ic = _btnR.querySelector('i');
+            if (_ic) _ic.className = 'fa-solid fa-chevron-left';
+        }
     }
     updateMobileBarActiveState();
     syncBottomHUDVisibility();
 }
 
-function selectBody(body, autoFocus = true, openTelemetry = false) {
+function selectBody(body, autoFocus = true, openTelemetry = null) {
     if (!body) return;
 
+    const isDesktop = window.innerWidth > 768;
+    const shouldOpenTelemetry = (openTelemetry !== null && openTelemetry !== undefined)
+        ? Boolean(openTelemetry)
+        : (isDesktop || (infoPanel && !infoPanel.classList.contains('hidden') && !infoPanel.classList.contains('is-collapsed')));
+
     if (selectedBody === body && focusBody === body && !isTransitioningToFocus) {
-        if (openTelemetry && infoPanel) {
+        if (shouldOpenTelemetry && infoPanel) {
             infoPanel.classList.remove('hidden');
             infoPanel.classList.remove('is-collapsed');
+            const _btnR = document.getElementById('btn-toggle-right');
+            if (_btnR) {
+                _btnR.classList.remove('hidden');
+                _btnR.classList.remove('is-collapsed');
+                _btnR.setAttribute('aria-expanded', 'true');
+                _btnR.setAttribute('aria-label', 'Colapsar telemetría');
+                const _ic = _btnR.querySelector('i');
+                if (_ic) _ic.className = 'fa-solid fa-chevron-right';
+            }
             updateMobileBarActiveState();
         }
         return;
@@ -4015,24 +4801,42 @@ function selectBody(body, autoFocus = true, openTelemetry = false) {
         }
     }
 
-    // La telemetría permanece limpia/cerrada a menos que se solicite expresamente o ya estuviera abierta
-    const isTelemetryAlreadyOpen = infoPanel && !infoPanel.classList.contains('hidden') && !infoPanel.classList.contains('is-collapsed');
-    if (openTelemetry || isTelemetryAlreadyOpen) {
+    // La telemetría y su botón de toggle:
+    // En PC (escritorio) se abre automáticamente al seleccionar un astro para ver su ficha técnica.
+    // En móvil o si se colapsó expresamente, permanece colapsado con el botón de toggle listo.
+    const _btnR = document.getElementById('btn-toggle-right');
+    if (shouldOpenTelemetry) {
         if (infoPanel) {
             infoPanel.classList.remove('hidden');
             infoPanel.classList.remove('is-collapsed');
+            const _telCard = infoPanel.querySelector('.panel-card--telemetry');
+            if (_telCard) {
+                _telCard.classList.remove('telemetry-pulse');
+                void _telCard.offsetWidth;
+                _telCard.classList.add('telemetry-pulse');
+            }
         }
-        const _btnR = document.getElementById('btn-toggle-right');
         if (_btnR) {
+            _btnR.classList.remove('hidden');
             _btnR.classList.remove('is-collapsed');
             _btnR.setAttribute('aria-expanded', 'true');
+            _btnR.setAttribute('aria-label', 'Colapsar telemetría');
             const _ic = _btnR.querySelector('i');
             if (_ic) _ic.className = 'fa-solid fa-chevron-right';
-            _btnR.style.opacity = '1';
-            _btnR.style.pointerEvents = 'auto';
         }
     } else {
-        if (infoPanel) infoPanel.classList.add('is-collapsed');
+        if (infoPanel) {
+            infoPanel.classList.add('is-collapsed');
+            infoPanel.classList.add('hidden');
+        }
+        if (_btnR) {
+            _btnR.classList.remove('hidden');
+            _btnR.classList.add('is-collapsed');
+            _btnR.setAttribute('aria-expanded', 'false');
+            _btnR.setAttribute('aria-label', 'Expandir telemetría');
+            const _ic = _btnR.querySelector('i');
+            if (_ic) _ic.className = 'fa-solid fa-chevron-left';
+        }
     }
 
     updateCelestialDockActiveState(body);
@@ -4054,9 +4858,13 @@ function deselectBody() {
     isTransitioningToFocus = false;
     if (controls) controls.minDistance = 4;
 
-    infoPanel.classList.add('is-collapsed');
+    if (infoPanel) {
+        infoPanel.classList.add('is-collapsed');
+        infoPanel.classList.add('hidden');
+    }
     const _btnR = document.getElementById('btn-toggle-right');
     if (_btnR) {
+        _btnR.classList.add('hidden');
         _btnR.classList.add('is-collapsed');
         _btnR.setAttribute('aria-expanded', 'false');
         const _ic = _btnR.querySelector('i');
@@ -4145,7 +4953,7 @@ function navigateCelestialBody(direction = 1) {
     } else {
         nextIndex = (currentIndex + direction + bodies.length) % bodies.length;
     }
-    selectBody(bodies[nextIndex], true, false);
+    selectBody(bodies[nextIndex], true);
 }
 
 function updateBodyCount() {
@@ -4186,7 +4994,7 @@ function performRaycastSelection(clientX, clientY) {
             hitMesh = hitMesh.parent;
         }
         if (hitMesh && hitMesh.userData && hitMesh.userData.body) {
-            selectBody(hitMesh.userData.body, true, false);
+            selectBody(hitMesh.userData.body, true);
             return true;
         }
     }
@@ -4266,6 +5074,12 @@ function onKeyDown(e) {
             if (focusBody) unfocusCamera();
             else focusCameraOnBody(selectedBody);
         }
+    } else if (e.key === 'b' || e.key === 'B') {
+        e.preventDefault();
+        if (chkAsteroidBelt) {
+            chkAsteroidBelt.checked = !chkAsteroidBelt.checked;
+            chkAsteroidBelt.dispatchEvent(new Event('change'));
+        }
     } else if (e.key === 'k' || e.key === 'K') {
         e.preventDefault();
         launchAsteroid(selectedBody || null);
@@ -4325,6 +5139,19 @@ function onKeyDown(e) {
             chkGrid.checked = !chkGrid.checked;
             chkGrid.dispatchEvent(new Event('change'));
         }
+    } else if (e.key === 'Delete' || e.code === 'Delete') {
+        e.preventDefault();
+        const target = selectedBody || focusBody;
+        if (target && !target.destroyed) {
+            deleteSelectedBody(target);
+        } else {
+            const sun = bodies.find(b => (b.name === 'Sol' || b.isStatic) && !b.destroyed);
+            if (sun && focusBody === sun) {
+                deleteSelectedBody(sun);
+            } else {
+                logToConsole('Haz clic en el Sol o en cualquier astro antes de presionar Suprimir.', 'warning');
+            }
+        }
     } else if (e.key === 'F8') {
         e.preventDefault();
         toggleHudVisibility();
@@ -4350,6 +5177,14 @@ let isHudHidden = false;
 function toggleHudVisibility() {
     isHudHidden = !isHudHidden;
     document.body.classList.toggle('hud-hidden', isHudHidden);
+    if (isHudHidden) {
+        const cosmicMetricsPill = document.getElementById('cosmic-metrics-pill');
+        if (cosmicMetricsPill && !cosmicMetricsPill.classList.contains('is-collapsed')) {
+            cosmicMetricsPill.classList.add('is-collapsed');
+            const btnToggleMetrics = document.getElementById('btn-toggle-metrics');
+            if (btnToggleMetrics) btnToggleMetrics.setAttribute('aria-expanded', 'false');
+        }
+    }
     logToConsole(isHudHidden ? 'Modo inmersivo activado (F8).' : 'Interfaz de usuario restaurada (F8).', 'system');
 }
 
@@ -4472,51 +5307,7 @@ let customHostStarBody = null;
 let currentCustomSystemName = '';
 
 function restoreSolarSystem() {
-    if (currentSystemMode === 'solar' || !cachedSolarBodies) return;
-
-    // 1. Limpiar cuerpos del sistema custom actual
-    bodies.forEach(b => {
-        if (b.mesh) scene.remove(b.mesh);
-        if (b.orbitLine) scene.remove(b.orbitLine);
-    });
-    bodies = [];
-
-    // Limpiar decoraciones cósmicas custom
-    if (customDecorationsGroup) {
-        scene.remove(customDecorationsGroup);
-        customDecorationsGroup = null;
-    }
-
-    // 2. Restaurar cuerpos originales del Sistema Solar
-    bodies = [...cachedSolarBodies];
-    bodies.forEach(b => {
-        if (b.mesh) scene.add(b.mesh);
-        if (b.orbitLine) scene.add(b.orbitLine);
-    });
-
-    // 3. Restaurar cinturones
-    if (asteroidBeltParticles) asteroidBeltParticles.visible = true;
-    if (kuiperBeltParticles) kuiperBeltParticles.visible = true;
-
-    // 4. Restaurar luz solar
-    if (sunLight) {
-        sunLight.color.setHex(0xfffaed);
-        sunLight.intensity = 1.3;
-    }
-
-    currentSystemMode = 'solar';
-    customHostStarBody = null;
-
-    // 5. Restaurar UI
-    const btnReturn = document.getElementById('btn-return-solar-system');
-    if (btnReturn) btnReturn.classList.add('hidden');
-
-    createHabitableZoneMesh();
-    renderCelestialDock();
-    updateBodyCount();
-    resetCamera();
-
-    logToConsole('Sistema Solar primigenio restaurado.', 'system');
+    restoreInitialUniverse();
 }
 
 // Crea la estrella central custom con su radiación e iluminación espectral
@@ -5111,6 +5902,14 @@ function setupUIEventListeners() {
         });
     }
 
+    if (chkAsteroidBelt) {
+        chkAsteroidBelt.addEventListener('change', (e) => {
+            asteroidBeltVisible = e.target.checked;
+            if (asteroidBeltParticles) asteroidBeltParticles.visible = asteroidBeltVisible;
+            logToConsole(asteroidBeltVisible ? 'Cinturón Principal de Asteroides visible.' : 'Cinturón de Asteroides oculto.', 'system');
+        });
+    }
+
     if (chkKuiper) {
         chkKuiper.addEventListener('change', (e) => {
             kuiperVisible = e.target.checked;
@@ -5226,16 +6025,18 @@ function setupUIEventListeners() {
     const btnToggleRight = document.getElementById('btn-toggle-right');
     if (btnToggleRight && infoPanel) {
         btnToggleRight.addEventListener('click', () => {
+            if (!selectedBody) {
+                btnToggleRight.classList.add('hidden');
+                return;
+            }
             const isCurrentlyCollapsed = infoPanel.classList.contains('is-collapsed') || infoPanel.classList.contains('hidden');
             if (isCurrentlyCollapsed) {
-                if (!selectedBody) {
-                    const defaultBody = bodies.find(b => b.name === 'Tierra') || bodies[1];
-                    selectBody(defaultBody, false);
-                }
                 infoPanel.classList.remove('hidden');
                 infoPanel.classList.remove('is-collapsed');
+                btnToggleRight.classList.remove('hidden');
                 btnToggleRight.classList.remove('is-collapsed');
                 btnToggleRight.setAttribute('aria-expanded', 'true');
+                btnToggleRight.setAttribute('aria-label', 'Colapsar telemetría');
                 const icon = btnToggleRight.querySelector('i');
                 if (icon) icon.className = 'fa-solid fa-chevron-right';
                 setDockMenuState(false);
@@ -5386,8 +6187,7 @@ function setupUIEventListeners() {
     if (btnResetPillSim) {
         btnResetPillSim.addEventListener('click', (e) => {
             e.stopPropagation();
-            restoreSolarSystem();
-            logToConsole('Universo restablecido al estado inicial.', 'action');
+            restoreInitialUniverse();
         });
     }
 
