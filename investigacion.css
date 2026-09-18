@@ -49,13 +49,12 @@
 .inv-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(4, 6, 11, 0.92);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(4, 6, 11, 0.97);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    transform: translateZ(0);
 }
 
 .inv-modal {
@@ -71,13 +70,15 @@
     overflow: hidden;
     color: #f1f5f9;
     font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-    animation: invAppear 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+    transform: translateZ(0);
+    will-change: transform;
+    animation: invAppear 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes invAppear {
-    from { transform: scale(0.985); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+    from { transform: scale(0.99) translateZ(0); opacity: 0; }
+    to { transform: scale(1) translateZ(0); opacity: 1; }
 }
 
 /* HEADER */
@@ -918,14 +919,6 @@
         height: 210px;
         max-height: 34vh;
     }
-    .inv-layer-ruler {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-    }
-    .inv-layer-ruler::-webkit-scrollbar {
-        display: none;
-    }
     .inv-layer-dossier {
         padding: 12px;
         gap: 10px;
@@ -990,7 +983,7 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    transition: all 0.2s ease;
+    transition: transform 0.15s ease, border-color 0.15s ease;
     position: relative;
     overflow: hidden;
 }

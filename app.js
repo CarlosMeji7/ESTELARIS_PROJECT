@@ -6254,7 +6254,7 @@ function openDesktopQrModal() {
 function animate() {
     requestAnimationFrame(animate);
 
-    if (window.isPlanetCreatorOpen) {
+    if (window.isPlanetCreatorOpen || (window.EstelarisInvestigation && window.EstelarisInvestigation.isOpen())) {
         return;
     }
 
