@@ -767,17 +767,41 @@
         if (cloudsTexture) cloudsTexture.needsUpdate = true;
     }
 
-    // Solicitud desacoplada de horneado (60 FPS fluidos con requestAnimationFrame)
-    function requestTextureBake(physics) {
+    // Solicitud desacoplada y con throttling de horneado (Cero lag al mover sliders)
+    let lastBakeTime = 0;
+    let bakeTimeoutId = null;
+
+    function requestTextureBake(physics, immediate = false) {
         pendingPhysics = physics;
-        if (!bakeRafId) {
-            bakeRafId = requestAnimationFrame(() => {
-                bakeRafId = null;
-                if (pendingPhysics) {
-                    bakePlanetTexture(pendingPhysics);
-                    bakeCloudsTexture();
-                }
-            });
+        const now = performance.now();
+
+        if (immediate || (now - lastBakeTime >= 75)) {
+            lastBakeTime = now;
+            if (bakeTimeoutId) {
+                clearTimeout(bakeTimeoutId);
+                bakeTimeoutId = null;
+            }
+            if (!bakeRafId) {
+                bakeRafId = requestAnimationFrame(() => {
+                    bakeRafId = null;
+                    if (pendingPhysics) {
+                        bakePlanetTexture(pendingPhysics);
+                        bakeCloudsTexture();
+                    }
+                });
+            }
+        } else {
+            // Horneado nítido final una vez que el usuario detiene el arrastre
+            if (!bakeTimeoutId) {
+                bakeTimeoutId = setTimeout(() => {
+                    bakeTimeoutId = null;
+                    lastBakeTime = performance.now();
+                    if (pendingPhysics) {
+                        bakePlanetTexture(pendingPhysics);
+                        bakeCloudsTexture();
+                    }
+                }, 80);
+            }
         }
     }
 
@@ -952,9 +976,18 @@
             prevMousePos = { x: touch.clientX, y: touch.clientY };
         }, { passive: true });
 
-        // Loop de Renderizado
+        // Loop de Renderizado con ahorro de recursos
+        function shouldRenderPreview() {
+            const root = document.getElementById('planet-creator-root');
+            if (root && root.classList.contains('hidden')) return false;
+            if (window.innerWidth <= 768 && currentMobileView === 'controls') return false;
+            return true;
+        }
+
         function animate() {
             previewAnimId = requestAnimationFrame(animate);
+
+            if (!shouldRenderPreview()) return;
 
             if (!isDragging) {
                 planetMesh.rotation.y += state.rotSpeed;
@@ -1169,7 +1202,13 @@
 
         // Toolbar 3D
         bindToggleBtn('btn-toggle-clouds', (active) => { state.showClouds = active; updateUI(); });
-        bindToggleBtn('btn-toggle-rings', (active) => { state.showRings = active; updateUI(); });
+        bindToggleBtn('btn-toggle-rings', (active) => {
+            state.showRings = active;
+            state.hasRings = active;
+            const chk = document.getElementById('pc-chk-rings');
+            if (chk) chk.checked = active;
+            updateUI();
+        });
         bindToggleBtn('btn-toggle-atmo-glow', (active) => { state.showGlow = active; updateUI(); });
         bindToggleBtn('btn-toggle-wireframe', (active) => { state.wireframe = active; updateUI(); });
 
@@ -1504,6 +1543,8 @@
                         liquidType: p.liquidType || 'water',
                         hasAtmosphere: (p.pressureBar !== undefined ? p.pressureBar : 1.0) > 0.05,
                         atmosphereColor: (p.gases && p.gases.SO2 > 0.5) ? '#eab308' : ((p.gases && p.gases.CH4 > 2) ? '#fb923c' : '#4aa3df'),
+                        hasClouds: (p.hasClouds !== undefined) ? !!p.hasClouds : ((p.pressureBar !== undefined ? p.pressureBar : 1.0) > 0.05),
+                        cloudsCanvas: cloudsCanvas,
                         hasRings: !!p.hasRings,
                         physicsData: p.physicsData || physics,
                         proceduralCanvas: planetCanvas
@@ -1522,12 +1563,68 @@
         reader.readAsText(file);
     }
 
+    function cloneCanvas(sourceCanvas) {
+        if (!sourceCanvas) return null;
+        try {
+            const copy = document.createElement('canvas');
+            copy.width = sourceCanvas.width;
+            copy.height = sourceCanvas.height;
+            const ctx = copy.getContext('2d');
+            ctx.drawImage(sourceCanvas, 0, 0);
+            return copy;
+        } catch (e) {
+            console.warn('Could not clone canvas, returning original', e);
+            return sourceCanvas;
+        }
+    }
+
     // --- FUNDAR O INYECTAR EN EL SISTEMA PLANETARIO ---
     function injectPlanetIntoUniverse() {
         const physics = calculatePhysicsAndChemistry();
+
+        // 1. Hornear de forma síncrona el estado exacto actual de texturas
+        bakePlanetTexture(physics);
+        bakeCloudsTexture();
+
+        // 2. Snapshot inmutable de los lienzos para que la simulación Three.js mantenga exactamente el diseño
+        const exportedPlanetCanvas = cloneCanvas(planetCanvas);
+        const exportedCloudsCanvas = cloneCanvas(cloudsCanvas);
+
         const star = STAR_DATA[state.starType] || STAR_DATA['G'];
         const elSysName = document.getElementById('pc-system-name');
         const sysName = (elSysName && elSysName.value.trim()) ? elSysName.value.trim() : `Sistema ${state.name}`;
+
+        // 3. Color atmosférico realista derivado de composición y temperatura
+        let atmoColor = '#4aa3df';
+        if (state.gases.SO2 > 0.5) {
+            atmoColor = '#eab308'; // Sulfuroso / Venusino
+        } else if (state.gases.CH4 > 2) {
+            atmoColor = '#fb923c'; // Metano / Titánico
+        } else if (state.gases.CO2 > 50) {
+            atmoColor = '#d97706'; // Denso CO2
+        } else if (physics.tempKelvin > 800) {
+            atmoColor = '#ef4444'; // Resplandor térmico extremo
+        }
+
+        const hasRingsFinal = Boolean(state.hasRings || state.showRings);
+        const hasCloudsFinal = Boolean(state.showClouds && state.pressureBar > 0.05);
+        const hasAtmoFinal = Boolean(state.showGlow && state.pressureBar > 0.02);
+
+        const planetConfig = {
+            name: state.name,
+            radiusScale: state.radiusEarth,
+            massScale: state.massEarth,
+            distanceAU: state.distanceAU,
+            eccentricity: state.eccentricity,
+            liquidType: state.liquidType,
+            hasAtmosphere: hasAtmoFinal,
+            atmosphereColor: atmoColor,
+            hasClouds: hasCloudsFinal,
+            cloudsCanvas: exportedCloudsCanvas,
+            hasRings: hasRingsFinal,
+            physicsData: physics,
+            proceduralCanvas: exportedPlanetCanvas
+        };
 
         const systemConfig = {
             systemName: sysName,
@@ -1539,19 +1636,8 @@
                 mass: star.mass,
                 color: star.color
             },
-            planet: {
-                name: state.name,
-                radiusScale: state.radiusEarth,
-                massScale: state.massEarth,
-                distanceAU: state.distanceAU,
-                eccentricity: state.eccentricity,
-                liquidType: state.liquidType,
-                hasAtmosphere: state.pressureBar > 0.05,
-                atmosphereColor: state.gases.SO2 > 0.5 ? '#eab308' : (state.gases.CH4 > 2 ? '#fb923c' : '#4aa3df'),
-                hasRings: state.hasRings,
-                physicsData: physics,
-                proceduralCanvas: planetCanvas
-            },
+            planet: planetConfig,
+            planets: [planetConfig],
             forceNewSystem: true, // Siempre funda un sistema propio e independiente con su estrella, planeta y decoraciones
             isNewSystem: true
         };

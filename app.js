@@ -3733,6 +3733,7 @@ function updatePhysics(delta) {
 
                     const rotDelta = (b.rotationPeriod ? (0.015 / Math.abs(b.rotationPeriod)) : 0.008) * Math.sign(b.rotationPeriod || 1);
                     b.mesh.rotation.y += rotDelta * timeSpeed;
+                    if (b.cloudMesh) b.cloudMesh.rotation.y += 0.0012 * timeSpeed;
 
                     if (b.ringMesh && b.ringMesh.material.uniforms) {
                         b.ringMesh.material.uniforms.uPlanetWorldPos.value.copy(b.mesh.position);
@@ -3820,6 +3821,7 @@ function updatePhysics(delta) {
 
             const rotDelta = (b.rotationPeriod ? (0.015 / Math.abs(b.rotationPeriod)) : 0.008);
             b.mesh.rotation.y += rotDelta * timeSpeed;
+            if (b.cloudMesh) b.cloudMesh.rotation.y += 0.0012 * timeSpeed;
 
             if (b.ringMesh && b.ringMesh.material.uniforms) {
                 b.ringMesh.material.uniforms.uPlanetWorldPos.value.copy(b.mesh.position);
@@ -5426,6 +5428,23 @@ function createCustomPlanetBody(planetConfig, hostStar) {
         mesh.add(atmoMesh);
     }
 
+    // Nubes dinámicas procedurales (Fidelidad idéntica al taller de creación)
+    let cloudMesh = null;
+    if (planetConfig.hasClouds && planetConfig.cloudsCanvas) {
+        const cloudTex = new THREE.CanvasTexture(planetConfig.cloudsCanvas);
+        const cloudGeo = new THREE.SphereGeometry(visualRadius * 1.025, 36, 36);
+        const cloudMat = new THREE.MeshStandardMaterial({
+            map: cloudTex,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.NormalBlending,
+            depthWrite: false
+        });
+        cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+        cloudMesh.userData = { isRotatingClouds: true, rotSpeed: 0.0015 };
+        mesh.add(cloudMesh);
+    }
+
     // Anillos
     let ringMesh = null;
     if (planetConfig.hasRings) {
@@ -5475,6 +5494,7 @@ function createCustomPlanetBody(planetConfig, hostStar) {
         ...pData,
         mesh: mesh,
         atmoMesh: atmoMesh,
+        cloudMesh: cloudMesh,
         ringMesh: ringMesh,
         orbitLine: orbitLine,
         isPlanet: true,
